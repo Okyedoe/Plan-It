@@ -1,4 +1,5 @@
 package com.example.demo.src.planet;
+import com.example.demo.src.planet.model.GetPlanetsRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.demo.config.BaseException;
@@ -24,6 +25,32 @@ public class PlanetProvider {
         this.jwtService = jwtService;
 
     }
+
+    public int getUser_id (int journey_id) throws BaseException
+    {
+        try{
+            return planetDao.getUser_id(journey_id);
+
+        }catch (Exception exception)
+        {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    //행성들가져오기
+    public List<GetPlanetsRes> getPlanets (int journey_id) throws BaseException
+    {
+        try{
+            return planetDao.getPlanets(journey_id);
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
 
 

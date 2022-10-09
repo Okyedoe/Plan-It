@@ -53,6 +53,10 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter')
     compile('org.springframework.boot:spring-boot-starter-web')
 
+    //swagger
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
+
 
 
 
