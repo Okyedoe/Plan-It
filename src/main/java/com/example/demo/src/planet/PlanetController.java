@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import static com.example.demo.config.BaseResponseStatus.*;
 
-@Api(tags = "행성관련 컨트롤러입니다 (행성목록조회, 행성정보조회 등 )")
+@Api(tags = "여정의 행성목록조회 api ")
 @RestController
 @RequestMapping("/planets")
 public class PlanetController {
@@ -51,9 +51,8 @@ public class PlanetController {
      * 행성조회
      * 헤더로 jwt 받고 ,journey에서 유저아이디와 비교함.
      * */
-    @ApiOperation(value = "해당여정의 행성들+정보를 가져오는 api ", notes = "헤더로 jwt를 받고 ,path로 여정아이디를 받습니다." +
-            "jwt에서 user_id를 뽑아와서 해당 여정의 주인인지 체크합니다." +
-            "결과값으로 해당여정의 행성들과 각각의 기본적인 정보를 제공합니다.")
+    @ApiOperation(value = "해당 여정의 행성들 목록과 각 행성의 정보를 가져오는 api  ", notes = "헤더로 해당 유저의 jwt를 받고 ,path로 여정아이디를 받습니다." +
+            "  결과값으로 해당 여정의 행성들과 각각의 기본적인 정보를 제공합니다.")
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),

@@ -11,9 +11,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Configuration
 @EnableOpenApi
@@ -26,6 +24,8 @@ public class Swaggerconfig {
         Server devServer = new Server("dev","https://dev.wogus4048.shop","for dev testing", Collections.emptyList(),Collections.emptyList());
         Server prodServer = new Server("prod","https://prod.wogus4048.shop","for prod testing", Collections.emptyList(),Collections.emptyList());
         return new Docket(DocumentationType.OAS_30)
+//                .consumes(getConsumeContentTypes())
+//                .produces(getProduceContentTypes())
                 .servers(localServer,devServer,prodServer)
                 .select()
                 .apis(RequestHandlerSelectors.any())
@@ -36,6 +36,19 @@ public class Swaggerconfig {
                 .securityContexts(Arrays.asList(securityContext())) // jwt를 위해 추가 , 이걸설정하면 모든api에서 jwt를 입력해야함.
                 .securitySchemes(Arrays.asList(apiKey()));  //jwt를 위해 추가
     }
+
+//    private Set<String> getConsumeContentTypes() {
+//        Set<String> consumes = new HashSet<>();
+//        consumes.add("application/json;charset=UTF-8");
+//        consumes.add("application/x-www-form-urlencoded");
+//        return consumes;
+//    }
+//
+//    private Set<String> getProduceContentTypes() {
+//        Set<String> produces = new HashSet<>();
+//        produces.add("application/json;charset=UTF-8");
+//        return produces;
+//    }
 
     private ApiInfo apiInfo() {;
 
