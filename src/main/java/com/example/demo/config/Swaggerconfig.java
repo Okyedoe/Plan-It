@@ -1,27 +1,32 @@
 package com.example.demo.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
-public class SwaggerConfig {
+@EnableOpenApi
+public class Swaggerconfig {
     private String version = "V0.1";
 
     @Bean
     public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
+        Server localServer = new Server("local","http://localhost:9001","for local usage", Collections.emptyList(),Collections.emptyList()) ;
+        Server devServer = new Server("dev","https://dev.wogus4048.shop","for dev testing", Collections.emptyList(),Collections.emptyList());
+        Server prodServer = new Server("prod","https://prod.wogus4048.shop","for prod testing", Collections.emptyList(),Collections.emptyList());
+        return new Docket(DocumentationType.OAS_30)
+                .servers(localServer,devServer,prodServer)
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
@@ -32,17 +37,18 @@ public class SwaggerConfig {
                 .securitySchemes(Arrays.asList(apiKey()));  //jwt를 위해 추가
     }
 
-    private ApiInfo apiInfo() {
+    private ApiInfo apiInfo() {;
+
         return new ApiInfoBuilder()
-                .title("제목")
-                .description("설명")
+                .title("Planet api 명세서입니다.")
+                .description("오류가 발생하면 연락주세요")
                 .version(version)
-                .contact(new Contact("이름", "홈페이지 URL", "e-mail"))
+//                .contact(new Contact("서버 : 길재현-오리, 김민수-만두", "홈페이지 URL", "e-mail"))
                 .build();
     }
     //ApiKey 정의
     private ApiKey apiKey() {
-        return new ApiKey("JWT", "X-ACCESS-TOKEN", "header");
+        return new ApiKey("X-ACCESS-TOKEN", "Authorization", "header");
     }
 
     //JWT SecurityContext 구성
@@ -54,6 +60,6 @@ public class SwaggerConfig {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEveryThing");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference("JWT", authorizationScopes));
+        return Arrays.asList(new SecurityReference("X-ACCESS-TOKEN", authorizationScopes));
     }
 }
