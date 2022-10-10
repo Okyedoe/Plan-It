@@ -1,4 +1,5 @@
 package com.example.demo.src.planet;
+import com.example.demo.src.planet.model.GetDetailedInfoRes;
 import com.example.demo.src.planet.model.GetPlanetsRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,21 @@ public class PlanetProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    //행성세부내용 가져오기
+    public GetDetailedInfoRes getDetailedInfo (int planet_id) throws BaseException
+    {
+        try{
+            return planetDao.getDetailedInfo(planet_id);
+
+        }catch (Exception e )
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
 
 
 

@@ -15,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 public class GetPlanetsRes {
     //행성이름,행성설명,행성이미지,행성레벨,행성경험치
+    @ApiModelProperty(value = "행성아이디",example = "2")
+    private int planet_id;
     @ApiModelProperty(value = "행성이름",example = "다이어트")
     private String planet_name;
     @ApiModelProperty(value = "행성설명",example = "열심히해보자!")

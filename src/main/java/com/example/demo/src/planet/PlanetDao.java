@@ -1,5 +1,6 @@
 package com.example.demo.src.planet;
 
+import com.example.demo.src.planet.model.GetDetailedInfoRes;
 import com.example.demo.src.planet.model.GetPlanetsRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -37,6 +38,7 @@ public class PlanetDao {
         String getPlanetsQuery = "select * from planet where journey_id = ?";
 
         return this.jdbcTemplate.query(getPlanetsQuery,(rs, rowNum) -> new GetPlanetsRes(
+                        rs.getInt("planet_id"),
                         rs.getString("planet_name"),
                         rs.getString("planet_intro"),
                         rs.getInt("planet_exp"),
@@ -45,6 +47,32 @@ public class PlanetDao {
                 ),journey_id);
 
     }
+
+    //행성 세부계획 가져오기
+    public GetDetailedInfoRes getDetailedInfo (int planet_id)
+    {
+        String getDetailedQuery = "select * from planet where planet_id = ?";
+        GetDetailedInfoRes getDetailedInfoRes =this.jdbcTemplate.queryForObject(getDetailedQuery,(rs, rowNum) -> new GetDetailedInfoRes(
+                        rs.getInt("planet_id"),
+                        rs.getString("planet_name"),
+                        rs.getString("planet_intro"),
+                        rs.getInt("planet_exp"),
+                        rs.getInt("planet_level"),
+                        rs.getString("planet_image")
+                ),planet_id
+                );
+
+        String getPlansQuery = "select plan_content,type,status from detailed_plan where planet_id = ?";
+        List<GetDetailedInfoRes.Plans> plans = this.jdbcTemplate.query(getPlansQuery,(rs, rowNum) ->new GetDetailedInfoRes.Plans(
+                rs.getString("plan_content"),
+                rs.getString("type"),
+                rs.getBoolean("status")
+        ),planet_id);
+
+        getDetailedInfoRes.setPlans(plans);
+        return getDetailedInfoRes;
+    }
+
 
 
 

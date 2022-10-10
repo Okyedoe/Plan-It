@@ -1,6 +1,7 @@
 package com.example.demo.src.planet;
 
 import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.planet.model.GetDetailedInfoRes;
 import com.example.demo.src.planet.model.GetPlanetsRes;
 //import io.swagger.annotations.*;
 import io.swagger.annotations.Api;
@@ -98,6 +99,48 @@ public class PlanetController {
         }
 
     }
+
+    /**
+     * 행성 세부내용 조회
+     *
+     * */
+    @ApiOperation(value = "행성 세부내용을 조회하는 api입니다.", notes = "행성목록에서 행성을 클릭했을때 나오는 정보들을 반환합니다.")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "4001", description = "서버와의 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
+                    @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
+            }
+    )
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "planet_id",value = "행성아이디")
+            }
+    )
+    @ResponseBody
+    @GetMapping("/detail/{planet_id}")
+    public BaseResponse<GetDetailedInfoRes> getDetailedInfo (@PathVariable("planet_id")int planet_id)
+    {//validation 추가해야함.
+        try{
+
+            //jwt에서 idx 추출겸 , jwt검사
+            int userIdxByJwt = jwtService.getUserIdx();
+
+            GetDetailedInfoRes getDetailedInfoRes = planetProvider.getDetailedInfo(planet_id);
+            return new BaseResponse<>(getDetailedInfoRes);
+
+        }catch (BaseException exception)
+        {
+            exception.printStackTrace();
+            return new BaseResponse<>(exception.getStatus());
+        }
+
+    }
+
 
 
 
