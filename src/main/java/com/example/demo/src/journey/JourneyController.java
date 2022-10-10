@@ -4,6 +4,7 @@ import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.planet.PlanetProvider;
 import com.example.demo.src.planet.PlanetService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import static com.example.demo.config.BaseResponseStatus.*;
 
+@Api(tags = "여정 만들기 api")
 @RestController
 @RequestMapping("/journey")
 public class JourneyController {
