@@ -4,6 +4,8 @@ import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.planet.model.GetDetailedInfoRes;
 import com.example.demo.src.planet.model.GetPlanetsRes;
 //import io.swagger.annotations.*;
+import com.example.demo.src.planet.model.PostNewPlanetReq;
+import com.example.demo.src.planet.model.PostNewPlanetRes;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -125,6 +127,7 @@ public class PlanetController {
     @GetMapping("/detail/{planet_id}")
     public BaseResponse<GetDetailedInfoRes> getDetailedInfo (@PathVariable("planet_id")int planet_id)
     {//validation 추가해야함.
+        //삭제된행성은 안가져오게끔9 status 체크0
         try{
 
             //jwt에서 idx 추출겸 , jwt검사
@@ -140,6 +143,71 @@ public class PlanetController {
         }
 
     }
+
+    /**
+     * 새 행성 추가.
+     * */
+    @Transactional
+    @ResponseBody
+    @PostMapping("/new/{journey_id}")
+    public BaseResponse<PostNewPlanetRes> createNewPlanet (@PathVariable("journey_id")int journey_id,@RequestBody PostNewPlanetReq postNewPlanetReq)
+    {
+        //validation 처리필요
+        //입력값이 비어있는지 ,타입과 맞지않는지 , 행성의 이름이 중복되는지
+
+        try{
+            //journey_id 를 이용해서 user_id 를 가져오고 , 그 유저아이디랑 jwt에서 추출한 유저아이디랑 같은지 체크
+            int user_id = planetProvider.getUser_id(journey_id);
+            //jwt에서 idx 추출겸 , jwt검사
+            int userIdxByJwt = jwtService.getUserIdx();
+
+            if(user_id != userIdxByJwt) // jwt로 가져온 유저아이디와 여정아이디로 추출한 유저아이디가 다름.
+            { //jwt로 받아온 유저아이디와 해당 여정의 유저아이디가 다르다. 둘중하나가 잘못됬음.
+                return new BaseResponse<>(JOURNEY_JWT_CHECK_ERROR);
+            }
+
+
+
+            PostNewPlanetRes postNewPlanetRes = planetService.createNewPlanet(postNewPlanetReq,journey_id);
+            return new BaseResponse<>(postNewPlanetRes);
+
+        }catch (BaseException exception)
+        {
+            exception.printStackTrace();
+            return new BaseResponse<>(exception.getStatus());
+        }
+
+
+
+    }
+
+    /**
+     * 행성삭제 (status를 0으로)
+     * */
+    @Transactional
+    @PatchMapping("/delete/{planet_id}")
+    public BaseResponse<String> deletePlanet (@PathVariable("planet_id")int planet_id)
+    {
+        //validation처리 필요
+        //이미 삭제한 행성에 관한 부분도 필요
+        //jwt를 통해 -> 남의행성인지 체크하는 부분도 필요
+
+        try{
+            //jwt에서 idx 추출겸 , jwt검사
+            int userIdxByJwt = jwtService.getUserIdx();
+            String result = planetService.deletePlanet(planet_id);
+            return new BaseResponse<>(result);
+
+
+        }catch (BaseException exception)
+        {
+            exception.printStackTrace();
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+
 
 
 

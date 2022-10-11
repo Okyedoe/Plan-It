@@ -27,6 +27,7 @@ public class PlanetProvider {
 
     }
 
+    //여정아이디로 유저아이디 가져오기.
     public int getUser_id (int journey_id) throws BaseException
     {
         try{

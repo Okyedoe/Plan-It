@@ -29,6 +29,8 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
+    JOURNEY_JWT_CHECK_ERROR(false,2018,"jwt에서 추출한 유저아이디와 여정아이디에서 추출한 유저아이디가 다릅니다."),
+    PLANET_JWT_CHECK_ERROR(false,2019,"jwt에서 추출한 유저아이디와 행성아이디에서 추출한 유저아이디가 다릅니다."),
 
 
 

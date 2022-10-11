@@ -2,6 +2,8 @@ package com.example.demo.src.planet;
 
 import com.example.demo.src.planet.model.GetDetailedInfoRes;
 import com.example.demo.src.planet.model.GetPlanetsRes;
+import com.example.demo.src.planet.model.PostNewPlanetReq;
+import com.example.demo.src.planet.model.PostNewPlanetRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -72,6 +74,57 @@ public class PlanetDao {
         getDetailedInfoRes.setPlans(plans);
         return getDetailedInfoRes;
     }
+
+
+    //새 행성 만들기
+    @Transactional
+    public PostNewPlanetRes createNewPlanet (PostNewPlanetReq postNewPlanetReq,int journey_id)
+    {
+        //행성추가 및 행성 세부계획 추가
+        String addPlanetQuery = "insert into planet(journey_id,planet_name) VALUES(?,?)";
+        String addPlanQuery = "insert into detailed_plan(planet_id,plan_content) VALUES(?,?)";
+
+        //행성추가해주고, 행성 아이디를 받아온다.
+        Object[] addPlanetParams = new Object[]{journey_id,postNewPlanetReq.getPlanet_name()};
+        this.jdbcTemplate.update(addPlanetQuery,addPlanetParams); // 행성추가
+        String peekQuery = "select last_insert_id()";
+        int planet_id = this.jdbcTemplate.queryForObject(peekQuery,int.class); //방금 추가된 행성아이디
+
+        //해당 행성 세부계획 추가
+        List<String> detailed_plans = postNewPlanetReq.getDetailed_plans();
+        for(int i=0;i<detailed_plans.size();i++)
+        {
+            Object[] params = new Object[]{planet_id,detailed_plans.get(i)};
+            this.jdbcTemplate.update(addPlanQuery,params);
+        }
+
+        //쿼리로 받아와야하지만 일단 야매로.
+        PostNewPlanetRes postNewPlanetRes = new PostNewPlanetRes();
+        postNewPlanetRes.setPlanet_name(postNewPlanetReq.getPlanet_name());
+        postNewPlanetRes.setPlanet_id(planet_id);
+        postNewPlanetRes.setDetailed_plans(postNewPlanetReq.getDetailed_plans());
+
+        return postNewPlanetRes;
+
+
+
+    }
+
+
+    //행성 삭제 status -> 0으로 바꿔줌
+    @Transactional
+    public String deletePlanet(int planet_id)
+    {
+        String deletQuery = "update planet set status = 0 where planet_id = ?";
+        this.jdbcTemplate.update(deletQuery,planet_id);
+        String checkstatus = "select status from planet where planet_id =?";
+        //수정한 결과를 다시 sql로 받아본다.
+        int planet_status = this.jdbcTemplate.queryForObject(checkstatus,int.class,planet_id);
+        String result = "행성아이디 : "+planet_id + " status 상태 : " + planet_status;
+        return result;
+    }
+
+
 
 
 

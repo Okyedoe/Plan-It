@@ -1,6 +1,8 @@
 package com.example.demo.src.planet;
 
 import com.example.demo.src.planet.model.GetPlanetsRes;
+import com.example.demo.src.planet.model.PostNewPlanetReq;
+import com.example.demo.src.planet.model.PostNewPlanetRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.demo.config.BaseException;
@@ -28,6 +30,36 @@ public class PlanetService {
         this.jwtService = jwtService;
 
     }
+
+
+    //새 행성 추가
+    @Transactional
+    public PostNewPlanetRes createNewPlanet(PostNewPlanetReq postNewPlanetReq , int journey_id) throws BaseException
+    {
+        try{
+            return planetDao.createNewPlanet(postNewPlanetReq,journey_id);
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
+    //행성삭제
+    @Transactional
+    public String deletePlanet(int planet_id)throws BaseException
+    {
+        try{
+            return planetDao.deletePlanet(planet_id);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
 
 
