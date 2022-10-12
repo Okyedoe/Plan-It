@@ -38,4 +38,16 @@ public class PlanProvider {
         }
     }
 
+//    //해당 행성에 같은 세부계획이 있는지 체크함.
+//    public int CheckDuplicatedPlan (int planet_id,)throws BaseException{
+//        try{
+//            return planDao.getUser_id_from_planet_id(planet_id);
+//
+//        }catch (Exception e)
+//        {
+//            e.printStackTrace();
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//    }
+
 }

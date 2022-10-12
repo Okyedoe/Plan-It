@@ -6,6 +6,7 @@ import com.example.demo.src.planet.model.GetPlanetsRes;
 //import io.swagger.annotations.*;
 import com.example.demo.src.planet.model.PostNewPlanetReq;
 import com.example.demo.src.planet.model.PostNewPlanetRes;
+import com.sun.tools.classfile.Opcode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -24,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashSet;
 import java.util.List;
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -77,6 +80,7 @@ public class PlanetController {
     @GetMapping("/{journey_id}")
     public BaseResponse<List<GetPlanetsRes>> getPlanets (@PathVariable("journey_id")int journey_id)
     {
+        //status가 1인것만 가져온다.
         try{
             //journey_id로 해당 여정의 user_id 받아오는 부분
             int user_id  = planetProvider.getUser_id(journey_id);
@@ -127,8 +131,13 @@ public class PlanetController {
     @GetMapping("/detail/{planet_id}")
     public BaseResponse<GetDetailedInfoRes> getDetailedInfo (@PathVariable("planet_id")int planet_id)
     {//validation 추가해야함.
-        //삭제된행성은 안가져오게끔9 status 체크0
+
         try{
+            //삭제된행성을 가져오는지 체크하는 vaildation
+            if(planetProvider.checkPlanet(planet_id) == 0)
+            {
+                return new BaseResponse<>(DELETED_PLANET);
+            }
 
             //jwt에서 idx 추출겸 , jwt검사
             int userIdxByJwt = jwtService.getUserIdx();
@@ -152,10 +161,42 @@ public class PlanetController {
     @PostMapping("/new/{journey_id}")
     public BaseResponse<PostNewPlanetRes> createNewPlanet (@PathVariable("journey_id")int journey_id,@RequestBody PostNewPlanetReq postNewPlanetReq)
     {
-        //validation 처리필요
+
         //입력값이 비어있는지 ,타입과 맞지않는지 , 행성의 이름이 중복되는지
 
         try{
+            //validation 처리
+
+            //여정이 끝난거라면 (status가 0이라면)
+            if(planetProvider.checkJourney(journey_id) == 0)
+            {
+                return new BaseResponse<>(END_JOURNEY);
+            }
+
+            //행성이름 빈값, 행성이름 중복
+            if(postNewPlanetReq.getPlanet_name() == null)
+            {
+                return new BaseResponse<>(EMPTY_PLANET_NAME);
+            }
+            if(planetProvider.checkPlanetExist(postNewPlanetReq.getPlanet_name()) >= 1)
+            {
+                return new BaseResponse<>(DUPLICATE_PLANET_NAME);
+            }
+            //세부계획 빈값
+            if(postNewPlanetReq.getDetailed_plans().size() == 0 || postNewPlanetReq.getDetailed_plans() == null)
+            {
+                return new BaseResponse<>(EMPTY_DETAILED_PLANS);
+            }
+            //세부계획안에서 중복값
+            int List_length = postNewPlanetReq.getDetailed_plans().size();
+            HashSet<String> set = new HashSet<>(postNewPlanetReq.getDetailed_plans());
+            if(List_length != set.size())
+            {
+                //사이즈가 다르면 중복값이 존재한다는뜻
+                return new BaseResponse<>(DUPLICATE_PLAN);
+            }
+
+
             //journey_id 를 이용해서 user_id 를 가져오고 , 그 유저아이디랑 jwt에서 추출한 유저아이디랑 같은지 체크
             int user_id = planetProvider.getUser_id(journey_id);
             //jwt에서 idx 추출겸 , jwt검사

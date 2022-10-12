@@ -67,6 +67,43 @@ public class PlanetProvider {
 
     }
 
+    //행성이 삭제된건지 체크
+    public int checkPlanet (int planet_id) throws BaseException
+    {
+        try{
+            return planetDao.checkPlanet(planet_id);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw  new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    //해당 여정이 끝난건지 체크
+    public int checkJourney (int journey_id) throws BaseException
+    {
+        try{
+            return planetDao.checkJourney(journey_id);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw  new BaseException(DATABASE_ERROR);
+        }
+    }
+    //행성 이름 중복 체크
+    public int checkPlanetExist (String planet_name) throws BaseException
+    {
+        try{
+            return planetDao.checkPlanetExist(planet_name);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw  new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+
 
 
 

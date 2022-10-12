@@ -74,9 +74,28 @@ public class JourneyController {
     public BaseResponse<PostJourneyRes> createJourney (@PathVariable("user_id")int user_id , @RequestBody PostJourneyReq postJourneyReq)
     {
 
-        postJourneyReq.setUser_id(user_id); // 받아온 유저아이디 추가해줌
-        //validation 처리 일단 스킵.
+
         try{
+            //validation 처리
+            //받아온 유저아이디가 존재하는건지 체크
+            if(journeyProvider.checkUser(user_id) == 0){
+                return new BaseResponse<>(WITHDRAW_USER);
+            }
+            //행성목록이 빈값
+            if(postJourneyReq.getPlanets().isEmpty())
+            {
+                return new BaseResponse<>(EMPTY_PLANET_LIST);
+            }
+            //행성이름 빈값,중복 과  세부계획 빈값,중복에 대한 validation은 클라이언트에서 해서 넘기는게 작업량이 줄어든다.
+
+            //기간이 널값
+            if(postJourneyReq.getPeriod() == 0)// primitive 변수인 int는 자바에서 기본값이 0 (null이 아님)
+            {
+                return new BaseResponse<>(EMPTY_PERIOD);
+            }
+            //기간에 스트링이 들어간다면? -> 포스트맨상에서 ""로 감싸도 인트형으로 잘들어온다.
+
+
 
             //jwt에서 idx 추출.
             int userIdxByJwt = jwtService.getUserIdx();
@@ -84,7 +103,7 @@ public class JourneyController {
             if(user_id != userIdxByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            PostJourneyRes postJourneyRes = journeyService.createJourney(postJourneyReq);
+            PostJourneyRes postJourneyRes = journeyService.createJourney(postJourneyReq,user_id);
             return new BaseResponse<>(postJourneyRes);
 
 

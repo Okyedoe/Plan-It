@@ -27,7 +27,7 @@ public class JourneyDao {
 
     //여정 생성 api
     @Transactional
-    public PostJourneyRes createJourney (PostJourneyReq postJourneyReq)
+    public PostJourneyRes createJourney (PostJourneyReq postJourneyReq, int user_id)
     {
         int period = postJourneyReq.getPeriod(); //기간
         String[] keywords = postJourneyReq.getKeywords(); //키워드
@@ -51,7 +51,7 @@ public class JourneyDao {
 
         //여정 데이터 추가
         String addJouneryQuery = "insert into journey(user_id,period) VALUES(?,?)";
-        Object[] addJourneyParams = new Object[]{postJourneyReq.getUser_id(),postJourneyReq.getPeriod()};
+        Object[] addJourneyParams = new Object[]{user_id,postJourneyReq.getPeriod()};
         this.jdbcTemplate.update(addJouneryQuery,addJourneyParams);
 
         //여정아이디 가져오기
@@ -94,9 +94,34 @@ public class JourneyDao {
         postJourneyRes.setKeywords(keywords);
         postJourneyRes.setPlanets(planets);
         postJourneyRes.setPeriod(period);
-        postJourneyRes.setUser_id(postJourneyReq.getUser_id());
+        postJourneyRes.setUser_id(user_id);
 
         return postJourneyRes;
     }
+
+    //활성화되어있는 유저인지 체크 (탈퇴한 유저가 아닌지 체크)
+    public int checkUser (int user_id)
+    {
+        String checkQuery = "select status from user where user_id =?";
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,user_id);
+    }
+
+//    //행성 목록에서 행성이름빈값,중복  세부계획 빈값, 중복 체크  [결과는 int값에따라다름]
+//    public int checkPlanetList (List<PostJourneyReq.Planetinfo> planetinfo)
+//    {
+//        for(int i=0;i<planetinfo.size();i++)
+//        {
+//            PostJourneyReq.Planetinfo current = planetinfo.get(i);
+//            String planet_name = current.getPlanet_name();
+//            if(planet_name == null)
+//            {
+//                return 1;
+//            }
+//
+//
+//        }
+//    }
+
+
 
 }

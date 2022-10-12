@@ -37,11 +37,15 @@ public class PlanController {
     @Autowired
     private final JwtService jwtService;
 
-    public PlanController (PlanProvider planProvider ,PlanService planService ,JwtService jwtService )
+    @Autowired
+    private final PlanetProvider planetProvider;
+
+    public PlanController (PlanProvider planProvider ,PlanService planService ,JwtService jwtService,PlanetProvider planetProvider )
     {
         this.planProvider = planProvider;
         this.planService = planService;
         this.jwtService = jwtService;
+        this.planetProvider = planetProvider;
     }
 
 
@@ -53,11 +57,30 @@ public class PlanController {
     @PostMapping("/{planet_id}")
     public BaseResponse<PostPlanRes> createPlan (@PathVariable("planet_id")int planet_id, @RequestBody PostPlanReq postPlanReq)
     {
-        //삭제된 행성인지 체크
-        //행성세부계획이 같은게 있는지 체크
-        //입력값이 빈값인지,잘못됬는지 체크 등등
+
 
         try{
+            //계획 내용이 빈값인지
+            if(postPlanReq.getPlan_content() == null)
+            {
+                return new BaseResponse<>(EMPTY_PLAN_CONTENT);
+            }
+            //타입이 빈값인지
+            if(postPlanReq.getType() == null)
+            {
+                return new BaseResponse<>(EMPTY_TYPE);
+            }
+            //타입이 종류랑 다른지? -> 타입이 정해지고.
+
+            //삭제된 행성인지 체크
+            if(planetProvider.checkPlanet(planet_id) == 0)
+            {
+                return new BaseResponse<>(DELETED_PLANET);
+            }
+            //행성세부계획이 같은게 있는지 체크 -> 일단 스킵 어떤식으로 추가될지 모르니.
+
+
+
             //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 행성의 주인인지 체크하는부분.
             int user_id_jwt = jwtService.getUserIdx();
             int user_id_planet = planProvider.getUser_id_from_planet_id(planet_id);
@@ -81,6 +104,15 @@ public class PlanController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+
+//    /**
+//     * 세부계획 수정
+//     * */
+//    @Transactional
+//    @ResponseBody
+//    @PatchMapping("/revise/{detailed_plan_id}")
+//    public BaseResponse<> revisePlan (@PathVariable("detailed_plan_id")int detailed_plan_id, @RequestBody     )
 
 
 

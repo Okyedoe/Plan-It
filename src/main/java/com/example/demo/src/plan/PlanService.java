@@ -50,5 +50,7 @@ public class PlanService {
         }
     }
 
+    //삭제된 행성인지 체크
+
 
 }

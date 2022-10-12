@@ -24,4 +24,16 @@ public class JourneyProvider {
         this.jwtService = jwtService;
 
     }
+
+    //활성화되어있는 유저인지체크
+    public int checkUser (int user_id) throws BaseException{
+        try{
+            return journeyDao.checkUser(user_id);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 }

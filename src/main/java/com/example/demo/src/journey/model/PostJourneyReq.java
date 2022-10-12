@@ -42,8 +42,6 @@ public class PostJourneyReq {
     @ApiModelProperty(value = "",example = "[상냥함,우아한]")
     private String[] keywords;
     private List<Planetinfo> planets;
-    @ApiModelProperty(value = "유저아이디",example = "2")
-    private int user_id;
 
 
 

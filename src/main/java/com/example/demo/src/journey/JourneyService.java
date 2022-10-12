@@ -32,10 +32,10 @@ public class JourneyService {
 
     //여정 생성 api
     @Transactional
-    public PostJourneyRes createJourney (PostJourneyReq postJourneyReq) throws BaseException
+    public PostJourneyRes createJourney (PostJourneyReq postJourneyReq,int user_id) throws BaseException
     {
         try{
-            return journeyDao.createJourney(postJourneyReq);
+            return journeyDao.createJourney(postJourneyReq,user_id);
 
         }catch (Exception exception)
         {
@@ -44,6 +44,8 @@ public class JourneyService {
         }
 
     }
+
+
 
 
 

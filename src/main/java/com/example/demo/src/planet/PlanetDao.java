@@ -37,7 +37,7 @@ public class PlanetDao {
     public List<GetPlanetsRes> getPlanets (int journey_id)
     {
         //status가 0인 -> 삭제된 행성은 가져오지않는다.
-        String getPlanetsQuery = "select * from planet where journey_id = ?";
+        String getPlanetsQuery = "select * from planet where journey_id = ? and status = 1";
 
         return this.jdbcTemplate.query(getPlanetsQuery,(rs, rowNum) -> new GetPlanetsRes(
                         rs.getInt("planet_id"),
@@ -124,6 +124,27 @@ public class PlanetDao {
         return result;
     }
 
+    //해당 행성이 삭제된행성인지 체크
+    public int checkPlanet (int planet_id)
+    {
+        String checkQuery = "select status from planet where planet_id = ?";
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,planet_id);
+    }
+
+    //해당 여정이 끝났는지 체크
+    public int checkJourney (int journey_id)
+    {
+        String checkQuery = "select status from joruney where joruney_id = ?";
+        return this.jdbcTemplate.queryForObject(checkQuery,int.class,journey_id);
+    }
+
+    //행성이름중복 체크
+    public int checkPlanetExist(String planet_name)
+    {
+        String a = "select count(*) from planet where planet_name =?";
+        return this.jdbcTemplate.queryForObject(a,int.class,planet_name);
+
+    }
 
 
 
