@@ -29,6 +29,19 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
+    JOURNEY_JWT_CHECK_ERROR(false,2018,"jwt에서 추출한 유저아이디와 여정아이디에서 추출한 유저아이디가 다릅니다."),
+    PLANET_JWT_CHECK_ERROR(false,2019,"jwt에서 추출한 유저아이디와 행성아이디에서 추출한 유저아이디가 다릅니다."),
+    WITHDRAW_USER(false,2020,"탈퇴한 유저아이디가 입력되었습니다."),
+    EMPTY_PLANET_LIST(false,2021,"행성목록이 비어있습니다.."),
+    EMPTY_PERIOD(false,2022,"기간이 비어있습니다.."),
+    DELETED_PLANET(false,2023,"삭제된 행성입니다."),
+    END_JOURNEY(false,2024,"끝난 여정아이디 입니다."),
+    EMPTY_PLANET_NAME(false,2025,"행성이름이 비어있습니다.."),
+    DUPLICATE_PLANET_NAME(false,2026,"중복되는 행성이름입니다..."),
+    EMPTY_DETAILED_PLANS(false,2027,"세부계획목록이 비어있습니다..."),
+    DUPLICATE_PLAN(false,2028,"중복된 계획이 존재합니다."),
+    EMPTY_PLAN_CONTENT(false,2029,"계획내용이 비어있습니다..."),
+    EMPTY_TYPE(false,2030,"타입이 비어있습니다..."),
 
 
 
