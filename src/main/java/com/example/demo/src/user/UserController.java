@@ -16,7 +16,7 @@ import static com.example.demo.config.BaseResponseStatus.*;
 import static com.example.demo.utils.ValidationRegex.isRegexEmail;
 
 @RestController
-@RequestMapping("/app/users")
+@RequestMapping("/users")
 public class UserController {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -74,6 +74,7 @@ public class UserController {
             GetUserRes getUserRes = userProvider.getUser(userIdx);
             return new BaseResponse<>(getUserRes);
         } catch(BaseException exception){
+            exception.printStackTrace();
             return new BaseResponse<>((exception.getStatus()));
         }
 
@@ -86,7 +87,7 @@ public class UserController {
      */
     // Body
     @ResponseBody
-    @PostMapping("")
+    @PostMapping("/create")
     public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) {
         // TODO: email 관련한 짧은 validation 예시입니다. 그 외 더 부가적으로 추가해주세요!
         if(postUserReq.getEmail() == null){
@@ -100,6 +101,7 @@ public class UserController {
             PostUserRes postUserRes = userService.createUser(postUserReq);
             return new BaseResponse<>(postUserRes);
         } catch(BaseException exception){
+            exception.printStackTrace();
             return new BaseResponse<>((exception.getStatus()));
         }
     }
