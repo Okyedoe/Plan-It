@@ -47,6 +47,8 @@ public class AwsS3Service {
             ObjectMetadata objectMetadata = new ObjectMetadata(); //오브젝트메타데이터 생성
             objectMetadata.setContentType(current_file.getContentType()); //오브젝트 메타데이터에 파일의 컨텐트타입을 세팅
 
+            objectMetadata.setContentLength(current_file.getSize()); //사이즈 설정 No content length specified for stream data를 위함.
+
             try (InputStream inputStream = current_file.getInputStream()) { //파일 업로드
                 amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
