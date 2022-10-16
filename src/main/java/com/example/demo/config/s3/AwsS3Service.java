@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.example.demo.config.BaseResponseStatus.FAIL_FILE_UPLOAD;
 
@@ -40,7 +41,9 @@ public class AwsS3Service {
         for (int i = 0; i < multipartFiles.size(); i++) {
             MultipartFile current_file = multipartFiles.get(i); //파일하나씩 가져옴.
             //String fileName = CommonUtils.buildFileName(category, multipartFile.getOriginalFilename());
-            String fileName = current_file.getName(); //파일이름 이렇게 시도.
+//            String fileName = current_file.getName();
+            String fileName = UUID.randomUUID().toString().substring(0,20); //파일이름은 랜덤으로 지정해서 넘긴다.
+
             ObjectMetadata objectMetadata = new ObjectMetadata(); //오브젝트메타데이터 생성
             objectMetadata.setContentType(current_file.getContentType()); //오브젝트 메타데이터에 파일의 컨텐트타입을 세팅
 
