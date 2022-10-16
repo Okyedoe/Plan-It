@@ -42,6 +42,7 @@ public enum BaseResponseStatus {
     DUPLICATE_PLAN(false,2028,"중복된 계획이 존재합니다."),
     EMPTY_PLAN_CONTENT(false,2029,"계획내용이 비어있습니다..."),
     EMPTY_TYPE(false,2030,"타입이 비어있습니다..."),
+    FAIL_FILE_UPLOAD(false,2031,"파일업로드 실패"),
 
 
 

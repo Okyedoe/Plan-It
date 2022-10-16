@@ -1,11 +1,9 @@
 package com.example.demo.src.planet;
 
 import com.example.demo.config.BaseResponseStatus;
-import com.example.demo.src.planet.model.GetDetailedInfoRes;
-import com.example.demo.src.planet.model.GetPlanetsRes;
+import com.example.demo.config.s3.AwsS3Service;
+import com.example.demo.src.planet.model.*;
 //import io.swagger.annotations.*;
-import com.example.demo.src.planet.model.PostNewPlanetReq;
-import com.example.demo.src.planet.model.PostNewPlanetRes;
 import com.sun.tools.classfile.Opcode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.List;
@@ -45,11 +44,15 @@ public class PlanetController {
     @Autowired
     private final JwtService jwtService;
 
-    public PlanetController (PlanetProvider planetProvider ,PlanetService planetService ,JwtService jwtService )
+    @Autowired
+    private final AwsS3Service awsS3Service;
+
+    public PlanetController (PlanetProvider planetProvider ,PlanetService planetService ,JwtService jwtService, AwsS3Service awsS3Service )
     {
         this.planetProvider = planetProvider;
         this.planetService = planetService;
         this.jwtService = jwtService;
+        this.awsS3Service = awsS3Service;
     }
 
 
@@ -246,6 +249,30 @@ public class PlanetController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+
+
+    /**
+     * S3업로드 실험용 api
+     * */
+    @Transactional
+    @ResponseBody
+    @PostMapping("/upload")
+    public BaseResponse<PostUploadRes> uploadFiles (@RequestPart(value = "files")List<MultipartFile> multipartFiles)
+    {
+        try{
+            List<String> result_urls = awsS3Service.uploadFileV1(multipartFiles);
+            PostUploadRes postUploadRes = new PostUploadRes(result_urls);
+            return new BaseResponse<>(postUploadRes);
+        }catch (BaseException e)
+        {
+            e.printStackTrace();
+            return new BaseResponse<>(e.getStatus());
+        }
+
+    }
+
+
 
 
 
