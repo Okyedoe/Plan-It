@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import static com.example.demo.config.BaseResponseStatus.*;
 
-@Api(tags = "행성의 세부게획 관련 api들")
-@RestController
+@Api(tags = "행성의 세부게획 관련 api들")@RestController
 @RequestMapping("/plans")
+
 public class PlanController {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired

@@ -43,6 +43,7 @@ public enum BaseResponseStatus {
     EMPTY_PLAN_CONTENT(false,2029,"계획내용이 비어있습니다..."),
     EMPTY_TYPE(false,2030,"타입이 비어있습니다..."),
     FAIL_FILE_UPLOAD(false,2031,"파일업로드 실패"),
+    EMPTY_CODE(false,2032,"인증번호가 비어있습니다."),
 
 
 
