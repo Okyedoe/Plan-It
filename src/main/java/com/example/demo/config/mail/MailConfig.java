@@ -1,5 +1,6 @@
 package com.example.demo.config.mail;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,13 +10,16 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+
+    @Value("${spring.mail.password}")
+    private String password;
     @Bean
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
         javaMailSender.setHost("smtp.naver.com");
         javaMailSender.setUsername("kilwogus4048@naver.com");
-        javaMailSender.setPassword("k!IL10047942");
+        javaMailSender.setPassword(password);
 
         javaMailSender.setPort(465);
 
