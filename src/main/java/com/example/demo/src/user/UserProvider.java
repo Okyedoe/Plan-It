@@ -79,7 +79,7 @@ public class UserProvider {
         }
 
         if(user.getPassword().equals(encryptPwd)){
-            int userIdx = user.getUserIdx();
+            int userIdx = user.getUser_id();
             String jwt = jwtService.createJwt(userIdx);
             return new PostLoginRes(userIdx,jwt);
         }
@@ -88,5 +88,7 @@ public class UserProvider {
         }
 
     }
+
+
 
 }

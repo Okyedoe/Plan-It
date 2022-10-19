@@ -27,3 +27,30 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+
+  mail:
+  host: smtp.naver.com
+  port: 465
+  username: dkrak3212@naver.com
+  password: mskim@!!123
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+          required: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+        ssl:
+          #trust: smtp.naver.com
+          enable: true #반드시 필요 -> SSL 필요로 되어있으면
+
+  redis:
+    pool:
+      min-idle: 0
+      max-idle: 8
+      max-active: 8
+    port: 6379
+    host: 127.0.0.1
