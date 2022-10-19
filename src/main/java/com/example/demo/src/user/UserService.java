@@ -68,4 +68,13 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public int deleteUser(int user_id) throws BaseException {
+        try{
+            return userDao.deleteUser(user_id);
+        }
+        catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

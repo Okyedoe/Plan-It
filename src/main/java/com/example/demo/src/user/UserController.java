@@ -154,8 +154,28 @@ public class UserController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+*/
+    @ResponseBody
+    @DeleteMapping("/{user_id}")
+    public BaseResponse<String> deleteUser(@PathVariable("user_id") int user_id) throws BaseException{
+        try{
+            String result = "회원탈퇴 실패";
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(user_id != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            int success = userService.deleteUser(user_id);
+            if(success == 1){
+                result = "회원탈퇴 성공";
+            }
+            return new BaseResponse<>(result);
+        }
+        catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
-     */
 
 
 }

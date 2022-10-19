@@ -1,6 +1,7 @@
 package com.example.demo.utils.image;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AwsS3Service{
+    private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private static String bucket = "sesac-planet";
@@ -53,7 +55,7 @@ public class AwsS3Service{
         } catch (IOException e) {
             throw new FailedUploadImageS3ContainerException();
         }
-        return filename;
+        return amazonS3Client.getUrl(bucket, filename).toString();
     }
 
     private String createFileName(String fileName){

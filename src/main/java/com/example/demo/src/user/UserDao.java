@@ -84,13 +84,15 @@ public class UserDao {
     }
 
     public User getPwd(PostLoginReq postLoginReq){
-        String getPwdQuery = "select user_id,password from user where email = ?";
+        String getPwdQuery = "select user_id,password,user_name,phone_num from user where email = ?";
         String getPwdParams = postLoginReq.getEmail();
 
         return this.jdbcTemplate.queryForObject(getPwdQuery,
                 (rs,rowNum)-> new User(
                         rs.getInt("user_id"),
-                        rs.getString("password")
+                        rs.getString("password"),
+                        rs.getString("user_name"),
+                        rs.getString("phone_num")
                 ),
                 getPwdParams
                 );
@@ -98,6 +100,9 @@ public class UserDao {
     }
 
 
-
-
+    public int deleteUser(int user_id) {
+        String deleteUserQuery = "update user set status = 0 where user_id =? and status = 1";
+        int deleteUserParams = user_id;
+        return this.jdbcTemplate.update(deleteUserQuery,deleteUserParams);
+    }
 }
