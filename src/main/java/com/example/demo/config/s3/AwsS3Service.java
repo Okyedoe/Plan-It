@@ -44,7 +44,7 @@ public class AwsS3Service {
 //            String fileName = current_file.getName();
             int fileExtensionIndex = current_file.getOriginalFilename().lastIndexOf("."); //확장자 부분 인덱스
             String fileName = UUID.randomUUID().toString().substring(0,20)
-                    + current_file.getOriginalFilename().substring(fileExtensionIndex); //파일이름은 uuid를 이용하여 랜덤으로 지정해서 넘긴다. + 파일확장자
+                    + current_file.getOriginalFilename().substring(fileExtensionIndex); //파일이름은 uuid를 이용하여 랜    덤으로 지정해서 넘긴다. + 파일확장자
 
             ObjectMetadata objectMetadata = new ObjectMetadata(); //오브젝트메타데이터 생성
             objectMetadata.setContentType(current_file.getContentType()); //오브젝트 메타데이터에 파일의 컨텐트타입을 세팅
