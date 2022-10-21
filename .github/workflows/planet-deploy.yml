@@ -24,8 +24,8 @@ jobs:
             PLANET_SECRET_DIR: src/main/java/com/example/demo/config/secret
             PLANET_SECRET_TEST_DIR: src/test/java/com/example/demo/config/secret
             PLANET_SECRET_DIR_FILE_NAME: Secret.java
-        run: echo $PLANET_SECRET | base64 --decode > $PLANET_SECRET_DIR/$PLANET_SECRET_DIR_FILE_NAME && 
-                echo $PLANET_SECRET | base64 --decode > $PLANET_SECRET_TEST_DIR/$PLANET_SECRET_DIR_FILE_NAME      
+        run: echo ${{PLANET_SECRET}} | base64 --decode > $PLANET_SECRET_DIR/$PLANET_SECRET_DIR_FILE_NAME && 
+                echo ${{PLANET_SECRET}} | base64 --decode > $PLANET_SECRET_TEST_DIR/$PLANET_SECRET_DIR_FILE_NAME      
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
