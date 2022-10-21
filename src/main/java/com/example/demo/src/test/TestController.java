@@ -14,11 +14,13 @@ public class TestController {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public TestController() {}
+    public TestController() {
+    }
 
     /**
      * 로그 테스트 API
      * [GET] /test/log
+     *
      * @return String
      */
     @ResponseBody
@@ -36,6 +38,7 @@ public class TestController {
 //        error 레벨은 Console 로깅 O, 파일 로깅 O (app.log 뿐만 아니라 error.log 에도 로깅 됨)
 //        app.log 와 error.log 는 날짜가 바뀌면 자동으로 *.gz 으로 압축 백업됨
         logger.error("ERROR Level 테스트");
+
 
         return "Success Test version -> 0.0.0";
     }
