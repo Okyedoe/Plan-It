@@ -47,6 +47,7 @@ public class MailController {
             return  new BaseResponse<>(BaseResponseStatus.POST_USERS_INVALID_EMAIL);
         }
 
+
         try{
 
 //            mailService.sendCertificationMail(email);
