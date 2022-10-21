@@ -1,0 +1,23 @@
+version: 0.0
+os: linux
+
+files:
+  - source:  /
+    destination: /var/www/dev_planet/api-server-spring-boot-final #ubuntu에서 프로젝트위치
+    overwrite: yes
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu #ec2 host이름.
+    group: ubuntu
+
+hooks:
+  AfterInstall:
+    - location: scripts/stop.sh
+      timeout: 60
+      runas: ubuntu
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 60
+      runas: ubuntu

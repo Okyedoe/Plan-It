@@ -1,5 +1,6 @@
 /src/main/resources/application.yml
 /src/main/java/com/example/demo/config/secret
+.idea
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,gradle
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,gradle
