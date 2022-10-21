@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   
 env:
-  S3_BUCKET_NAME: planet-github-action
+  S3_BUCKET_NAME: wogus-planet-bucket
   PROJECT_NAME: Planet
   
 
