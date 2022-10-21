@@ -10,14 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Copy Secret
-        env:
-            PLANET_SECRET: ${{ secrets.PLANET_SECRET }}
-            PLANET_SECRET_DIR: src/main/java/com/example/demo/config
-            PLANET_SECRET_TEST_DIR: src/test/java/com/example/demo/config
-            PLANET_SECRET_DIR_FILE_NAME: Secret.java
-        run: echo $PLANET_SECRET | base64 --decode > $PLANET_SECRET_DIR/$PLANET_SECRET_DIR_FILE_NAME && 
-                echo $PLANET_SECRET | base64 --decode > $PLANET_SECRET_TEST_DIR/$PLANET_SECRET_DIR_FILE_NAME
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -25,6 +17,15 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+          
+      - name: Copy Secret
+        env:
+            PLANET_SECRET: ${{ secrets.PLANET_SECRET }}
+            PLANET_SECRET_DIR: src/main/java/com/example/demo/config/secret
+            PLANET_SECRET_TEST_DIR: src/test/java/com/example/demo/config/secret
+            PLANET_SECRET_DIR_FILE_NAME: Secret.java
+        run: echo $PLANET_SECRET | base64 --decode > $PLANET_SECRET_DIR/$PLANET_SECRET_DIR_FILE_NAME && 
+                echo $PLANET_SECRET | base64 --decode > $PLANET_SECRET_TEST_DIR/$PLANET_SECRET_DIR_FILE_NAME      
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
