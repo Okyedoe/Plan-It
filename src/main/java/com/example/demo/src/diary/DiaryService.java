@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
+import static com.example.demo.config.BaseResponseStatus.DELETE_DIARY_ERROR;
 
 @Service
 public class DiaryService {
@@ -55,6 +56,17 @@ public class DiaryService {
         }
         catch(Exception exception){
             exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void deleteDiary(int diary_id) throws BaseException{
+        try{
+            int result = diaryDao.deleteDiary(diary_id);
+            if(result == 0 ){
+                throw new BaseException(DELETE_DIARY_ERROR);
+            }
+        }catch(Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
     }

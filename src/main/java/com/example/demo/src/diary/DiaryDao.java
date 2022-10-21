@@ -1,15 +1,16 @@
 package com.example.demo.src.diary;
 
+import com.example.demo.src.diary.model.GetDiaryRes;
 import com.example.demo.src.diary.model.PostDiary;
-import com.example.demo.src.diary.model.PostDiaryReq;
 import com.example.demo.src.diary.model.PostDiaryRes;
-import com.example.demo.src.journey.model.PostJourneyRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -50,6 +51,41 @@ public class DiaryDao {
         postdiaryRes.setContent(postDiaryReq.getContent());
         return postdiaryRes;
     }
+    public List<String> getAllImages(int user_id,int diary_id){
+        String getAllImagesQuery = "select diary_image_url from diary as a join diary_image as b on a.diary_id=b.diary_id where user_id= ? and a.diary_id = ?";
+        Object[] getAllImagesParams =new Object[]{user_id,diary_id};
+        return this.jdbcTemplate.query(getAllImagesQuery,
+                (rs, rowNum) -> new String(
+                        rs.getString("diary_image_url"))
+                ,getAllImagesParams);
+    }
+
+    public int deleteDiary(int diary_id) {
+        String deleteUserQuery = "update diary set status = 0 where diary_id =? and status = 1";
+        int deleteUserParams = diary_id;
+        return this.jdbcTemplate.update(deleteUserQuery,deleteUserParams);
+    }
+
+
+
+    /*
+    public List<GetDiaryRes> getAllDiary(int user_id) {
+        String getDiaryIdSql = "select diary_id from diary where user_id =? and status= 1";
+        int getDiaryIdParams = user_id;
+        List<Integer> diary_id = this.jdbcTemplate.queryForList(getDiaryIdSql, Integer.class, getDiaryIdParams);
+        //다이어리 아이디에 맞는 이미지 리스트 가져오기
+        for(int diary_idx : diary_id){
+            List<String> img = getAllImages(user_id,diary_idx);
+        }
+        List<GetDiaryRes> diaryRes = new ArrayList<>();
+
+
+
+
+
+    }
+
+     */
 
 
 }
