@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source:  /
-    destination: /var/www/dev_planet/api-server-spring-boot-final #ubuntu에서 프로젝트위치
+    destination: /var/www/dev_planet #ubuntu에서 배포될 프로젝트가 저장될 위치
     overwrite: yes
 
 permissions:
