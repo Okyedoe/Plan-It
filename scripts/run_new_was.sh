@@ -24,4 +24,7 @@ fi
 
 nohup java -jar -Dserver.port=${TARGET_PORT} /var/www/dev_planet/cicd_template/build/libs/demo-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
 echo "> Now new WAS runs at ${TARGET_PORT}."
+
+#켜지는시간이 길기떄문에 10초정도 쉰다.  바로 nginx가 다른포트를 가리키면 아직 켜지지않았기떄문에 중단되어있는시간이 존재.
+sleep 10s # 10초 대기
 exit 0
