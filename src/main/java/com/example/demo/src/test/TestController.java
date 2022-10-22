@@ -40,7 +40,7 @@ public class TestController {
         logger.error("ERROR Level 테스트");
 
 
-        return "Success Test version -> 0.0.0";
+        return "Success Test version -> 0.0.1";
     }
     //planet 저장소 , ori branch push 실험입니다.
     //git add 테스트
