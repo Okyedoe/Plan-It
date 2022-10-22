@@ -37,7 +37,7 @@ jobs:
           DEV_APPLICATION_YML_DIR: src/main/resources
         # PLANET_SECRET_TEST_DIR: src/test/java/com/example/demo/config/secret
           DEV_APPLICATION_YML_FILE_NAME: application.yml
-        run: echo $PLANET_SECRET | base64 --decode > $DEV_APPLICATION_YML_DIR/$DEV_APPLICATION_YML_FILE_NAME #&& 
+        run: echo $DEV_APPLICATION_YML | base64 --decode > $DEV_APPLICATION_YML_DIR/$DEV_APPLICATION_YML_FILE_NAME #&& 
                 #echo $PLANET_SECRET | base64 --decode > $PLANET_SECRET_TEST_DIR/$PLANET_SECRET_DIR_FILE_NAME    
 
       - name: Grant execute permission for gradlew
