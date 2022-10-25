@@ -29,7 +29,7 @@ public class UserProvider {
         this.userDao = userDao;
         this.jwtService = jwtService;
     }
-
+    /*
     public List<GetUserRes> getUsers() throws BaseException{
         try{
             List<GetUserRes> getUserRes = userDao.getUsers();
@@ -51,9 +51,11 @@ public class UserProvider {
                     }
 
 
-    public GetUserRes getUser(int userIdx) throws BaseException {
+     */
+
+    public GetUserRes getUser(int user_id) throws BaseException {
         try {
-            GetUserRes getUserRes = userDao.getUser(userIdx);
+            GetUserRes getUserRes = userDao.getUser(user_id);
             return getUserRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
@@ -78,7 +80,7 @@ public class UserProvider {
         }
 
         if(user.getPassword().equals(encryptPwd)){
-            int userIdx = user.getUserIdx();
+            int userIdx = user.getUser_id();
             String jwt = jwtService.createJwt(userIdx);
             return new PostLoginRes(userIdx,jwt);
         }
@@ -87,5 +89,7 @@ public class UserProvider {
         }
 
     }
+
+
 
 }

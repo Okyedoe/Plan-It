@@ -1,3 +1,4 @@
+
 package com.example.demo.src.mail;
 
 
@@ -21,15 +22,14 @@ import java.util.UUID;
 public class MailService {
 
     private final JavaMailSender javaMailSender;
-    private final MailDao mailDao;
+
 
     private final RedisUtil redisUtil; //redis 관련
 
     @Autowired
-    public MailService(JavaMailSender javaMailSender,MailDao mailDao,RedisUtil redisUtil )
+    public MailService(JavaMailSender javaMailSender,RedisUtil redisUtil )
     {
         this.javaMailSender = javaMailSender;
-        this.mailDao = mailDao;
         this.redisUtil = redisUtil;
     }
 
@@ -43,7 +43,7 @@ public class MailService {
         message.setSubject("Planet 인증 번호입니다.");
         message.setText("이메일 인증코드: "+code);
 
-        message.setFrom("kilwogus4048@naver.com"); //보내는사람.
+        message.setFrom("dkrak3212@naver.com"); //보내는사람.
 
         return  message;
     }

@@ -53,12 +53,15 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter')
     compile('org.springframework.boot:spring-boot-starter-web')
 
+
+
     //swagger - fox버전
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
 
     //s3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
 
     //이메일인증
     implementation 'org.springframework.boot:spring-boot-starter-mail'

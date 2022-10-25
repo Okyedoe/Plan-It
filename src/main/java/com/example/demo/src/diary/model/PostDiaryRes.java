@@ -1,17 +1,20 @@
-package com.example.demo.src.user.model;
+package com.example.demo.src.diary.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class PostDiaryRes {
     private int user_id;
-    private String password;
-    private String user_name;
-    private String phone_num;
+    private String emotion;
+    private int evaluation;
+    private String content;
+
 }

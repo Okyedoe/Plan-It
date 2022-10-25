@@ -19,6 +19,7 @@ public class UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /*
     public List<GetUserRes> getUsers(){
         String getUsersQuery = "select * from UserInfo";
         return this.jdbcTemplate.query(getUsersQuery,
@@ -44,23 +45,23 @@ public class UserDao {
                 getUsersByEmailParams);
     }
 
-    public GetUserRes getUser(int userIdx){
-        String getUserQuery = "select * from UserInfo where userIdx = ?";
-        int getUserParams = userIdx;
+     */
+
+    public GetUserRes getUser(int user_id){
+        String getUserQuery = "select email,user_name,profile_url from user where user_id = ?";
+        int getUserParams = user_id;
         return this.jdbcTemplate.queryForObject(getUserQuery,
                 (rs, rowNum) -> new GetUserRes(
-                        rs.getInt("userIdx"),
-                        rs.getString("userName"),
-                        rs.getString("ID"),
-                        rs.getString("Email"),
-                        rs.getString("password")),
+                        rs.getString("email"),
+                        rs.getString("user_name"),
+                        rs.getString("profile_url")),
                 getUserParams);
     }
     
 
     public int createUser(PostUserReq postUserReq){
-        String createUserQuery = "insert into UserInfo (userName, ID, password, email) VALUES (?,?,?,?)";
-        Object[] createUserParams = new Object[]{postUserReq.getUserName(), postUserReq.getId(), postUserReq.getPassword(), postUserReq.getEmail()};
+        String createUserQuery = "insert into user (email, password, user_name,phone_num) VALUES (?,?,?,?)";
+        Object[] createUserParams = new Object[]{postUserReq.getEmail(),postUserReq.getPassword(),postUserReq.getUser_name(),postUserReq.getPhone_num()};
         this.jdbcTemplate.update(createUserQuery, createUserParams);
 
         String lastInserIdQuery = "select last_insert_id()";
@@ -68,7 +69,7 @@ public class UserDao {
     }
 
     public int checkEmail(String email){
-        String checkEmailQuery = "select exists(select email from UserInfo where email = ?)";
+        String checkEmailQuery = "select exists(select email from user where email = ?)";
         String checkEmailParams = email;
         return this.jdbcTemplate.queryForObject(checkEmailQuery,
                 int.class,
@@ -84,16 +85,15 @@ public class UserDao {
     }
 
     public User getPwd(PostLoginReq postLoginReq){
-        String getPwdQuery = "select userIdx, password,email,userName,ID from UserInfo where ID = ?";
-        String getPwdParams = postLoginReq.getId();
+        String getPwdQuery = "select user_id,password,user_name,phone_num from user where email = ?";
+        String getPwdParams = postLoginReq.getEmail();
 
         return this.jdbcTemplate.queryForObject(getPwdQuery,
                 (rs,rowNum)-> new User(
-                        rs.getInt("userIdx"),
-                        rs.getString("ID"),
-                        rs.getString("userName"),
+                        rs.getInt("user_id"),
                         rs.getString("password"),
-                        rs.getString("email")
+                        rs.getString("user_name"),
+                        rs.getString("phone_num")
                 ),
                 getPwdParams
                 );
@@ -101,4 +101,9 @@ public class UserDao {
     }
 
 
+    public int deleteUser(int user_id) {
+        String deleteUserQuery = "update user set status = 0 where user_id =? and status = 1";
+        int deleteUserParams = user_id;
+        return this.jdbcTemplate.update(deleteUserQuery,deleteUserParams);
+    }
 }

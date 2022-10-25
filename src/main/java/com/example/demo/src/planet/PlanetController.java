@@ -1,7 +1,6 @@
 package com.example.demo.src.planet;
 
 import com.example.demo.config.BaseResponseStatus;
-import com.example.demo.config.s3.AwsS3Service;
 import com.example.demo.src.plan.PlanDao;
 import com.example.demo.src.plan.PlanProvider;
 import com.example.demo.src.planet.model.*;
@@ -44,18 +43,19 @@ public class PlanetController {
     private final PlanetService planetService;
     @Autowired
     private final JwtService jwtService;
-
+    /*
     @Autowired
     private final AwsS3Service awsS3Service;
+
+     */
     @Autowired
     private final PlanProvider planProvider;
 
-    public PlanetController (PlanetProvider planetProvider ,PlanetService planetService ,JwtService jwtService, AwsS3Service awsS3Service,PlanProvider planProvider )
+    public PlanetController (PlanetProvider planetProvider ,PlanetService planetService ,JwtService jwtService,PlanProvider planProvider )
     {
         this.planetProvider = planetProvider;
         this.planetService = planetService;
         this.jwtService = jwtService;
-        this.awsS3Service = awsS3Service;
         this.planProvider = planProvider;
     }
 
@@ -307,10 +307,8 @@ public class PlanetController {
     }
 
 
+    /*
 
-    /**
-     * S3업로드 실험용 api
-     * */
     @ApiOperation(value = "업로드 실험용 api", notes = "개발 테스트용입니다.")
     @Transactional
     @ResponseBody
@@ -328,6 +326,9 @@ public class PlanetController {
         }
 
     }
+
+     */
+
 
 
 

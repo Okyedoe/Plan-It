@@ -33,14 +33,14 @@ public class UserService {
 
     //POST
     public PostUserRes createUser(PostUserReq postUserReq) throws BaseException {
-        //중복
+
         if(userProvider.checkEmail(postUserReq.getEmail()) ==1){
             throw new BaseException(POST_USERS_EXISTS_EMAIL);
         }
 
         String pwd;
         try{
-            //암호화
+
             pwd = new SHA256().encrypt(postUserReq.getPassword());
             postUserReq.setPassword(pwd);
 
@@ -53,6 +53,7 @@ public class UserService {
             String jwt = jwtService.createJwt(userIdx);
             return new PostUserRes(jwt,userIdx);
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -64,6 +65,15 @@ public class UserService {
                 throw new BaseException(MODIFY_FAIL_USERNAME);
             }
         } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int deleteUser(int user_id) throws BaseException {
+        try{
+            return userDao.deleteUser(user_id);
+        }
+        catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
     }
