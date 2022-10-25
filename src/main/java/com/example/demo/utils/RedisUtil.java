@@ -1,3 +1,4 @@
+
 package com.example.demo.utils;
 
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,3 @@ public class RedisUtil {
     }
 
 }
-
-

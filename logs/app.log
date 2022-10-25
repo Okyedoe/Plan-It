@@ -1,0 +1,2 @@
+13:48:10.722 WARN  [File:TestController.java] [Func:getAll] [Line:37] [Message:Warn Level 테스트]- Warn Level 테스트
+13:48:10.728 ERROR [File:TestController.java] [Func:getAll] [Line:40] [Message:ERROR Level 테스트]- ERROR Level 테스트

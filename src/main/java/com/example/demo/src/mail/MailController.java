@@ -1,3 +1,4 @@
+
 package com.example.demo.src.mail;
 
 import com.example.demo.config.BaseException;
@@ -79,7 +80,3 @@ public class MailController {
     }
 
 }
-
-
-
-

@@ -29,6 +29,7 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
+
     JOURNEY_JWT_CHECK_ERROR(false,2018,"jwt에서 추출한 유저아이디와 여정아이디에서 추출한 유저아이디가 다릅니다."),
     PLANET_JWT_CHECK_ERROR(false,2019,"jwt에서 추출한 유저아이디와 행성아이디에서 추출한 유저아이디가 다릅니다."),
     WITHDRAW_USER(false,2020,"탈퇴한 유저아이디가 입력되었습니다."),
@@ -42,7 +43,21 @@ public enum BaseResponseStatus {
     DUPLICATE_PLAN(false,2028,"중복된 계획이 존재합니다."),
     EMPTY_PLAN_CONTENT(false,2029,"계획내용이 비어있습니다..."),
     EMPTY_TYPE(false,2030,"타입이 비어있습니다..."),
-    EMPTY_CODE(false,2501,"인증번호가 비어있습니다."),
+
+    FAIL_FILE_UPLOAD(false,2031,"파일업로드 실패"),
+    EMPTY_CODE(false,2032,"인증번호가 비어있습니다."),
+
+    WRONG_TYPE_DAY(false,2033,"요일입력값의 타입이 틀렸습니다."),
+    WRONG_JWT(false,2034,"입력된jwt의 유저가 해당 계획의 주인이 아닙니다."),
+
+    ALREADY_DELETED(false,2035,"이미 삭제된 세부계획입니다."),
+    DUPLICATED_PLANET_NAME(false,2036,"중복된 행성이름이 존재합니다."),
+    EMPTY_DETAILED_PLAN(false,2037,"세부계획이 빈값입니다."),
+    EMPTY_KEYWORDS(false,2038,"키워드가 비어있습니다."),
+    WRONG_TYPE(false,2039,"잘못된 타입값입니다."),
+
+
+
 
 
     /**

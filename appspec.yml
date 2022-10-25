@@ -1,0 +1,25 @@
+version: 0.0
+os: linux
+
+files:
+  - source:  /
+    destination: /var/www/dev_planet/cicd_template #ubuntu에서 배포될 프로젝트가 저장될 위치
+    overwrite: yes
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu #ec2 host이름.
+    group: ubuntu
+
+hooks:
+  ApplicationStart:
+    - location: scripts/run_new_was.sh
+      timeout: 180
+      runas: ubuntu # host이름
+    - location: scripts/health_check.sh
+      timeout: 180
+      runas: ubuntu
+    - location: scripts/switch.sh
+      timeout: 180
+      runas: ubuntu

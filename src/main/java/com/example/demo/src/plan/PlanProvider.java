@@ -1,5 +1,6 @@
 package com.example.demo.src.plan;
 import com.example.demo.src.journey.JourneyDao;
+import com.example.demo.src.plan.model.GetTodayPlanRes;
 import com.example.demo.src.planet.PlanetDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,33 @@ public class PlanProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+    //세부계획아이디를 이용하여 해당 유저아이디를 가져옴.
+    public int getUser_id_from_detailed_plan_id (int detailed_plan_id)throws BaseException{
+        try{
+            return planDao.getUser_id_from_detailed_plan_id(detailed_plan_id);
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    //오늘 세부계획 가져옴
+    public List<GetTodayPlanRes> getTodayPlans (int journey_id) throws BaseException
+    {
+        try{
+            return planDao.getTodayPlans(journey_id);
+
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
 
 //    //해당 행성에 같은 세부계획이 있는지 체크함.
 //    public int CheckDuplicatedPlan (int planet_id,)throws BaseException{

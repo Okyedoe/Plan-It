@@ -1,4 +1,5 @@
 
+
 package com.example.demo.src.mail.model;
 
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class PostMailreq {
     private String email ;
 }
+
 
 
 

@@ -1,5 +1,5 @@
 /src/main/resources/application.yml
-/src/main/java/com/example/demo/config/secret
+/src/main/java/com/example/demo/config/secret/Secret.java
 .idea
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,gradle
@@ -145,4 +145,3 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
-# End of https://www.toptal.com/developers/gitignore/api/intellij,gradle

@@ -36,4 +36,17 @@ public class JourneyProvider {
         }
     }
 
+    public int getUserIdByJourneyId (int journey_id) throws BaseException
+    {
+        try
+        {
+            return journeyDao.getUserIdByJourneyId(journey_id);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR  );
+        }
+    }
+
+
 }

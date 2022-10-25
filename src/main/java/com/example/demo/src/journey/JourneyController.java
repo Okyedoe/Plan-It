@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import static com.example.demo.config.BaseResponseStatus.*;
 
-@Api(tags = "여정 만들기 api")
+@Api(tags = "여정관련 api")
 @RestController
 @RequestMapping("/journey")
 public class JourneyController {
@@ -59,7 +59,10 @@ public class JourneyController {
                     @ApiResponse(responseCode = "4001", description = "서버와의 연결에 실패하였습니다."),
                     @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
                     @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
-                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다."),
+                    @ApiResponse(responseCode = "2036", description = "중복된 행성이름이 존재합니다."),
+                    @ApiResponse(responseCode = "2037", description = "세부계획이 빈값입니다."),
+                    @ApiResponse(responseCode = "2038", description = "키워드가 비어있습니다.")
             }
     )
     @ApiImplicitParams(
@@ -86,7 +89,7 @@ public class JourneyController {
             {
                 return new BaseResponse<>(EMPTY_PLANET_LIST);
             }
-            //행성이름 빈값,중복 과  세부계획 빈값,중복에 대한 validation은 클라이언트에서 해서 넘기는게 작업량이 줄어든다.
+            //행성이름 빈값,중복 과  세부계획 빈값에 대한 validatino 처리는 dao에서 합니다.
 
             //기간이 널값
             if(postJourneyReq.getPeriod() == 0)// primitive 변수인 int는 자바에서 기본값이 0 (null이 아님)
@@ -94,6 +97,12 @@ public class JourneyController {
                 return new BaseResponse<>(EMPTY_PERIOD);
             }
             //기간에 스트링이 들어간다면? -> 포스트맨상에서 ""로 감싸도 인트형으로 잘들어온다.
+
+            //키워드가 입력안됬을대 validation
+            if(postJourneyReq.getKeywords().length==0)
+            {
+                return new BaseResponse<>(EMPTY_KEYWORDS);
+            }
 
 
 

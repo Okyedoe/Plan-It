@@ -1,20 +1,23 @@
-package com.example.demo.src.journey.model;
+package com.example.demo.src.plan.model;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostJourneyRes {
-    private int journey_id;
-    private int period;
-    private String[] keywords;
-    private List<PostJourneyReq.Planetinfo> planets;
-    private int user_id;
+public class GetTodayPlanRes {
+    private int planet_id;
+    private String planet_image;
+    private String plan_content;
+    private String type;
+
+
 }

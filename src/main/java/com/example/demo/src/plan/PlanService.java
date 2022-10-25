@@ -43,14 +43,57 @@ public class PlanService {
     {
         try{
             return planDao.createPlan(postPlanReq,planet_id);
-        }catch (Exception e)
+        }catch (BaseException e)
+        {
+            e.printStackTrace();
+            throw e;
+        }
+        catch (Exception e2)
+        {
+            e2.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    //세부계획 완료처리
+    @Transactional
+    public String completePlan (int detailed_plan_id)throws BaseException
+    {
+        try{
+            return planDao.completePlan(detailed_plan_id);
+
+        }
+        catch (BaseException e2)
+        {
+            e2.printStackTrace();
+            throw e2;
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    //삭제된 행성인지 체크
+    //세부계획 삭제처리
+    @Transactional
+    public String deletePlan (int detailed_plan_id)throws BaseException
+    {
+        try{
+            return planDao.deletePlan(detailed_plan_id);
+
+        }
+        catch (BaseException e2)
+        {
+            e2.printStackTrace();
+            throw e2;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
 
 }

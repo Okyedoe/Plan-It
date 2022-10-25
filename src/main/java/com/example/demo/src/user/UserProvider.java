@@ -2,7 +2,6 @@ package com.example.demo.src.user;
 
 
 import com.example.demo.config.BaseException;
-import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.SHA256;
