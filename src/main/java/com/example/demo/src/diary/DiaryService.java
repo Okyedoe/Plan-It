@@ -67,6 +67,7 @@ public class DiaryService {
                 throw new BaseException(DELETE_DIARY_ERROR);
             }
         }catch(Exception exception){
+            exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }

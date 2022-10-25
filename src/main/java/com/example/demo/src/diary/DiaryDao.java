@@ -76,6 +76,7 @@ public class DiaryDao {
         //다이어리 아이디에 맞는 이미지 리스트 가져오기
         for(int diary_idx : diary_id){
             List<String> img = getAllImages(user_id,diary_idx);
+
         }
         List<GetDiaryRes> diaryRes = new ArrayList<>();
 

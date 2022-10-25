@@ -43,6 +43,7 @@ public class UserController {
      * [GET] /users? Email=
      * @return BaseResponse<List<GetUserRes>>
      */
+    /*
     //Query String
     @ResponseBody
     @GetMapping("") // (GET) 127.0.0.1:9000/app/users
@@ -60,18 +61,20 @@ public class UserController {
         }
     }
 
+
+     */
     /**
-     * 회원 1명 조회 API
-     * [GET] /users/:userIdx
+     * 마이페이지
+     * [GET] /users/{user_id}
      * @return BaseResponse<GetUserRes>
      */
     // Path-variable
     @ResponseBody
-    @GetMapping("/{userIdx}") // (GET) 127.0.0.1:9000/app/users/:userIdx
-    public BaseResponse<GetUserRes> getUser(@PathVariable("userIdx") int userIdx) {
+    @GetMapping("/{user_id}")
+    public BaseResponse<GetUserRes> getUser(@PathVariable("user_id") int user_id) {
         // Get Users
         try{
-            GetUserRes getUserRes = userProvider.getUser(userIdx);
+            GetUserRes getUserRes = userProvider.getUser(user_id);
             return new BaseResponse<>(getUserRes);
         } catch(BaseException exception){
             exception.printStackTrace();

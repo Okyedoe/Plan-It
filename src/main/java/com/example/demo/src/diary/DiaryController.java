@@ -2,23 +2,16 @@ package com.example.demo.src.diary;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.src.diary.model.GetDiaryRes;
 import com.example.demo.src.diary.model.PostDiaryReq;
 import com.example.demo.src.diary.model.PostDiaryRes;
-import com.example.demo.src.journey.JourneyProvider;
-import com.example.demo.src.journey.JourneyService;
-import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.utils.JwtService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -96,8 +89,8 @@ public class DiaryController {
 
      */
     @ResponseBody
-    @DeleteMapping("/user_id")
-    public BaseResponse<String> deleteDiary(@PathVariable("user_id") int user_id, @RequestParam("diary_id") int diary_id) throws BaseException {
+    @DeleteMapping("/{user_id}")
+    public BaseResponse<String> deleteDiary(@PathVariable("user_id") int user_id, int diary_id) throws BaseException {
         try {
             //jwt에서 idx 추출.
             int userIdxByJwt = jwtService.getUserIdx();
