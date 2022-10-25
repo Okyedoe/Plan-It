@@ -123,6 +123,8 @@ public class PlanDao {
                 rs.getString("type")
 
         ),last_in_detailed_plan_id );
+
+
     }
 
     //오늘 세부계획 출력
