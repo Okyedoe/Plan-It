@@ -46,6 +46,15 @@ public enum BaseResponseStatus {
     FAIL_FILE_UPLOAD(false,2031,"파일업로드 실패"),
     EMPTY_CODE(false,2032,"인증번호가 비어있습니다."),
 
+    WRONG_TYPE_DAY(false,2033,"요일입력값의 타입이 틀렸습니다."),
+    WRONG_JWT(false,2034,"입력된jwt의 유저가 해당 계획의 주인이 아닙니다."),
+
+    ALREADY_DELETED(false,2035,"이미 삭제된 세부계획입니다."),
+    DUPLICATED_PLANET_NAME(false,2036,"중복된 행성이름이 존재합니다."),
+    EMPTY_DETAILED_PLAN(false,2037,"세부계획이 빈값입니다."),
+    EMPTY_KEYWORDS(false,2038,"키워드가 비어있습니다."),
+    WRONG_TYPE(false,2039,"잘못된 타입값입니다."),
+
 
 
 
