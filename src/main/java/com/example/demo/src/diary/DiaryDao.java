@@ -1,10 +1,15 @@
 package com.example.demo.src.diary;
 
+import com.example.demo.config.BaseException;
+import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.diary.model.GetDiary;
 import com.example.demo.src.diary.model.GetDiaryRes;
 import com.example.demo.src.diary.model.PostDiary;
 import com.example.demo.src.diary.model.PostDiaryRes;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,12 +57,25 @@ public class DiaryDao {
         return postdiaryRes;
     }
     public List<String> getAllImages(int user_id,int diary_id){
-        String getAllImagesQuery = "select diary_image_url from diary as a join diary_image as b on a.diary_id=b.diary_id where user_id= ? and a.diary_id = ?";
+        String getAllImagesQuery = "select diary_image_url from diary as a join diary_image as b on a.diary_id=b.diary_id where user_id= ? and a.diary_id = ? and status=1";
         Object[] getAllImagesParams =new Object[]{user_id,diary_id};
         return this.jdbcTemplate.query(getAllImagesQuery,
                 (rs, rowNum) -> new String(
                         rs.getString("diary_image_url"))
                 ,getAllImagesParams);
+    }
+
+    public GetDiary getDiaryResObject(int diary_id){
+        String sql = "select diary_id,emotion, evaluation,content,date_format(created_at, '%y-%m-%d') as created_at from diary where diary_id= ? and status=1";
+        return this.jdbcTemplate.queryForObject(sql,(rs,rowNum) -> new GetDiary(
+                rs.getInt("diary_id"),
+                rs.getString("emotion"),
+                rs.getInt("evaluation"),
+                rs.getString("content"),
+                rs.getString("created_at")
+                ),
+                diary_id
+                );
     }
 
     public int deleteDiary(int diary_id) {
@@ -68,25 +86,25 @@ public class DiaryDao {
 
 
 
-    /*
-    public List<GetDiaryRes> getAllDiary(int user_id) {
+    //날짜 필터링 없이 모든 다이어리 가져오기.
+    public List<GetDiaryRes> getAllDiary(int user_id)  {
+
         String getDiaryIdSql = "select diary_id from diary where user_id =? and status= 1";
         int getDiaryIdParams = user_id;
         List<Integer> diary_id = this.jdbcTemplate.queryForList(getDiaryIdSql, Integer.class, getDiaryIdParams);
+
+
         //다이어리 아이디에 맞는 이미지 리스트 가져오기
+        List<GetDiaryRes> getDiaryRes = new ArrayList<>();
         for(int diary_idx : diary_id){
+            GetDiary getDiary=getDiaryResObject(diary_idx);
             List<String> img = getAllImages(user_id,diary_idx);
-
+            GetDiaryRes temp = new GetDiaryRes(getDiary.getDiary_id(),getDiary.getEmotion(),getDiary.getEvaluation(),getDiary.getContent(),getDiary.getCreated_at(),img);
+            getDiaryRes.add(temp);
         }
-        List<GetDiaryRes> diaryRes = new ArrayList<>();
-
-
-
+        return getDiaryRes;
 
 
     }
-
-     */
-
 
 }

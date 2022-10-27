@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -12,9 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetDiaryRes {
+    private int diary_id;
     private String emotion;
     private int evaluation;
     private String content;
-    private String create_time;
+    private String created_at;
     private List<String> images;
 }

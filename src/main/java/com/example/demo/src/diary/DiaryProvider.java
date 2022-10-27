@@ -27,7 +27,7 @@ public class DiaryProvider {
 
       */
 
-    /*
+
     public List<GetDiaryRes> getAllDiary(int user_id) throws BaseException {
     try{
         return diaryDao.getAllDiary(user_id);
@@ -38,6 +38,6 @@ public class DiaryProvider {
     }
 
 
-     */
+
 
 }

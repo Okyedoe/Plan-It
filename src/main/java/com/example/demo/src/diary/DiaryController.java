@@ -3,6 +3,7 @@ package com.example.demo.src.diary;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.diary.model.GetDiaryRes;
 import com.example.demo.src.diary.model.PostDiaryReq;
 import com.example.demo.src.diary.model.PostDiaryRes;
 import com.example.demo.utils.JwtService;
@@ -13,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -56,7 +59,7 @@ public class DiaryController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
-    /*
+
     @ResponseBody
     @GetMapping("/{user_id}")
     public BaseResponse<List<GetDiaryRes>> getAllDiary(@PathVariable("user_id") int user_id) throws BaseException{
@@ -78,7 +81,7 @@ public class DiaryController {
         }
 }
 
-     */
+
 
 
     /*  이미지 url리스트 형식으로 잘 나오는지 테스트해본 컨트롤러
