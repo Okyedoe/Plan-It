@@ -72,6 +72,8 @@ dependencies {
     //서버 재시작없이 바로 반영하기
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    //카카오 json parsing을위한 gson설치
+    dependencies { implementation 'com.google.code.gson:gson:2.8.7' }
 
 
 
