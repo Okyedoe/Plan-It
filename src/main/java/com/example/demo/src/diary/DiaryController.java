@@ -3,12 +3,17 @@ package com.example.demo.src.diary;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.diary.model.GetDiaryReq;
 import com.example.demo.src.diary.model.GetDiaryRes;
 import com.example.demo.src.diary.model.PostDiaryReq;
 import com.example.demo.src.diary.model.PostDiaryRes;
 import com.example.demo.utils.JwtService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
+import static com.example.demo.utils.ValidationRegex.isRegexDate;
 
-@Api(tags = "DIARY API")
+@Api(tags = "하루기록 API")
 @RestController
 @RequestMapping("/diary")
 public class DiaryController {
@@ -37,7 +43,23 @@ public class DiaryController {
         this.jwtService = jwtService;
     }
 
-    @ApiOperation(value = "다이어리 생성 api", notes = "기간,키워드,행성이름,행성세부계획까지 모든 정보를 받아와서 여정을 만듭니다.")
+    @ApiOperation(value = "하루기록 생성 api",notes = "유저아이디, 감정 한줄평, 하루평가, 하루기록 내용, 이미지를 받아옵니다.")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
+                    @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
+            }
+    )
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "user_id",value = "유저아이디")
+            }
+
+    )
     @ResponseBody
     @PostMapping("/{user_id}")
     @Transactional
@@ -59,6 +81,25 @@ public class DiaryController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    @ApiOperation(value = "전체 하루기록 조회 api",notes = "날짜 필터링 전 모든 하루기록을 보여줍니다.")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
+                    @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
+            }
+    )
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "user_id",value = "유저아이디")
+            }
+
+    )
+
 
     @ResponseBody
     @GetMapping("/{user_id}")
@@ -92,6 +133,27 @@ public class DiaryController {
         }
 
      */
+
+
+
+    @ApiOperation(value = "하루기록 삭제 api",notes = "유저아이디, 다이어리아이디를 받아와서 하루기록을 삭제합니다.")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
+                    @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다."),
+                    @ApiResponse(responseCode = "4501", description = "다이어리 삭제에 실패했습니다")
+            }
+    )
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "user_id",value = "유저아이디")
+            }
+
+    )
     @ResponseBody
     @DeleteMapping("/{user_id}")
     public BaseResponse<String> deleteDiary(@PathVariable("user_id") int user_id, int diary_id) throws BaseException {
@@ -108,6 +170,57 @@ public class DiaryController {
             exception.printStackTrace();
             return new BaseResponse<>(exception.getStatus());
         }
+    }
+
+    @ApiOperation(value = "날짜별 하루기록 조회 api",notes = "유저아이디,yymmdd형식의 시작일과 마지막날 날짜를 받아 하루기록을 보여줍니다.")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
+                    @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다."),
+                    @ApiResponse(responseCode = "2501", description = "시작날짜를 입력해주세요"),
+                    @ApiResponse(responseCode = "2502", description = "마지막날짜를 입력해주세요"),
+                    @ApiResponse(responseCode = "2503", description = "날짜에 숫자를 입력해주세요")
+            }
+    )
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "user_id",value = "유저아이디")
+            }
+
+    )
+
+    @Transactional
+    @ResponseBody
+    @GetMapping("/date/{user_id}")
+    public BaseResponse<List<GetDiaryRes>> getDiary(@PathVariable("user_id") int user_id, GetDiaryReq getDiaryReq) throws BaseException{
+    if(getDiaryReq.getStart_date()== null){
+        return new BaseResponse<>(START_DATE_ERROR);
+    }
+    else if(getDiaryReq.getEnd_date()==null){
+        return new BaseResponse<>(END_DATE_ERROR);
+    }
+    else if(!isRegexDate(getDiaryReq.getStart_date()) || !isRegexDate(getDiaryReq.getEnd_date())){
+        return new BaseResponse<>(DATE_NUM_ERROR);
+    }
+    try{//jwt에서 idx 추출.
+        int userIdxByJwt = jwtService.getUserIdx();
+        //userIdx와 접근한 유저가 같은지 확인
+        if(user_id != userIdxByJwt){
+            return new BaseResponse<>(INVALID_USER_JWT);
+        }
+        List<GetDiaryRes> getDiaryRes = diaryProvider.getDiary(user_id,getDiaryReq);
+        return new BaseResponse<>(getDiaryRes);
+
+    }
+    catch (BaseException exception)
+    {
+        exception.printStackTrace();
+        return new BaseResponse<>(exception.getStatus());
+    }
     }
 }
 
