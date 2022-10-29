@@ -3,10 +3,12 @@ package com.example.demo.src.diary;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.diary.model.GetDiaryReq;
 import com.example.demo.src.diary.model.GetDiaryRes;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class DiaryProvider {
 
       */
 
-    /*
+    @Transactional
     public List<GetDiaryRes> getAllDiary(int user_id) throws BaseException {
     try{
         return diaryDao.getAllDiary(user_id);
@@ -37,7 +39,13 @@ public class DiaryProvider {
     }
     }
 
-
-     */
-
+    @Transactional
+    public List<GetDiaryRes> getDiary(int user_id, GetDiaryReq getDiaryReq) throws BaseException{
+        try{
+            return diaryDao.getDiary(user_id,getDiaryReq);
+        }catch (Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }

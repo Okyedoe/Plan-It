@@ -9,6 +9,11 @@ public class ValidationRegex {
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(target);
         return matcher.find();
+        }
+    public static boolean isRegexDate(String target){
+        String regex = "^[0-9]*$";
+        boolean result = Pattern.matches(regex,target);
+        return result;
     }
 }
 

@@ -60,6 +60,12 @@ public enum BaseResponseStatus {
 
 
 
+    START_DATE_ERROR(false, 2501,"시작날짜를 입력해주세요"),
+    END_DATE_ERROR(false, 2502,"마지막날짜를 입력해주세요"),
+    DATE_NUM_ERROR(false,2503,"날짜에 숫자를 입력해주세요"),
+
+
+
     /**
      * 3000 : Response 오류
      */
