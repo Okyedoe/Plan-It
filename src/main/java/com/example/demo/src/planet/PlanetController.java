@@ -283,6 +283,7 @@ public class PlanetController {
         try{
             //jwt에서 idx 추출겸 , jwt검사
             int userIdxByJwt = jwtService.getUserIdx();
+
             int user_id_planet = planProvider.getUser_id_from_planet_id(planet_id);
 
             if(planetProvider.checkPlanet(planet_id)==0){ //삭제된 행성인지
