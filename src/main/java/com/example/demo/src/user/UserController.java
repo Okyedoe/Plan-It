@@ -1,6 +1,12 @@
 package com.example.demo.src.user;
 
 import com.example.demo.src.mail.MailService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.demo.config.BaseException;
@@ -8,6 +14,7 @@ import com.example.demo.config.BaseResponse;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +22,7 @@ import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 import static com.example.demo.utils.ValidationRegex.isRegexEmail;
-
+@Api(tags = "회원관리 API")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -73,14 +80,38 @@ public class UserController {
      * @return BaseResponse<GetUserRes>
      */
     // Path-variable
+    @ApiOperation(value = "마이페이지 API",notes = "유저아이디를 받아와 유저의 정보를 가져옵니다. ")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
+                    @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
+            }
+    )
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "user_id",value = "유저아이디")
+            }
+
+    )
     @ResponseBody
     @GetMapping("/{user_id}")
     public BaseResponse<GetUserRes> getUser(@PathVariable("user_id") int user_id) {
         // Get Users
-        try{
+        try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if (user_id != userIdxByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
             GetUserRes getUserRes = userProvider.getUser(user_id);
             return new BaseResponse<>(getUserRes);
-        } catch(BaseException exception){
+
+        }   catch(BaseException exception){
             exception.printStackTrace();
             return new BaseResponse<>((exception.getStatus()));
         }
@@ -93,6 +124,20 @@ public class UserController {
      * @return BaseResponse<PostUserRes>
      */
     // Body
+
+    @ApiOperation(value = "일반 회원가입 API",notes = "유저의 정보를 받아와 회원가입을 진행합니다. ")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2015", description = "이메일을 입력해주세요."),
+                    @ApiResponse(responseCode = "2016", description = "이메일 형식을 확인해주세요."),
+                    @ApiResponse(responseCode = "2017", description = "중복된 이메일입니다."),
+                    @ApiResponse(responseCode = "4011", description = "비밀번호 암호화에 실패하였습니다.")
+            }
+    )
+    @Transactional
     @ResponseBody
     @PostMapping("/create")
     public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) throws BaseException {
@@ -104,9 +149,6 @@ public class UserController {
         if(!isRegexEmail(postUserReq.getEmail())){
             return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
         }
-
-
-
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
             return new BaseResponse<>(postUserRes);
@@ -121,9 +163,24 @@ public class UserController {
      * @return BaseResponse<PostLoginRes>
      */
 
+    @ApiOperation(value = "일반 로그인 API",notes = "유저의 이메일 비밀번호를 받아와 로그인합니다. ")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2015", description = "이메일을 입력해주세요."),
+                    @ApiResponse(responseCode = "2016", description = "이메일 형식을 확인해주세요."),
+                    @ApiResponse(responseCode = "4012", description = "비밀번호 복호화에 실패하였습니다.")
+            }
+    )
+    @Transactional
     @ResponseBody
     @PostMapping("/logIn")
     public BaseResponse<PostLoginRes> logIn(@RequestBody PostLoginReq postLoginReq){
+        if(postLoginReq.getEmail() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_EMAIL);
+        }
         try{
             if(!isRegexEmail(postLoginReq.getEmail())){
                 return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
@@ -143,10 +200,10 @@ public class UserController {
      * [PATCH] /users/:userIdx
      * @return BaseResponse<String>
      */
-    /*
+
     @ResponseBody
     @PatchMapping("/{userIdx}")
-    public BaseResponse<String> modifyUserName(@PathVariable("userIdx") int userIdx, @RequestBody User user){
+    public BaseResponse<String> modifyUserName(@PathVariable("userIdx") int userIdx, @RequestBody PatchUserReq patchUserReq){
         try {
             //jwt에서 idx 추출.
             int userIdxByJwt = jwtService.getUserIdx();
@@ -154,8 +211,7 @@ public class UserController {
             if(userIdx != userIdxByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            //같다면 유저네임 변경
-            PatchUserReq patchUserReq = new PatchUserReq(userIdx,user.getUserName());
+
             userService.modifyUserName(patchUserReq);
 
             String result = "";
@@ -164,7 +220,16 @@ public class UserController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
-*/
+    @ApiOperation(value = "회원탈퇴 API",notes = "유저의 id를 받아와 회원탈퇴를 합니다. ")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
+
+            }
+    )
     @ResponseBody
     @DeleteMapping("/{user_id}")
     public BaseResponse<String> deleteUser(@PathVariable("user_id") int user_id) throws BaseException{

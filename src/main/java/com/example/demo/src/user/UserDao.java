@@ -6,6 +6,7 @@ import com.example.demo.src.user.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
@@ -58,7 +59,7 @@ public class UserDao {
                 getUserParams);
     }
     
-
+    @Transactional
     public int createUser(PostUserReq postUserReq){
         String createUserQuery = "insert into user (email, password, user_name,phone_num) VALUES (?,?,?,?)";
         Object[] createUserParams = new Object[]{postUserReq.getEmail(),postUserReq.getPassword(),postUserReq.getUser_name(),postUserReq.getPhone_num()};
@@ -77,15 +78,14 @@ public class UserDao {
 
     }
 
-    public int modifyUserName(PatchUserReq patchUserReq){
-        String modifyUserNameQuery = "update UserInfo set userName = ? where userIdx = ? ";
-        Object[] modifyUserNameParams = new Object[]{patchUserReq.getUserName(), patchUserReq.getUserIdx()};
-
+    public int modifyUserName(User user){
+        String modifyUserNameQuery = "update user set password = ? and user_name =?and  phone_num =? and profile_url = ? where user_id = ? ";
+        Object[] modifyUserNameParams = new Object[]{user.getPassword(),user.getUser_name(),user.getPhone_num(),user.getProfile_url(),user.getUser_id()};
         return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
     }
 
     public User getPwd(PostLoginReq postLoginReq){
-        String getPwdQuery = "select user_id,password,user_name,phone_num from user where email = ?";
+        String getPwdQuery = "select user_id,password,user_name,phone_num,profile_url from user where email = ?";
         String getPwdParams = postLoginReq.getEmail();
 
         return this.jdbcTemplate.queryForObject(getPwdQuery,
@@ -93,7 +93,8 @@ public class UserDao {
                         rs.getInt("user_id"),
                         rs.getString("password"),
                         rs.getString("user_name"),
-                        rs.getString("phone_num")
+                        rs.getString("phone_num"),
+                        rs.getString("profile_url")
                 ),
                 getPwdParams
                 );
@@ -125,5 +126,23 @@ public class UserDao {
         String Sql = "select user_id from user where kakao_id = ? and status = 1";
         String Param = id;
         return this.jdbcTemplate.queryForObject(Sql,int.class,Param);
+    }
+
+    public void connKakao(String id, String email) {
+        String Sql = "update user set kakao_id = ?  where email = ?";
+        Object[] Params = new Object[]{id,email};
+        this.jdbcTemplate.update(Sql,Params);
+    }
+
+    public User getUserInfo(int userIdx) {
+        String Sql = "select password,user_name,phone_num,profile_url from user where user_id = ?";
+        int Param = userIdx;
+        return this.jdbcTemplate.queryForObject(Sql,(rs,rowNum)-> new User(
+                rs.getInt("user_id"),
+                rs.getString("password"),
+                rs.getString("user_name"),
+                rs.getString("phone_num"),
+                rs.getString("profile_url")
+        ),Param);
     }
 }

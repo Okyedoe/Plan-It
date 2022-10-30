@@ -5,6 +5,7 @@ import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.kakao.model.PostOAuthReq;
 import com.example.demo.src.kakao.model.PostOAuthRes;
 import com.example.demo.src.user.UserDao;
+import com.example.demo.src.user.UserProvider;
 import com.example.demo.utils.JwtService;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonElement;
@@ -27,9 +28,11 @@ public class OAuthService {
     private JwtService jwtService;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private UserProvider userProvider;
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public OAuthService(OAuthProvider oAuthProvider, JwtService jwtService,UserDao userDao){
+    public OAuthService(UserProvider userProvider, OAuthProvider oAuthProvider, JwtService jwtService,UserDao userDao){
         this.jwtService=jwtService;
         this.oAuthProvider=oAuthProvider;
         this.userDao=userDao;
@@ -132,11 +135,19 @@ public class OAuthService {
             br.close();
 
             if(oAuthProvider.isKakaoUser(id)==0){
-                PostOAuthReq postOAuthReq = new PostOAuthReq(id,email,name);
-                int user_id = userDao.createKakao(postOAuthReq);
-                String jwt = jwtService.createJwt(user_id);
-                PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt);
-                return postOAuthRes;
+                if(userProvider.checkEmail(email)==1){
+                    userDao.connKakao(id,email);
+                    int user_id = userDao.KakaoUserInfo(id);
+                    String jwt = jwtService.createJwt(user_id);
+                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt);
+                    return postOAuthRes;
+                }else {
+                    PostOAuthReq postOAuthReq = new PostOAuthReq(id, email, name);
+                    int user_id = userDao.createKakao(postOAuthReq);
+                    String jwt = jwtService.createJwt(user_id);
+                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id, jwt);
+                    return postOAuthRes;
+                }
             }
             else {
                 int user_id = userDao.KakaoUserInfo(id);
