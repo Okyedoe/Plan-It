@@ -1,13 +1,13 @@
 package com.example.demo.src.user;
 
 
+import com.example.demo.src.kakao.model.PostOAuthReq;
 import com.example.demo.src.user.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 @Repository
 public class UserDao {
@@ -105,5 +105,25 @@ public class UserDao {
         String deleteUserQuery = "update user set status = 0 where user_id =? and status = 1";
         int deleteUserParams = user_id;
         return this.jdbcTemplate.update(deleteUserQuery,deleteUserParams);
+    }
+
+    public int isKakaoUser(String kakao_id) {
+        String Sql = "select count(kakao_id) from user where kakao_id= ?";
+        String Param = kakao_id;
+        return this.jdbcTemplate.queryForObject(Sql,int.class,Param);
+    }
+
+    public int createKakao(PostOAuthReq postOAuthReq) {
+        String Sql = "insert into user (kakao_id,email, password, user_name,phone_num) VALUES (?,?,'akjkz15434ajk',?,01012345678)";
+        Object[] Params = new Object[]{postOAuthReq.getKakao_id(),postOAuthReq.getEmail(),postOAuthReq.getName()};
+        this.jdbcTemplate.update(Sql,Params);
+        String lastInserIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInserIdQuery,int.class);
+    }
+
+    public int KakaoUserInfo(String id) {
+        String Sql = "select user_id from user where kakao_id = ? and status = 1";
+        String Param = id;
+        return this.jdbcTemplate.queryForObject(Sql,int.class,Param);
     }
 }
