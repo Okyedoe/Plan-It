@@ -79,9 +79,15 @@ public class UserDao {
     }
 
     public int modifyUserName(User user){
-        String modifyUserNameQuery = "update user set password = ? and user_name =?and  phone_num =? and profile_url = ? where user_id = ? ";
-        Object[] modifyUserNameParams = new Object[]{user.getPassword(),user.getUser_name(),user.getPhone_num(),user.getProfile_url(),user.getUser_id()};
-        return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
+        String modifyUserNameQuery = "update user set password = ? and user_name =? and  phone_num =? and profile_url = ? where user_id = ? ";
+        Object[] modifyUserNameParams = new Object[]{
+                user.getPassword(),
+                user.getUser_name(),
+                user.getPhone_num(),
+                user.getProfile_url(),
+                user.getUser_id()};
+
+        return this.jdbcTemplate.update(modifyUserNameQuery,int.class,modifyUserNameParams);
     }
 
     public User getPwd(PostLoginReq postLoginReq){
@@ -135,7 +141,7 @@ public class UserDao {
     }
 
     public User getUserInfo(int userIdx) {
-        String Sql = "select password,user_name,phone_num,profile_url from user where user_id = ?";
+        String Sql = "select user_id,password,user_name,phone_num,profile_url from user where user_id = ?";
         int Param = userIdx;
         return this.jdbcTemplate.queryForObject(Sql,(rs,rowNum)-> new User(
                 rs.getInt("user_id"),

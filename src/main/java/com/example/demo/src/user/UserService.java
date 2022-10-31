@@ -107,11 +107,14 @@ public class UserService {
 
 
         try{
+
             int result = userDao.modifyUserName(user);
             if(result == 0){
                 throw new BaseException(MODIFY_FAIL_USERNAME);
             }
         } catch(Exception exception){
+            System.out.println(user.getUser_name()+" "+user.getPhone_num()+" "+user.getUser_id()+" "+user.getPassword()+" "+user.getProfile_url());
+            exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }

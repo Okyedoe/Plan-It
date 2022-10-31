@@ -57,10 +57,10 @@ public class MailController {
         }
 
         try{
-
+            String result = "요청성공";
             String verifyCodeId = mailService.sendCertificationMail(postMailreq.getEmail());
 
-            return new BaseResponse<>(verifyCodeId);
+            return new BaseResponse<>(result);
         }
         catch (BaseException baseException){
             return  new BaseResponse<>(baseException.getStatus());

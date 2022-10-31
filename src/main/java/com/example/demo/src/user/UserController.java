@@ -200,10 +200,19 @@ public class UserController {
      * [PATCH] /users/:userIdx
      * @return BaseResponse<String>
      */
-
+    @ApiOperation(value = "유저 정보 수정 API",notes = "유저가 수정할 정보를 받아옵니다. ")
+    @ApiResponses(
+            {
+                    @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
+                    @ApiResponse(responseCode = "1000", description = "요청에 성공하였습니다."),
+                    @ApiResponse(responseCode = "4000", description = "데이터베이스 연결에 실패하였습니다."),
+                    @ApiResponse(responseCode = "4012", description = "비밀번호 복호화에 실패하였습니다.")
+            }
+    )
+    @Transactional
     @ResponseBody
-    @PatchMapping("/{userIdx}")
-    public BaseResponse<String> modifyUserName(@PathVariable("userIdx") int userIdx, @RequestBody PatchUserReq patchUserReq){
+    @PostMapping("/modification/{userIdx}")
+    public BaseResponse<String> modifyUserName(@PathVariable("userIdx") int userIdx, @ModelAttribute PatchUserReq patchUserReq){
         try {
             //jwt에서 idx 추출.
             int userIdxByJwt = jwtService.getUserIdx();
