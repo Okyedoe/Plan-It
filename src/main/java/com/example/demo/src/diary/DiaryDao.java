@@ -125,4 +125,18 @@ public class DiaryDao {
         }
         return getDiaryRes;
     }
+
+    public double[] getEval(int user_id) {
+        double[] eval = new double[5];
+        int start_date = 35;
+        int end_date = 28;
+        for(int i = 0 ; i <eval.length;i++){
+            String Sql = "select ifnull(sum(evaluation)/count(*),0) from diary where user_id = ? and created_at between date_sub(now(),interval ? day) and date_sub(now(),interval ? day)";
+            Object[] Params = new Object[]{user_id,start_date,end_date};
+            eval[i]=this.jdbcTemplate.queryForObject(Sql,double.class,Params);
+            start_date-=7;
+            end_date-=7;
+        }
+        return eval;
+    }
 }
