@@ -61,7 +61,7 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
+    @Transactional
     public void modifyUserName(PatchUserReq patchUserReq) throws BaseException {
         User user = userProvider.getUserInfo(patchUserReq.getUser_id());
         String pwd = patchUserReq.getPassword();

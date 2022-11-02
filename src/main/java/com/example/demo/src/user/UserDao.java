@@ -78,7 +78,7 @@ public class UserDao {
                 checkEmailParams);
 
     }
-
+    @Transactional
     public int modifyUserName(User user){
 
         String modifyUserNameQuery = "update user set password = ?,user_name =?,phone_num=?,profile_url = ? where user_id = ? ";
