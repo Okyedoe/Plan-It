@@ -3,7 +3,8 @@
 name: planet-system
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
   
 env:
   S3_BUCKET_NAME: wogus-planet-bucket
