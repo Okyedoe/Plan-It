@@ -223,7 +223,7 @@ public class UserController {
 
             userService.modifyUserName(patchUserReq);
 
-            String result = "";
+            String result = "유저 정보 수정 성공";
         return new BaseResponse<>(result);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
