@@ -3,6 +3,7 @@ package com.example.demo.src.user;
 
 import com.example.demo.src.kakao.model.PostOAuthReq;
 import com.example.demo.src.user.model.*;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -79,7 +80,7 @@ public class UserDao {
     }
 
     public int modifyUserName(User user){
-        String modifyUserNameQuery = "update user set password = ? and user_name =? and  phone_num =? and profile_url = ? where user_id = ? ";
+        String modifyUserNameQuery = "update user set password = ?,user_name =?,phone_num=?,profile_url = ? where user_id = ? ";
         Object[] modifyUserNameParams = new Object[]{
                 user.getPassword(),
                 user.getUser_name(),
@@ -87,7 +88,7 @@ public class UserDao {
                 user.getProfile_url(),
                 user.getUser_id()};
 
-        return this.jdbcTemplate.update(modifyUserNameQuery,int.class,modifyUserNameParams);
+        return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
     }
 
     public User getPwd(PostLoginReq postLoginReq){
