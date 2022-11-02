@@ -1,17 +1,43 @@
 package com.example.demo.src.kakao;
 
 import com.example.demo.config.BaseException;
+import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.kakao.model.PostOAuthReq;
+import com.example.demo.src.kakao.model.PostOAuthRes;
+import com.example.demo.src.user.UserDao;
+import com.example.demo.src.user.UserProvider;
+import com.example.demo.utils.JwtService;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class OAuthService {
+    @Autowired
+    private OAuthProvider oAuthProvider;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private UserProvider userProvider;
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public OAuthService(UserProvider userProvider, OAuthProvider oAuthProvider, JwtService jwtService,UserDao userDao){
+        this.jwtService=jwtService;
+        this.oAuthProvider=oAuthProvider;
+        this.userDao=userDao;
+    }
+
     public String getKakaoAccessToken (String code) {
         String access_Token = "";
         String refresh_Token = "";
@@ -67,7 +93,7 @@ public class OAuthService {
 
         return access_Token;
     }
-    public void createKakaoUser(String token) throws BaseException {
+    public PostOAuthRes createKakaoUser(String token) throws BaseException {
 
         String reqURL = "https://kapi.kakao.com/v2/user/me";
 
@@ -98,20 +124,41 @@ public class OAuthService {
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(result);
 
-            int id = element.getAsJsonObject().get("id").getAsInt();
+            String id = element.getAsJsonObject().get("id").getAsString();
             boolean hasEmail = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_email").getAsBoolean();
             String email = "";
             if(hasEmail){
                 email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
             }
-
-            System.out.println("id : " + id);
-            System.out.println("email : " + email);
+            String name  = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("profile").getAsJsonObject().get("nickname").getAsString();
 
             br.close();
 
+            if(oAuthProvider.isKakaoUser(id)==0){
+                if(userProvider.checkEmail(email)==1){
+                    userDao.connKakao(id,email);
+                    int user_id = userDao.KakaoUserInfo(id);
+                    String jwt = jwtService.createJwt(user_id);
+                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt);
+                    return postOAuthRes;
+                }else {
+                    PostOAuthReq postOAuthReq = new PostOAuthReq(id, email, name);
+                    int user_id = userDao.createKakao(postOAuthReq);
+                    String jwt = jwtService.createJwt(user_id);
+                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id, jwt);
+                    return postOAuthRes;
+                }
+            }
+            else {
+                int user_id = userDao.KakaoUserInfo(id);
+                String jwt = jwtService.createJwt(user_id);
+                PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt);
+                return postOAuthRes;
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
 

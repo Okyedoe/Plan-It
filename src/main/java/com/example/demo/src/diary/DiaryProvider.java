@@ -48,4 +48,14 @@ public class DiaryProvider {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public double[] getEval(int user_id) throws BaseException{
+        try{
+            return diaryDao.getEval(user_id);
+        }
+        catch (Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }

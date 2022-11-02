@@ -1,4 +1,4 @@
-package com.example.demo.src.user.model;
+package com.example.demo.src.kakao.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class PostOAuthRes {
     private int user_id;
-    private String password;
-    private String user_name;
-    private String phone_num;
-    private String profile_url;
+    private String jwt;
 }

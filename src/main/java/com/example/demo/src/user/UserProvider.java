@@ -91,5 +91,8 @@ public class UserProvider {
     }
 
 
-
+    public User getUserInfo(int userIdx) throws BaseException {
+        User user = userDao.getUserInfo(userIdx);
+        return user;
+    }
 }

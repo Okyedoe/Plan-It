@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,7 +33,7 @@ public class AwsS3Service{
     private static String region = "ap-northeast-2";
 
     private final AmazonS3 amazonS3;
-
+    @Transactional
     public String uploadImage(MultipartFile file){
         return getFilenameAndPutS3(file);
     }

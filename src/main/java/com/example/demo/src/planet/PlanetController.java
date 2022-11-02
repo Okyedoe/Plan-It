@@ -34,7 +34,7 @@ import static com.example.demo.config.BaseResponseStatus.*;
 @RequestMapping("/planets")
 public class PlanetController {
 
-
+    //주석주석주석주석
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
