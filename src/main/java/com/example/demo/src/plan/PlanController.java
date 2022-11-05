@@ -2,6 +2,7 @@ package com.example.demo.src.plan;
 
 import com.example.demo.src.journey.JourneyProvider;
 import com.example.demo.src.journey.JourneyService;
+import com.example.demo.src.journey.model.PatchPlanRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.plan.model.GetTodayPlanRes;
@@ -255,7 +256,7 @@ public class PlanController {
      * 완료처리인데 누르면 미완료
      * 미완료인데 누르면 완료처리
      * */
-    @ApiOperation(value = "세부계획 완료,미완료 처리 api  ", notes = "세부계획 완료,미완료처리 api입니다 완료상태인 세부계획을 누르면 미완료로 미완료상태인 세부계획을 누르면 완료처리해줍니다.")
+    @ApiOperation(value = "세부계획 완료,미완료 처리 api  ", notes = "세부계획 완료,미완료처리 api입니다 완료상태인 세부계획을 누르면 미완료로 미완료상태인 세부계획을 누르면 완료처리해줍니다. + 마음가짐타입의 세부계획은 완료를 못하게 vaildation 처리하였습니다.")
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),
@@ -265,7 +266,8 @@ public class PlanController {
                     @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
                     @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
                     @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다."),
-                    @ApiResponse(responseCode = "2034", description = "입력된jwt의 유저가 해당 계획의 주인이 아닙니다.")
+                    @ApiResponse(responseCode = "2034", description = "입력된jwt의 유저가 해당 계획의 주인이 아닙니다."),
+                @ApiResponse(responseCode = "2042", description = "마음가짐타입은 완료처리할 수 없습니다.")
             }
     )
     @ApiImplicitParams(
@@ -277,7 +279,7 @@ public class PlanController {
     @Transactional
     @ResponseBody
     @PatchMapping("/{detailed_plan_id}")
-    public BaseResponse<String> completePlan (@PathVariable("detailed_plan_id")int detailed_plan_id)
+    public BaseResponse<PatchPlanRes> completePlan (@PathVariable("detailed_plan_id")int detailed_plan_id)
     {
         try{
             //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 세부계획 주인이 맞는지 체크.
@@ -288,11 +290,11 @@ public class PlanController {
             {
                 return new BaseResponse<>(WRONG_JWT);
             }
-            //삭제된 세부계획인지 체크
+            //삭제된 세부계획인지 체크 -> dao에서
 
 
-            String result = planService.completePlan(detailed_plan_id);
-            return new BaseResponse<>(result);
+            PatchPlanRes patchPlanRes = planService.completePlan(detailed_plan_id);
+            return new BaseResponse<>(patchPlanRes);
 
         }catch (BaseException e)
         {

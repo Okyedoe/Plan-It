@@ -1,6 +1,7 @@
 
 package com.example.demo.src.plan;
 import com.example.demo.config.BaseException;
+import com.example.demo.src.journey.model.PatchPlanRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.plan.model.GetTodayPlanRes;
@@ -181,21 +182,25 @@ public class PlanDao {
 
         System.out.println(planet_ids.size() +":"+ planet_ids.get(0)); // 잘저장된걸 확인가능.
 
-
-        //행성값들을 이용하여 마음가짐,일회성, 오늘 요일과 맞는 세부계획들을 가져온다.
+        //해당없음 행성의 1회성애들도 가져와야한다 -> 딱히 수정할 부분은 없음.
+        //행성값들을 이용하여 마음가짐,1회성, 오늘 요일과 맞는 세부계획들을 가져온다.  ,, status가 0이 아닌애들을 가져와야한다. + is_completed를 이용하여 완료된건지 아닌지도 리턴에추가
         List<GetTodayPlanRes> result = new ArrayList<>();
 
         for(int i=0;i<planet_ids.size();i++)
         {
-            String getToday ="select detailed_plan.planet_id,plan_content,type,planet_image from detailed_plan\n" +
-                    "left join planet p on p.planet_id = detailed_plan.planet_id where detailed_plan.planet_id = ?";
+            //status를 이용하여 삭제되지않은걸 가져와야함.
+            String getToday ="select detailed_plan.planet_id,plan_content,type,planet_image,is_completed,detailed_plan_id from detailed_plan\n" +
+                    "left join planet p on p.planet_id = detailed_plan.planet_id where detailed_plan.planet_id = ? and detailed_plan.status =1";
             int current_id = planet_ids.get(i);
-            List<GetTodayPlanRes> temp = this.jdbcTemplate.query(getToday,(rs, rowNum) ->new GetTodayPlanRes(
+            List<GetTodayPlanRes> temp = this.jdbcTemplate.query(getToday,
+                (rs, rowNum) -> new GetTodayPlanRes(
                     rs.getInt("planet_id"),
                     rs.getString("planet_image"),
                     rs.getString("plan_content"),
-                    rs.getString("type")
-            ) ,current_id);
+                    rs.getString("type"),
+                    rs.getInt("is_completed"),
+                    rs.getInt("detailed_plan_id")
+                ), current_id);
             result.addAll(temp);
         }
         //마음가짐,1회성,매일루틴  ++ 해당요일에 맞는 애들만 가져오기
@@ -211,57 +216,76 @@ public class PlanDao {
         {
             String current_type = result.get(j).getType();
             System.out.println("현재 current_type값 : "+current_type);
-            if(current_type.contains(","))
-            {
+
+            if (current_type.equals("루틴")) {
+                //해당 세부계획아이디를 이용해서 모든 요일을 가져온다.
+                String dayQuery = "select day_of_week\n"
+                    + "from plan_day_of_week\n"
+                    + "where detailed_plan_id = ? and status = 1;";
+
+                List<String> dayList = this.jdbcTemplate.query(dayQuery,(rs, rowNum) -> new String(rs.getString("day_of_week")),result.get(j).getDetailed_plan_id()); //요일들 가져옴.
+                String tt = "";
+                for (String day : dayList) {
+                    tt += day+",";
+                }
                 switch (day_val)
                 {
                     case 1 :
-                        if(current_type.contains("월"))
+                        if(tt.contains("월"))
                         {
+                            result.get(j).setType("루틴 :"+tt);
                             real_result.add(result.get(j));
                         }
                         break;
                     case 2 :
-                        System.out.println("들어온값 : "+current_type);
-                        if(current_type.contains("화"))
+                        System.out.println("들어온값 : "+tt);
+                        if(tt.contains("화"))
                         {
+                            result.get(j).setType("루틴 :"+tt);
                             real_result.add(result.get(j));
                         }
                         break;
                     case 3 :
-                        if(current_type.contains("수"))
+                        if(tt.contains("수"))
                         {
+                            result.get(j).setType("루틴 :"+tt);
                             real_result.add(result.get(j));
                         }
                         break;
                     case 4 :
-                        if(current_type.contains("목"))
+                        if(tt.contains("목"))
                         {
+                            result.get(j).setType("루틴 :"+tt);
                             real_result.add(result.get(j));
                         }
                         break;
                     case 5 :
-                        if(current_type.contains("금"))
+                        if(tt.contains("금"))
                         {
+                            result.get(j).setType("루틴 :"+tt);
                             real_result.add(result.get(j));
                         }
                         break;
                     case 6 :
-                        if(current_type.contains("토"))
+                        if(tt.contains("토"))
                         {
+                            result.get(j).setType("루틴 :"+tt);
                             real_result.add(result.get(j));
                         }
                         break;
                     case 7 :
-                        if(current_type.contains("일"))
+                        if(tt.contains("일"))
                         {
+                            result.get(j).setType("루틴 :"+tt);
                             real_result.add(result.get(j));
                         }
                         break;
 
 
                 }
+
             }
+
             else{
                 real_result.add(result.get(j));
             }
@@ -276,25 +300,88 @@ public class PlanDao {
 
     }
 
-    //세부계획 완료처리 , 이미 완료 처리되어있다면 미완료로 바꿈.
+    //세부계획 완료처리 , 이미 완료 처리되어있다면 미완료로 바꿈 , 삭제된건지 체크
     @Transactional
-    public String completePlan (int detailed_plan_id) throws BaseException
+    public PatchPlanRes completePlan (int detailed_plan_id) throws BaseException
     {
+        String typecheck = "select type from detailed_plan where detailed_plan_id =?";
+        String current_type = this.jdbcTemplate.queryForObject(typecheck, String.class,
+            detailed_plan_id);
+        if (current_type != null && current_type.equals("마음가짐")) {
+            throw new BaseException(CANNOT_COMPLETED);
+        }
+
         String checkquery = "select is_completed from detailed_plan where detailed_plan_id =?";
         int current_is_completed = this.jdbcTemplate.queryForObject(checkquery,int.class,detailed_plan_id);
 
         checkDeleted(detailed_plan_id); //받은 세부계획이 삭제된건지 체크.
 
+        String current_planet_query = "select planet_id from detailed_plan where detailed_plan_id =? ";
+        int current_planet_id = this.jdbcTemplate.queryForObject(current_planet_query,int.class,detailed_plan_id);
+
         if(current_is_completed == 1)
         {
             String query = "update detailed_plan set is_completed=0 where detailed_plan_id =?";
             this.jdbcTemplate.update(query,detailed_plan_id);
-            return detailed_plan_id+": 완료 -> 미완료 처리";
+
+
+            //경험치 감소시키고(1개 미완료시 경험치 1 감소) , 누적값이 33으로 나눠지면 33으로 나눈값으로 레벨 설정 (레벨업)
+            String expUp = "update planet set planet_exp = planet_exp-1  where planet_id = ?";
+            String levelChange = "update planet set planet_level = FLOOR(planet_exp/33)+1 where planet_id = ?";
+            this.jdbcTemplate.update(expUp, current_planet_id);
+            this.jdbcTemplate.update(levelChange, current_planet_id);
+
+            //증가시킨 세부계획의 내용과 그 세부계획을 가지고있는 행성의 정보
+            String resultReturnQuery =
+                "select detailed_plan_id,p.planet_id,p.planet_exp,p.planet_level,plan_content,type,dp.status,is_completed from detailed_plan dp\n"
+                    + "join planet p on p.planet_id = dp.planet_id where dp.detailed_plan_id = ?";
+            PatchPlanRes patchPlanRes = this.jdbcTemplate.queryForObject(resultReturnQuery,
+                (rs, rowNum) -> new PatchPlanRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getInt("planet_id"),
+                    rs.getInt("planet_exp"),
+                    rs.getInt("planet_level"),
+                    rs.getString("plan_content"),
+                    rs.getString("type"),
+                    rs.getInt("status"),
+                    rs.getInt("is_completed")
+                ), detailed_plan_id
+
+            );
+
+
+
+            return patchPlanRes;
         }
         else{
             String query = "update detailed_plan set is_completed=1 where detailed_plan_id =?";
             this.jdbcTemplate.update(query,detailed_plan_id);
-            return detailed_plan_id+": 미완료 -> 완료 처리";
+
+            //경험치 증가시키고(1개 완료시 경험치 1 증가) , 누적값이 33으로 나눠지면 33으로 나눈값으로 레벨 설정 (레벨업)
+            String expUp = "update planet set planet_exp = planet_exp+1  where planet_id = ?";
+            String levelChange = "update planet set planet_level = FLOOR(planet_exp/33)+1 where planet_id = ?";
+            this.jdbcTemplate.update(expUp, current_planet_id);
+            this.jdbcTemplate.update(levelChange, current_planet_id);
+
+            //증가시킨 세부계획의 내용과 그 세부계획을 가지고있는 행성의 정보
+            String resultReturnQuery =
+                "select detailed_plan_id,p.planet_id,p.planet_exp,p.planet_level,plan_content,type,dp.status,is_completed from detailed_plan dp\n"
+                    + "join planet p on p.planet_id = dp.planet_id where dp.detailed_plan_id = ?";
+            PatchPlanRes patchPlanRes = this.jdbcTemplate.queryForObject(resultReturnQuery,
+                (rs, rowNum) -> new PatchPlanRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getInt("planet_id"),
+                    rs.getInt("planet_exp"),
+                    rs.getInt("planet_level"),
+                    rs.getString("plan_content"),
+                    rs.getString("type"),
+                    rs.getInt("status"),
+                    rs.getInt("is_completed")
+                ), detailed_plan_id
+
+            );
+
+            return patchPlanRes;
         }
 
 

@@ -61,7 +61,7 @@ public class PlanetController {
 
 
     /**
-     * 행성조회 헤더로 jwt 받고 ,journey에서 유저아이디와 비교함.
+     * 행성조회 api 헤더로 jwt 받고 ,journey에서 유저아이디와 비교함.
      */
     @ApiOperation(value = "(행성조회 api) 해당 여정의 행성들 목록과 각 행성의 정보를 가져오는 api  ", notes =
         "헤더로 해당 유저의 jwt를 받고 ,path로 여정아이디를 받습니다." +
@@ -123,7 +123,8 @@ public class PlanetController {
             @ApiResponse(responseCode = "4001", description = "서버와의 연결에 실패하였습니다."),
             @ApiResponse(responseCode = "2001", description = "JWT를 입력해주세요."),
             @ApiResponse(responseCode = "2002", description = "유효하지 않은 JWT입니다."),
-            @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
+            @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다."),
+            @ApiResponse(responseCode = "2043", description = "해당 행성(해당없음 행성)은 접근할 수 없습니다.")
         }
     )
     @ApiImplicitParams(
@@ -137,6 +138,10 @@ public class PlanetController {
         @PathVariable("planet_id") int planet_id) {//validation 추가해야함.
 
         try {
+            if (planet_id == -1) { //해당없음 행성의 내용을 조회할 수 없습니다 (지금 버전은)
+                return new BaseResponse<>(CANNOT_ACCESS);
+            }
+
             //삭제된행성을 가져오는지 체크하는 vaildation
             if (planetProvider.checkPlanet(planet_id) == 0) {
                 return new BaseResponse<>(DELETED_PLANET);

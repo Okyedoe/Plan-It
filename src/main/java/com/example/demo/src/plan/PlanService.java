@@ -2,6 +2,7 @@ package com.example.demo.src.plan;
 
 import com.example.demo.src.journey.JourneyDao;
 import com.example.demo.src.journey.JourneyProvider;
+import com.example.demo.src.journey.model.PatchPlanRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.plan.model.PostPlanReq;
@@ -57,7 +58,7 @@ public class PlanService {
 
     //세부계획 완료처리
     @Transactional
-    public String completePlan (int detailed_plan_id)throws BaseException
+    public PatchPlanRes completePlan (int detailed_plan_id)throws BaseException
     {
         try{
             return planDao.completePlan(detailed_plan_id);

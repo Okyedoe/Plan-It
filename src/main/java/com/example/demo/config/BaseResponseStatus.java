@@ -57,6 +57,8 @@ public enum BaseResponseStatus {
     WRONG_TYPE(false,2039,"잘못된 타입값입니다."),
     UPDATE_FAILED(false,2040,"값 업데이트가 실패하였습니다."),
     PLANET_ERROR(false,2041,"해당없음 행성은 1회성 타입만 선택가능합니다."),
+    CANNOT_COMPLETED(false,2042,"마음가짐타입은 완료처리할 수 없습니다."),
+    CANNOT_ACCESS(false,2043,"해당 행성(해당없음 행성)은 접근할 수 없습니다."),
 
 
 
