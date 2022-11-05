@@ -101,7 +101,17 @@ public class PlanetProvider {
             throw  new BaseException(DATABASE_ERROR);
         }
     }
-
+    //해당없음 행성을 가져온다.
+    public int getNotBelongPlanetId (int user_id) throws BaseException
+    {
+        try{
+            return planetDao.getNotBelongPlanetId(user_id);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw  new BaseException(DATABASE_ERROR);
+        }
+    }
 
 
 

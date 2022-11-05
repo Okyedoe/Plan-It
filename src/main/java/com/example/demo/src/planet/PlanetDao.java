@@ -1,7 +1,12 @@
 package com.example.demo.src.planet;
 
+import static com.example.demo.config.BaseResponseStatus.*;
+
+import com.example.demo.config.BaseException;
+import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.planet.model.GetDetailedInfoRes;
 import com.example.demo.src.planet.model.GetPlanetsRes;
+import com.example.demo.src.planet.model.PatchRevisePlanetInforReq;
 import com.example.demo.src.planet.model.PostNewPlanetReq;
 import com.example.demo.src.planet.model.PostNewPlanetRes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,6 +148,30 @@ public class PlanetDao {
     {
         String a = "select count(*) from planet where planet_name =?";
         return this.jdbcTemplate.queryForObject(a,int.class,planet_name);
+
+    }
+
+    @Transactional
+    public String revisePlanetInfo(int planet_id,
+        PatchRevisePlanetInforReq patchRevisePlanetInforReq) throws BaseException {
+        String reviseQuery = "update planet set planet_intro = ? where planet_id = ?";
+        Object[] reviseQueryParams = new Object[]{patchRevisePlanetInforReq.getPlanet_intro(),
+            planet_id};
+
+        int result = this.jdbcTemplate.update(reviseQuery, reviseQueryParams);
+        if (!(result == 1)) {
+            throw new BaseException(UPDATE_FAILED);
+        }
+
+        return "성공";
+
+    }
+
+
+    //해당없음 행성의 아이디를 찾는 함수
+    public int getNotBelongPlanetId(int journey_id) {
+        String query = "select planet_id from planet where journey_id = ? and planet_name = '해당없음'";
+        return this.jdbcTemplate.queryForObject(query, int.class, journey_id);
 
     }
 

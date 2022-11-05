@@ -55,6 +55,8 @@ public enum BaseResponseStatus {
     EMPTY_DETAILED_PLAN(false,2037,"세부계획이 빈값입니다."),
     EMPTY_KEYWORDS(false,2038,"키워드가 비어있습니다."),
     WRONG_TYPE(false,2039,"잘못된 타입값입니다."),
+    UPDATE_FAILED(false,2040,"값 업데이트가 실패하였습니다."),
+    PLANET_ERROR(false,2041,"해당없음 행성은 1회성 타입만 선택가능합니다."),
 
 
 

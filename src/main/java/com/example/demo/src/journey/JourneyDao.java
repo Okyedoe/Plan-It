@@ -117,6 +117,10 @@ public class JourneyDao {
 
         }
 
+        String notbelongPlanetQuery = "insert into planet(planet_name,journey_id) VALUES('해당없음',?)";
+
+        this.jdbcTemplate.update(notbelongPlanetQuery, journey_id);
+
         PostJourneyRes postJourneyRes = new PostJourneyRes(); // 리턴값만들기
         postJourneyRes.setJourney_id(journey_id);
         postJourneyRes.setKeywords(keywords);

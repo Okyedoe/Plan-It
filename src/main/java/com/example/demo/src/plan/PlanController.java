@@ -48,6 +48,7 @@ public class PlanController {
     @Autowired
     private final JourneyProvider journeyProvider;
 
+
     public PlanController (PlanProvider planProvider ,PlanService planService ,JwtService jwtService,PlanetProvider planetProvider,JourneyProvider journeyProvider )
     {
         this.planProvider = planProvider;
@@ -55,6 +56,7 @@ public class PlanController {
         this.jwtService = jwtService;
         this.planetProvider = planetProvider;
         this.journeyProvider =journeyProvider;
+
     }
 
 
@@ -74,7 +76,10 @@ public class PlanController {
                     @ApiResponse(responseCode = "2029", description = "계획내용이 비어있습니다.."),
                     @ApiResponse(responseCode = "2030", description = "타입이 비어있습니다."),
                     @ApiResponse(responseCode = "2023", description = "삭제된 행성입니다."),
-                    @ApiResponse(responseCode = "2039", description = "잘못된 타입값입니다.")
+                    @ApiResponse(responseCode = "2039", description = "잘못된 타입값입니다."),
+                    @ApiResponse(responseCode = "2018", description = "jwt에서 추출한 유저아이디와 여정아이디에서 추출한 유저아이디가 다릅니다."),
+                @ApiResponse(responseCode = "2039", description = "잘못된 타입값입니다."),
+
             }
     )
     @ApiImplicitParams(
@@ -85,10 +90,10 @@ public class PlanController {
     )
     @Transactional
     @ResponseBody
-    @PostMapping("/{planet_id}")
-    public BaseResponse<PostPlanRes> createPlan (@PathVariable("planet_id")int planet_id, @RequestBody PostPlanReq postPlanReq)
+    @PostMapping("/{journey_id}/{planet_id}")
+    public BaseResponse<PostPlanRes> createPlan (@PathVariable("journey_id")int journey_id,@PathVariable("planet_id")int planet_id, @RequestBody PostPlanReq postPlanReq)
     {
-        //세부계획내용 중복관련경우는 넘어감 -> 일정관련 프로그램에서 내용중복은 그냥 생성해주는듯함.
+
         try{
             //계획 내용이 빈값인지
             if(postPlanReq.getPlan_content() == null || postPlanReq.getPlan_content().equals(""))
@@ -103,7 +108,7 @@ public class PlanController {
             //타입이 잘들어왔는지 체크
             String temp = postPlanReq.getType();
             boolean check =true;
-            if(temp.equals("마음가짐") || temp.equals("1회성")|| temp.equals("매일루틴") )
+            if(temp.equals("마음가짐") || temp.equals("1회성")|| temp.equals("매일루틴") ||temp.equals("비정기적"))
             {
                 check = true;
             }
@@ -140,22 +145,44 @@ public class PlanController {
             }
 
 
+            //planet_id 가 -1이라면 -> 행성선택에서 해당없음을 선택한것임,  jwt와 여정아이디를 이용해서 맞는 사용자인지 체크 후 해당유저의 해당없음 행성아이디를 가져온다.
+            //행성을 고르지않는건 1회성만 가능하다.( vaildation 처리)
+            if (planet_id == -1) {
+                if (!temp.equals("1회성")) {
+                    return new BaseResponse<>(PLANET_ERROR);
+                }
 
+                int user_id_jwt = jwtService.getUserIdx();
+                int user_id_by_journey_id = planetProvider.getUser_id(journey_id);
+
+                if (user_id_by_journey_id != user_id_jwt) {
+                    return new BaseResponse<>(JOURNEY_JWT_CHECK_ERROR);
+                }
+                //해당 유저의 해당없음 행성의 아이디를 가져온다.
+                planet_id = planetProvider.getNotBelongPlanetId(journey_id);
+
+
+            }
             //삭제된 행성인지 체크
-            if(planetProvider.checkPlanet(planet_id) == 0)
-            {
-                return new BaseResponse<>(DELETED_PLANET);
+            else  {
+                if(planetProvider.checkPlanet(planet_id) == 0)
+                {
+                    return new BaseResponse<>(DELETED_PLANET);
+                }
+                //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 여정의 주인이 맞는지 체크.
+                int user_id_jwt = jwtService.getUserIdx();
+                int user_id_planet = planProvider.getUser_id_from_planet_id(planet_id);
+
+                if(user_id_planet != user_id_jwt)
+                {//jwt로 받은 유저아이디와 행성아이디로 받은 유저아이디가 다르다면
+                    return new BaseResponse<>(PLANET_JWT_CHECK_ERROR);
+                }
+
             }
 
 
-            //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 여정의 주인이 맞는지 체크.
-            int user_id_jwt = jwtService.getUserIdx();
-            int user_id_planet = planProvider.getUser_id_from_planet_id(planet_id);
 
-            if(user_id_planet != user_id_jwt)
-            {//jwt로 받은 유저아이디와 행성아이디로 받은 유저아이디가 다르다면
-                return new BaseResponse<>(PLANET_JWT_CHECK_ERROR);
-            }
+
 
             PostPlanRes postPlanRes = planService.createPlan(postPlanReq,planet_id);
             return new BaseResponse<>(postPlanRes);
@@ -175,7 +202,7 @@ public class PlanController {
     /**
      *  오늘 세부계획 출력
      */
-    @ApiOperation(value = "오늘 세부계획 출력 api  ", notes = "홈화면에 오늘의 성장계획 리스트를 가져오는 api입니다. 마음가짐,1회성,매일루틴,그리고 오늘 요일에 맞는 값을 가져옵니다.")
+    @ApiOperation(value = "오늘 세부계획 출력 api  ", notes = "홈화면에 오늘의 성장계획 리스트를 가져오는 api입니다. 마음가짐,1회성,매일루틴,그리고 루틴타입에서 오늘 요일에 맞는 값을 가져옵니다.(비정기적은 안가져옵니다)")
     @ApiResponses(
             {
                     @ApiResponse(responseCode = "200", description = "코드200은 사용되지않습니다!"),

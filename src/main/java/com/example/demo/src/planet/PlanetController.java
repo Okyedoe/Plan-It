@@ -172,7 +172,9 @@ public class PlanetController {
             @ApiResponse(responseCode = "2026", description = "중복되는 행성이름입니다."),
             @ApiResponse(responseCode = "2027", description = "세부계획목록이 비어있습니다."),
             @ApiResponse(responseCode = "2028", description = "중복된 계획이 존재합니다."),
-            @ApiResponse(responseCode = "2018", description = "jwt에서 추출한 유저아이디와 여정아이디에서 추출한 유저아이디가 다릅니다.")
+            @ApiResponse(responseCode = "2018", description = "jwt에서 추출한 유저아이디와 여정아이디에서 추출한 유저아이디가 다릅니다."),
+            @ApiResponse(responseCode = "2041", description = "해당없음 행성은 1회성 타입만 선택가능합니다.")
+
         }
     )
     @ApiImplicitParams(
@@ -297,12 +299,36 @@ public class PlanetController {
     /*
     행성 수정 api
      */
-//    @Transactional
-//    @ResponseBody
-//    @PatchMapping("/revise/{planet_id}")
-//    public BaseResponse<String> revisePlanetInfo(@PathVariable("planet_id") int planet_id,
-//        @RequestBody PatchRevisePlanetInforReq patchRevisePlanetInforReq) {
-//
-//    }
+    @Transactional
+    @ResponseBody
+    @PatchMapping("/revise/{planet_id}")
+    public BaseResponse<String> revisePlanetInfo(@PathVariable("planet_id") int planet_id,
+        @RequestBody PatchRevisePlanetInforReq patchRevisePlanetInforReq) {
+        try {
+            //jwt에서 idx 추출겸 , jwt검사
+            int userIdxByJwt = jwtService.getUserIdx();
+
+            int user_id_planet = planProvider.getUser_id_from_planet_id(planet_id);
+
+            if (planetProvider.checkPlanet(planet_id) == 0) { //삭제된 행성인지
+                return new BaseResponse<>(DELETED_PLANET);
+            }
+
+            if (user_id_planet != userIdxByJwt) //들어온 jwt의 유저가 행성의 주인인지
+            {
+                return new BaseResponse<>(PLANET_JWT_CHECK_ERROR);
+            }
+
+            String result = planetService.revisePlanetInfo(planet_id, patchRevisePlanetInforReq);
+            return new BaseResponse<>(result);
+
+
+        } catch (BaseException exception) {
+            exception.printStackTrace();
+            return new BaseResponse<>(exception.getStatus());
+        }
+
+
+    }
 
 }

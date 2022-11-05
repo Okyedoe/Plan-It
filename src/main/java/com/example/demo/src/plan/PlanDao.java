@@ -61,61 +61,104 @@ public class PlanDao {
     {
         //타입검사 + 정리 (들어온 갯수와 정렬된 갯수를 비교, 다르면 입력값이 올바르지않아서 ->요일이 중복됬는지 ,입력형태가 잘못됬는지 체크함,요일을 순서대로 넣지않아도됨.)
         String type = postPlanReq.getType();
-        if(type.length() > 100) //타입에 많은길이의 스트링을 보낼것을 대비
-        {
-           throw new BaseException(WRONG_TYPE_DAY);
-        }
-        StringTokenizer st = new StringTokenizer(type,",");
-        int length =  st.countTokens();
-        HashMap<Integer,String> result = new HashMap<>();
-        while(st.hasMoreTokens())
-        {
-            String temp = st.nextToken();
-            switch (temp) {
-                case "월":
-                    result.put(1,"월");
-                    break;
-                case "화":
-                    result.put(2,"화");
-                    break;
-                case "수":
-                    result.put(3,"수");
-                    break;
-                case "목":
-                    result.put(4,"목");
-                    break;
-                case "금":
-                    result.put(5,"금");
-                    break;
-                case "토":
-                    result.put(6,"토");
-                    break;
-                case "일":
-                    result.put(7,"일");
-                    break;
-            }
-
-        }
-        if(result.size() != length)
-        {
-            throw new BaseException(WRONG_TYPE_DAY);
-        }
         String sorted_type = "";
-        for(int i=1;i<=7;i++)
+        boolean checkRoutine = false;
+        if(!(type.equals("마음가짐")) && !(type.equals("1회성"))&& !(type.equals("매일루틴")) &&!(type.equals("비정기적"))) //
         {
-            if(result.containsKey(i))
+            if(type.length() > 100) //타입에 많은길이의 스트링을 보낼것을 대비
             {
-                sorted_type += result.get(i)+",";
+                throw new BaseException(WRONG_TYPE_DAY);
+            }
+            StringTokenizer st = new StringTokenizer(type,",");
+            int length =  st.countTokens();
+            HashMap<Integer,String> result = new HashMap<>();
+            while(st.hasMoreTokens())
+            {
+                String temp = st.nextToken();
+                switch (temp) {
+                    case "월":
+                        result.put(1,"월");
+                        break;
+                    case "화":
+                        result.put(2,"화");
+                        break;
+                    case "수":
+                        result.put(3,"수");
+                        break;
+                    case "목":
+                        result.put(4,"목");
+                        break;
+                    case "금":
+                        result.put(5,"금");
+                        break;
+                    case "토":
+                        result.put(6,"토");
+                        break;
+                    case "일":
+                        result.put(7,"일");
+                        break;
+                }
+
+            }
+            if(result.size() != length)
+            {
+                throw new BaseException(WRONG_TYPE_DAY);
+            }
+            checkRoutine = true;
+
+            for(int i=1;i<=7;i++)
+            {
+                if(result.containsKey(i))
+                {
+                    sorted_type += result.get(i)+",";
+                }
             }
         }
+
 
 
         String createQuery = "insert into detailed_plan(planet_id,plan_content,type) VALUES(?,?,?)";
-        Object[] createParams = new Object[]{planet_id,postPlanReq.getPlan_content(),sorted_type};
-        this.jdbcTemplate.update(createQuery,createParams);
-        String peekQuery = "select last_insert_id()";
-        int last_in_detailed_plan_id = this.jdbcTemplate.queryForObject(peekQuery,int.class);
+        int last_in_detailed_plan_id;
+        if (checkRoutine) {
+            Object[] createParams = new Object[]{planet_id,postPlanReq.getPlan_content(),"루틴"};  //타입은 루틴으로 넣어저ㅜ야함.
+            this.jdbcTemplate.update(createQuery,createParams);
 
+            String peekQuery = "select last_insert_id()";
+            last_in_detailed_plan_id = this.jdbcTemplate.queryForObject(peekQuery,int.class);
+
+            //요일 따로 담는 테이블에 데이터 생성
+            StringTokenizer st = new StringTokenizer(sorted_type, ",");
+            while (st.hasMoreTokens()) {
+                String day = st.nextToken();
+                String daysQuery  = "insert into plan_day_of_week(detailed_plan_id,day_of_week) VALUES(?,?)";
+                Object[] dayParams = new Object[]{last_in_detailed_plan_id, day};
+                this.jdbcTemplate.update(daysQuery, dayParams);
+
+            }
+        }
+        else{
+            Object[] createParams = new Object[]{planet_id,postPlanReq.getPlan_content(),type};
+            this.jdbcTemplate.update(createQuery,createParams);
+
+            String peekQuery = "select last_insert_id()";
+            last_in_detailed_plan_id = this.jdbcTemplate.queryForObject(peekQuery,int.class);
+        }
+
+        if (checkRoutine) {
+            String getInfo = "select * from detailed_plan where detailed_plan_id = ?";
+            PostPlanRes postPlanRes =this.jdbcTemplate.queryForObject(getInfo,(rs, rowNum) -> new PostPlanRes(
+                rs.getInt("detailed_plan_id"),
+                rs.getInt("planet_id"),
+                rs.getString("plan_content"),
+                rs.getString("type")
+
+            ),last_in_detailed_plan_id );
+            String temp = "루틴 : " + sorted_type;
+            if (postPlanRes != null) {
+                postPlanRes.setType(temp);
+            }
+            return postPlanRes;
+        }
         String getInfo = "select * from detailed_plan where detailed_plan_id = ?";
         return this.jdbcTemplate.queryForObject(getInfo,(rs, rowNum) -> new PostPlanRes(
                 rs.getInt("detailed_plan_id"),
