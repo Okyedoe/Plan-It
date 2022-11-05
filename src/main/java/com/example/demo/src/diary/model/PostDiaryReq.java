@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostDiaryReq {
-    private int user_id;
+    private int journey_id;
     private String emotion;
     private int evaluation;
     private String content;

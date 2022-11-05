@@ -1,8 +1,14 @@
 package com.example.demo.src.journey;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.diary.DiaryDao;
+import com.example.demo.src.diary.DiaryProvider;
+import com.example.demo.src.journey.model.GetJourneyRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
+import com.example.demo.src.planet.PlanetDao;
+import com.example.demo.src.planet.PlanetProvider;
+import com.example.demo.utils.image.model.GetImageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,10 +25,13 @@ import static com.example.demo.config.BaseResponseStatus.*;
 public class JourneyDao {
 
     private JdbcTemplate jdbcTemplate;
-
+    private DiaryDao diaryDao;
+    private PlanetDao planetDao;
     @Autowired
-    public void setDataSource(DataSource dataSource){
+    public void setDataSource(DataSource dataSource ,DiaryDao diaryDao, PlanetDao planetDao){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.diaryDao=diaryDao;
+        this.planetDao=planetDao;
     }
 
 
@@ -139,6 +148,42 @@ public class JourneyDao {
         String getQuery = "select user_id from journey where journey_id = ?";
         return this.jdbcTemplate.queryForObject(getQuery,int.class,journey_id);
     }
+
+    public List<GetJourneyRes> getJourney(int user_id) {
+        String sql = "select journey_id from journey where user_id = ? and status = 1";
+        int param = user_id;
+        List<Integer> journey_id = this.jdbcTemplate.queryForList(sql,int.class,param);
+
+        List<GetJourneyRes> getJourneyRes = new ArrayList<>();
+
+
+        for(int journeyIdx : journey_id){
+        String periodSql = "select period from journey where journey_id = ? and status =1";
+
+        int period = this.jdbcTemplate.queryForObject(periodSql,int.class,journeyIdx);
+
+        String start_dateSql = "select date_format(created_at, '%y-%m-%d') from journey where journey_id = ? and status =1 ";
+        String start_date = this.jdbcTemplate.queryForObject(start_dateSql,String.class,journeyIdx);
+
+        String end_dateSql = "select date_format(date_add(created_at , interval 7*? day), '%y-%m-%d') from journey where journey_id = ? and status =1";
+        Object[] end_dateParam = new Object[]{period,journeyIdx};
+        String end_date = this.jdbcTemplate.queryForObject(end_dateSql,String.class,end_dateParam);
+
+        List<String> tmp_planet = planetDao.getPlanetName(journeyIdx);
+        GetImageList tmp_img = diaryDao.getFourImages(journeyIdx);
+        GetJourneyRes tmp = new GetJourneyRes(period,tmp_planet,tmp_img,start_date,end_date);
+        getJourneyRes.add(tmp);
+        }
+
+        return getJourneyRes;
+    }
+
+    // getPlanetName <- 여정 아이디에 맞는 행성이름 리스트 가져오는
+    // getFourImages <- 여정아이디에 맞는 최근 4개의 다이어리 이미지 가져오는.
+
+
+
+
 
 //    //행성 목록에서 행성이름빈값,중복  세부계획 빈값, 중복 체크  [결과는 int값에따라다름]
 //    public int checkPlanetList (List<PostJourneyReq.Planetinfo> planetinfo)

@@ -13,14 +13,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostDiary {
-    private int user_id;
+    private int journey_id;
     private String emotion;
     private int evaluation;
     private String content;
     private List<String> image_url;
 
-    public PostDiary(int user_id, String emotion, int evaluation, String content) {
-        this.user_id = user_id;
+    public PostDiary(int journey, String emotion, int evaluation, String content) {
+        this.journey_id = journey_id;
         this.emotion = emotion;
         this.evaluation = evaluation;
         this.content = content;

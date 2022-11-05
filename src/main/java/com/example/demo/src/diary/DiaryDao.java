@@ -3,6 +3,7 @@ package com.example.demo.src.diary;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.diary.model.*;
+import com.example.demo.utils.image.model.GetImageList;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,14 +29,14 @@ public class DiaryDao {
     @Transactional
     public PostDiaryRes createDiary(PostDiary postDiaryReq) {
         if(postDiaryReq.getImage_url().size() == 0){
-            String addDiaryQuery = "insert into diary(user_id,emotion,evaluation,content) VALUES(?,?,?,?)";
-            Object[] addDiaryParams = new Object[]{postDiaryReq.getUser_id(),postDiaryReq.getEmotion(),postDiaryReq.getEvaluation(),postDiaryReq.getContent()};
+            String addDiaryQuery = "insert into diary(journey_id,emotion,evaluation,content) VALUES(?,?,?,?)";
+            Object[] addDiaryParams = new Object[]{postDiaryReq.getJourney_id(),postDiaryReq.getEmotion(),postDiaryReq.getEvaluation(),postDiaryReq.getContent()};
              this.jdbcTemplate.update(addDiaryQuery,addDiaryParams);
 
         }
         else{
-            String addDiaryQuery = "insert into diary(user_id,emotion,evaluation,content) VALUES(?,?,?,?)";
-            Object[] addDiaryParams = new Object[]{postDiaryReq.getUser_id(),postDiaryReq.getEmotion(),postDiaryReq.getEvaluation(),postDiaryReq.getContent()};
+            String addDiaryQuery = "insert into diary(journey_id,emotion,evaluation,content) VALUES(?,?,?,?)";
+            Object[] addDiaryParams = new Object[]{postDiaryReq.getJourney_id(),postDiaryReq.getEmotion(),postDiaryReq.getEvaluation(),postDiaryReq.getContent()};
             this.jdbcTemplate.update(addDiaryQuery,addDiaryParams);
             String idpeekQuery = "select last_insert_id()";
             int diary_id = this.jdbcTemplate.queryForObject(idpeekQuery,int.class); // 다이어리 아이디 가져오기.
@@ -47,16 +48,16 @@ public class DiaryDao {
             }
         }
         PostDiaryRes postdiaryRes = new PostDiaryRes(); // 리턴값만들기
-        postdiaryRes.setUser_id(postDiaryReq.getUser_id());
+        postdiaryRes.setJourney_id(postDiaryReq.getJourney_id());
         postdiaryRes.setEmotion(postDiaryReq.getEmotion());
         postdiaryRes.setEvaluation(postDiaryReq.getEvaluation());
         postdiaryRes.setContent(postDiaryReq.getContent());
         return postdiaryRes;
     }
     @Transactional
-    public List<String> getAllImages(int user_id,int diary_id){
-        String getAllImagesQuery = "select diary_image_url from diary as a join diary_image as b on a.diary_id=b.diary_id where user_id= ? and a.diary_id = ? and b.status=1 order by created_at desc";
-        Object[] getAllImagesParams =new Object[]{user_id,diary_id};
+    public List<String> getAllImages(int diary_id){
+        String getAllImagesQuery = "select diary_image_url from diary as a join diary_image as b on a.diary_id=b.diary_id where a.diary_id = ? and b.status=1 order by created_at desc";
+        int getAllImagesParams = diary_id;
         return this.jdbcTemplate.query(getAllImagesQuery,
                 (rs, rowNum) -> new String(
                         rs.getString("diary_image_url"))
@@ -88,7 +89,7 @@ public class DiaryDao {
     @Transactional
     public List<GetDiaryRes> getAllDiary(int user_id)  {
 
-        String getDiaryIdSql = "select diary_id from diary where user_id =? and status= 1 order by created_at desc";
+        String getDiaryIdSql = "select diary_id from diary as a join journey as b on a.journey_id = b.journey_id where b.user_id =? and status= 1 order by created_at desc";
         int getDiaryIdParams = user_id;
         List<Integer> diary_id = this.jdbcTemplate.queryForList(getDiaryIdSql, Integer.class, getDiaryIdParams);
 
@@ -97,7 +98,7 @@ public class DiaryDao {
         List<GetDiaryRes> getDiaryRes = new ArrayList<>();
         for(int diary_idx : diary_id){
             GetDiary getDiary=getDiaryResObject(diary_idx);
-            List<String> img = getAllImages(user_id,diary_idx);
+            List<String> img = getAllImages(diary_idx);
             GetDiaryRes temp = new GetDiaryRes(getDiary.getDiary_id(),getDiary.getEmotion(),getDiary.getEvaluation(),getDiary.getContent(),getDiary.getCreated_at(),img);
             getDiaryRes.add(temp);
         }
@@ -105,9 +106,10 @@ public class DiaryDao {
 
 
     }
+    //날짜별 필터링 된 다이어리 가져오기
     @Transactional
     public List<GetDiaryRes> getDiary(int user_id, GetDiaryReq getDiaryReq) {
-        String getDiaryIdSql = "select diary_id from diary where date_format(created_at,'%y%m%d') >=? and date_format(created_at,'%y%m%d') <= ? and user_id =? and status = 1 order by created_at desc";
+        String getDiaryIdSql = "select diary_id from diary as a join journey as b on a.journey_id=b.journey_id where date_format(created_at,'%y%m%d') >=? and date_format(created_at,'%y%m%d') <= ? and user_id =? and status = 1 order by created_at desc";
         Object[] getDiaryParams = new Object[]{
                 getDiaryReq.getStart_date(),
                 getDiaryReq.getEnd_date(),
@@ -119,7 +121,7 @@ public class DiaryDao {
         List<GetDiaryRes> getDiaryRes = new ArrayList<>();
         for(int diary_idx : diary_id){
             GetDiary getDiary=getDiaryResObject(diary_idx);
-            List<String> img = getAllImages(user_id,diary_idx);
+            List<String> img = getAllImages(diary_idx);
             GetDiaryRes temp = new GetDiaryRes(getDiary.getDiary_id(),getDiary.getEmotion(),getDiary.getEvaluation(),getDiary.getContent(),getDiary.getCreated_at(),img);
             getDiaryRes.add(temp);
         }
@@ -131,7 +133,7 @@ public class DiaryDao {
         int start_date = 35;
         int end_date = 28;
         for(int i = 0 ; i <eval.length;i++){
-            String Sql = "select ifnull(sum(evaluation)/count(*),0) from diary where user_id = ? and created_at between date_sub(now(),interval ? day) and date_sub(now(),interval ? day)";
+            String Sql = "select ifnull(sum(evaluation)/count(*),0) from diary as a join journey as b on where user_id = ? and created_at between date_sub(now(),interval ? day) and date_sub(now(),interval ? day)";
             Object[] Params = new Object[]{user_id,start_date,end_date};
             eval[i]=this.jdbcTemplate.queryForObject(Sql,double.class,Params);
             start_date-=7;
@@ -139,4 +141,56 @@ public class DiaryDao {
         }
         return eval;
     }
+    public GetImageList yesterdayDiary(int user_id){
+        try{
+            String sql = "select diary_image_url from diary_image as a join diary as b on a.diary_id = b.diary_id join journey as j on b.journey_id = j.journey_id where a.status = 1 and user_id = ? and a.updated_at >= date_sub(now(),interval 1 day) order by a.updated_at desc limit 1";
+            int param = user_id;
+            List<String> img = this.jdbcTemplate.queryForList(sql, String.class, param);
+            GetImageList getImageList = new GetImageList(img);
+            return getImageList;
+        }
+        catch(NullPointerException exception){
+            String[] tmp = new String[1];
+            List<String> img = new ArrayList<>();
+            img.add(tmp[0]);
+            GetImageList getImageList = new GetImageList(img);
+            return getImageList;
+        }
+
+        }
+        //가장 최근 4개 다이어리 이미지 가져오기 만약 null이면 ""
+
+    public GetImageList getFourImages(int journey_id) {
+            String[] tmp = new String[1];
+            String sql = "select diary_image_url from diary_image as a join diary as b on a.diary_id = b.diary_id join journey as j on b.journey_id = j.journey_id where a.status = 1 and b.journey_id = ? order by a.created_at desc limit 4";
+            int param = journey_id;
+            List<String> img = this.jdbcTemplate.queryForList(sql, String.class, param);
+
+            switch (img.size()){
+                case 0:
+                    img.add(tmp[0]);
+                    img.add(tmp[0]);
+                    img.add(tmp[0]);
+                    img.add(tmp[0]);
+                    break;
+
+                case 1:
+                    img.add(tmp[0]);
+                    img.add(tmp[0]);
+                    img.add(tmp[0]);
+                    break;
+                case 2:
+                    img.add(tmp[0]);
+                    img.add(tmp[0]);
+                    break;
+                case 3:
+                    img.add(tmp[0]);
+                    break;
+            }
+            GetImageList getImageList = new GetImageList(img);
+            return getImageList;
+    }
+
+
+
 }
