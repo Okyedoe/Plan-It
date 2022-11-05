@@ -8,6 +8,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -46,8 +47,9 @@ public class JourneyProvider {
         }catch (Exception e)
         {
             e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR  );
+            throw new BaseException(INVALID_JOURNEY_USER);
         }
+
     }
 
 
