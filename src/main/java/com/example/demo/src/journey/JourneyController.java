@@ -1,5 +1,6 @@
 package com.example.demo.src.journey;
 
+import com.example.demo.src.journey.model.GetAllJourneyRes;
 import com.example.demo.src.journey.model.GetJourneyRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
@@ -131,15 +132,15 @@ public class JourneyController {
 //    }
     @ResponseBody
     @GetMapping("/{user_id}")
-    public BaseResponse<List<GetJourneyRes>> getJourney(@PathVariable("user_id") int user_id) throws BaseException {
+    public BaseResponse<GetAllJourneyRes> getJourney(@PathVariable("user_id") int user_id) throws BaseException {
         try {
             int userIdxByJwt = jwtService.getUserIdx();
             //userIdx와 접근한 유저가 같은지 확인
             if (user_id != userIdxByJwt) {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            List<GetJourneyRes> getJourneyRes = journeyProvider.getJourney(user_id);
-            return new BaseResponse<>(getJourneyRes);
+            GetAllJourneyRes getAllJourneyRes = journeyProvider.getJourney(user_id);
+            return new BaseResponse<>(getAllJourneyRes);
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

@@ -1,4 +1,5 @@
 package com.example.demo.src.journey;
+import com.example.demo.src.journey.model.GetAllJourneyRes;
 import com.example.demo.src.journey.model.GetJourneyRes;
 import com.example.demo.src.planet.PlanetDao;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class JourneyProvider {
     }
 
 
-    public List<GetJourneyRes> getJourney(int user_id) throws BaseException{
+    public GetAllJourneyRes getJourney(int user_id) throws BaseException{
         try{
             return journeyDao.getJourney(user_id);
         }catch(Exception exception){

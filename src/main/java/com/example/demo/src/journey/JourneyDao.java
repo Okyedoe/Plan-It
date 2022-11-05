@@ -1,16 +1,13 @@
 package com.example.demo.src.journey;
 import com.example.demo.config.BaseException;
-import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.diary.DiaryDao;
-import com.example.demo.src.diary.DiaryProvider;
+import com.example.demo.src.journey.model.GetAllJourneyRes;
 import com.example.demo.src.journey.model.GetJourneyRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.planet.PlanetDao;
-import com.example.demo.src.planet.PlanetProvider;
 import com.example.demo.utils.image.model.GetImageList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -149,19 +146,21 @@ public class JourneyDao {
         return this.jdbcTemplate.queryForObject(getQuery,int.class,journey_id);
     }
 
-    public List<GetJourneyRes> getJourney(int user_id) {
+    public GetAllJourneyRes getJourney(int user_id) {
+        int sum_period= 0;
+        int sum_planet = 0;
+
         String sql = "select journey_id from journey where user_id = ? and status = 1";
         int param = user_id;
         List<Integer> journey_id = this.jdbcTemplate.queryForList(sql,int.class,param);
 
         List<GetJourneyRes> getJourneyRes = new ArrayList<>();
 
-
         for(int journeyIdx : journey_id){
         String periodSql = "select period from journey where journey_id = ? and status =1";
 
         int period = this.jdbcTemplate.queryForObject(periodSql,int.class,journeyIdx);
-
+        sum_period += period;
         String start_dateSql = "select date_format(created_at, '%y-%m-%d') from journey where journey_id = ? and status =1 ";
         String start_date = this.jdbcTemplate.queryForObject(start_dateSql,String.class,journeyIdx);
 
@@ -170,12 +169,16 @@ public class JourneyDao {
         String end_date = this.jdbcTemplate.queryForObject(end_dateSql,String.class,end_dateParam);
 
         List<String> tmp_planet = planetDao.getPlanetName(journeyIdx);
+        sum_planet += tmp_planet.size();
         GetImageList tmp_img = diaryDao.getFourImages(journeyIdx);
         GetJourneyRes tmp = new GetJourneyRes(period,tmp_planet,tmp_img,start_date,end_date);
         getJourneyRes.add(tmp);
         }
+        int sum_journey=getJourneyRes.size();
 
-        return getJourneyRes;
+        GetAllJourneyRes getAllJourneyRes = new GetAllJourneyRes(sum_journey,sum_planet,sum_period,getJourneyRes);
+
+        return getAllJourneyRes;
     }
 
     // getPlanetName <- 여정 아이디에 맞는 행성이름 리스트 가져오는
