@@ -42,7 +42,7 @@ public class TestController {
 
 
 
-        return "Success Test version -> 0.0.9";
+        return "Success Test version -> 0.0.10";
     }
     //planet 저장소 , ori branch push 실험입니다.
     //git add 테스트
