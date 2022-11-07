@@ -17,7 +17,7 @@ public class PostJourneyReq {
     {
         @ApiModelProperty(value = "행성이름",example = "다이어트")
         private String planet_name;
-        @ApiModelProperty(example = "[물먹기,운동하기,헬스장가기]")
+
         private List<String> detailed_plans;
 
         public String getPlanet_name() {
@@ -42,6 +42,7 @@ public class PostJourneyReq {
     @ApiModelProperty(value = "",example = "[상냥함,우아한]")
     private String[] keywords;
     private List<Planetinfo> planets;
+    private String nickname;
 
 
 

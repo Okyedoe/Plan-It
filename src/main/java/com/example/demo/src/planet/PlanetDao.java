@@ -73,7 +73,7 @@ public class PlanetDao {
         List<GetDetailedInfoRes.Plans> plans = this.jdbcTemplate.query(getPlansQuery,(rs, rowNum) ->new GetDetailedInfoRes.Plans(
                 rs.getString("plan_content"),
                 rs.getString("type"),
-                rs.getBoolean("status")
+                rs.getInt("status")
         ),planet_id);
 
         getDetailedInfoRes.setPlans(plans);

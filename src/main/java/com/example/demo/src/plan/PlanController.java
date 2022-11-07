@@ -63,6 +63,8 @@ public class PlanController {
 
     /**
      * 행성 세부계획 추가
+     * 추가되면 원래 오늘 할일 갯수의 변동이 있는지 체크한다. 변동이 있다면 그 값만큼 today_totalplan_completedplan에 가서 total_plans값을 수정해준다.
+     * today_totalplan_completedplan에 데이터가 없다면 validation.
      * */
     @ApiOperation(value = "행성 세부계획 추가 api  ", notes = "이미 생성된 행성에 추가적으로 세부계획을 추가할때 사용합니다.")
     @ApiResponses(
@@ -80,6 +82,7 @@ public class PlanController {
                     @ApiResponse(responseCode = "2039", description = "잘못된 타입값입니다."),
                     @ApiResponse(responseCode = "2018", description = "jwt에서 추출한 유저아이디와 여정아이디에서 추출한 유저아이디가 다릅니다."),
                 @ApiResponse(responseCode = "2039", description = "잘못된 타입값입니다."),
+                @ApiResponse(responseCode = "2044", description = "매일 자동생성되어야하는 데이터가 생성되지않았거나 , 문제발생"),
 
             }
     )
@@ -164,12 +167,7 @@ public class PlanController {
 
 
             }
-            //삭제된 행성인지 체크
             else  {
-                if(planetProvider.checkPlanet(planet_id) == 0)
-                {
-                    return new BaseResponse<>(DELETED_PLANET);
-                }
                 //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 여정의 주인이 맞는지 체크.
                 int user_id_jwt = jwtService.getUserIdx();
                 int user_id_planet = planProvider.getUser_id_from_planet_id(planet_id);
@@ -180,9 +178,11 @@ public class PlanController {
                 }
 
             }
-
-
-
+            //삭제된 행성인지 체크
+            if(planetProvider.checkPlanet(planet_id) == 0)
+            {
+                return new BaseResponse<>(DELETED_PLANET);
+            }
 
 
             PostPlanRes postPlanRes = planService.createPlan(postPlanReq,planet_id);
@@ -255,6 +255,10 @@ public class PlanController {
      * 세부 계획 완료처리 , 미완료 처리
      * 완료처리인데 누르면 미완료
      * 미완료인데 누르면 완료처리
+     *
+     * 완료시 today_totalplan_completedplan에 가서 completed_plans 값을 증가시켜준다. ( 없다는것에 대한 validation 처리)
+     * 그리고 today_completed_plans에 데이터를 추가해준다( 어떤 세부계획이 완료되었는지) -> 이미 데이터가 있는지 체크하고 있다면 status를 1로 바꿔줌.
+     * 완료를 미완료 처리시 today_completed_plans에 데이터 추가해준걸 status 0으로 수정해준다. 그리고 today_totalplan_completedplan에  completed_plans 값을 1감소 시킨다.
      * */
     @ApiOperation(value = "세부계획 완료,미완료 처리 api  ", notes = "세부계획 완료,미완료처리 api입니다 완료상태인 세부계획을 누르면 미완료로 미완료상태인 세부계획을 누르면 완료처리해줍니다. + 마음가짐타입의 세부계획은 완료를 못하게 vaildation 처리하였습니다.")
     @ApiResponses(
@@ -305,6 +309,8 @@ public class PlanController {
     }
     /**
      * 세부 계획 삭제처리
+     * 삭제되면 원래 오늘 할일 갯수의 변동이 있는지 체크한다. 변동이 있다면 그 값만큼 today_totalplan_completedplan에 가서 total_plans값을 수정해준다.
+     * 루틴을 삭제시 루틴과 관련된 요일 값들도 status를 0처리 해준다.
      * */
     @ApiOperation(value = "세부계획 삭제 api  ", notes = "삭제는 status를 0으로 처리합니다. ")
     @ApiResponses(
@@ -355,7 +361,7 @@ public class PlanController {
 
 
 //    /**
-//     * 세부계획 수정
+//     * 세부계획 수정 ,
 //     * */
 //    @Transactional
 //    @ResponseBody

@@ -50,9 +50,9 @@ public class JourneyDao {
 //        System.out.println("period = " + period);
 
 
-        //여정 데이터 추가
-        String addJouneryQuery = "insert into journey(user_id,period) VALUES(?,?)";
-        Object[] addJourneyParams = new Object[]{user_id,postJourneyReq.getPeriod()};
+        //여정,닉네임 데이터를 가지고 여정데이터를 생성해준다.
+        String addJouneryQuery = "insert into journey(user_id,period,nickname) VALUES(?,?,?)";
+        Object[] addJourneyParams = new Object[]{user_id,postJourneyReq.getPeriod(),postJourneyReq.getNickname()};
         this.jdbcTemplate.update(addJouneryQuery,addJourneyParams);
 
         //여정아이디 가져오기
@@ -127,6 +127,7 @@ public class JourneyDao {
         postJourneyRes.setPlanets(planets);
         postJourneyRes.setPeriod(period);
         postJourneyRes.setUser_id(user_id);
+        postJourneyRes.setNickname(postJourneyReq.getNickname());
 
         return postJourneyRes;
     }
@@ -142,6 +143,12 @@ public class JourneyDao {
     {
         String getQuery = "select user_id from journey where journey_id = ?";
         return this.jdbcTemplate.queryForObject(getQuery,int.class,journey_id);
+    }
+
+
+    public int checkDuplicateNickname(String nickname) {
+        String checkQuery = "select EXISTS(select nickname from journey where nickname=?)";
+        return this.jdbcTemplate.queryForObject(checkQuery, int.class, nickname);
     }
 
 //    //행성 목록에서 행성이름빈값,중복  세부계획 빈값, 중복 체크  [결과는 int값에따라다름]

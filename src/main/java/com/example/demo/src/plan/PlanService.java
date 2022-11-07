@@ -56,7 +56,7 @@ public class PlanService {
         }
     }
 
-    //세부계획 완료처리
+    //세부계획 완료처리 asdasdasd
     @Transactional
     public PatchPlanRes completePlan (int detailed_plan_id)throws BaseException
     {

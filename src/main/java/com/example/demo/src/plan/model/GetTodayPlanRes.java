@@ -22,4 +22,5 @@ public class GetTodayPlanRes {
     private int detailed_plan_id;
 
 
+
 }
