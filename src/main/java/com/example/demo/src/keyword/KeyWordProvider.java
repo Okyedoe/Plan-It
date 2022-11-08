@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class KeyWordProvider {
@@ -26,8 +27,9 @@ public class KeyWordProvider {
 
     public GetRandomKeyWordRes getKeyWord(int journey_id) throws BaseException {
         try{
+
             List<String> keywords = keyWordDao.getKeyWordList(journey_id);
-            String keyword = keywords.get((int)Math.random()*keywords.size());
+            String keyword = keywords.get((int)(Math.random()*keywords.size()));
 
             GetUserRes getUserRes= userDao.getUser(journeyDao.getUserIdByJourneyId(journey_id));
             String name = getUserRes.getUser_name();

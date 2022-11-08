@@ -22,6 +22,8 @@ import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 import static com.example.demo.utils.ValidationRegex.isRegexEmail;
+import static com.example.demo.utils.ValidationRegex.isRegexPhoneNum;
+
 @Api(tags = "회원관리 API")
 @RestController
 @RequestMapping("/users")
@@ -148,6 +150,9 @@ public class UserController {
         //이메일 정규표현
         if(!isRegexEmail(postUserReq.getEmail())){
             return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
+        }
+        if(!isRegexPhoneNum(postUserReq.getPhone_num())){
+            return new BaseResponse<>(POST_PHONE_NUM_TYPE);
         }
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);

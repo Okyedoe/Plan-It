@@ -65,7 +65,7 @@ public enum BaseResponseStatus {
     DATE_NUM_ERROR(false,2503,"날짜에 숫자를 입력해주세요"),
     ACCESSTOKEN_ERROR(false,2504,"액세스토큰을 입력해주세요"),
     INVALID_JOURNEY_USER(false,2505,"입력한 여정에 대한 유저가 없습니다."),
-
+    POST_PHONE_NUM_TYPE(false,2506,"휴대폰 번호를 확인해주세요"),
     /**
      * 3000 : Response 오류
      */

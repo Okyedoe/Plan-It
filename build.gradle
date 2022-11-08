@@ -69,8 +69,6 @@ dependencies {
     //이메일인증 - 인증코드 유효시간설정을 위한 Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    //서버 재시작없이 바로 반영하기
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     //카카오 json parsing을위한 gson설치
     dependencies { implementation 'com.google.code.gson:gson:2.8.7' }
