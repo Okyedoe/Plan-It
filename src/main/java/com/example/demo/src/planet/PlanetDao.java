@@ -50,7 +50,7 @@ public class PlanetDao {
                         rs.getString("planet_intro"),
                         rs.getInt("planet_exp"),
                         rs.getInt("planet_level"),
-                        rs.getString("planet_image")
+                        rs.getString("color")
                 ),journey_id);
 
     }
@@ -86,11 +86,11 @@ public class PlanetDao {
     public PostNewPlanetRes createNewPlanet (PostNewPlanetReq postNewPlanetReq,int journey_id)
     {
         //행성추가 및 행성 세부계획 추가
-        String addPlanetQuery = "insert into planet(journey_id,planet_name) VALUES(?,?)";
+        String addPlanetQuery = "insert into planet(journey_id,planet_name,color) VALUES(?,?,?)";
         String addPlanQuery = "insert into detailed_plan(planet_id,plan_content) VALUES(?,?)";
 
         //행성추가해주고, 행성 아이디를 받아온다.
-        Object[] addPlanetParams = new Object[]{journey_id,postNewPlanetReq.getPlanet_name()};
+        Object[] addPlanetParams = new Object[]{journey_id,postNewPlanetReq.getPlanet_name(),postNewPlanetReq.getColor()};
         this.jdbcTemplate.update(addPlanetQuery,addPlanetParams); // 행성추가
         String peekQuery = "select last_insert_id()";
         int planet_id = this.jdbcTemplate.queryForObject(peekQuery,int.class); //방금 추가된 행성아이디
@@ -108,7 +108,7 @@ public class PlanetDao {
         postNewPlanetRes.setPlanet_name(postNewPlanetReq.getPlanet_name());
         postNewPlanetRes.setPlanet_id(planet_id);
         postNewPlanetRes.setDetailed_plans(postNewPlanetReq.getDetailed_plans());
-
+        postNewPlanetRes.setColor(postNewPlanetReq.getColor());
         return postNewPlanetRes;
 
 

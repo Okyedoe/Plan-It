@@ -229,7 +229,7 @@ public class PlanDao {
         for(int i=0;i<planet_ids.size();i++)
         {
             //status를 이용하여 삭제되지않은걸 가져와야함.
-            String getToday ="select detailed_plan.planet_id,plan_content,type,planet_image,is_completed,detailed_plan_id from detailed_plan\n" +
+            String getToday ="select detailed_plan.planet_id,plan_content,type,planet_image,is_completed,detailed_plan_id,color from detailed_plan\n" +
                     "left join planet p on p.planet_id = detailed_plan.planet_id where detailed_plan.planet_id = ? and detailed_plan.status =1";
             int current_id = planet_ids.get(i);
             List<GetTodayPlanRes> temp = this.jdbcTemplate.query(getToday,
@@ -239,7 +239,8 @@ public class PlanDao {
                     rs.getString("plan_content"),
                     rs.getString("type"),
                     rs.getInt("is_completed"),
-                    rs.getInt("detailed_plan_id")
+                    rs.getInt("detailed_plan_id"),
+                    rs.getString("color")
                 ), current_id);
             result.addAll(temp);
         }

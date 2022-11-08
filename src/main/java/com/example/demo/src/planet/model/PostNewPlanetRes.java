@@ -19,5 +19,7 @@ public class PostNewPlanetRes {
     private String planet_name;
     @ApiModelProperty(example = "[물먹기,운동하기,헬스장가기]")
     private List<String> detailed_plans;
+    @ApiModelProperty(value ="색깔",example = "#7AE3AA")
+    private String color;
 
 }

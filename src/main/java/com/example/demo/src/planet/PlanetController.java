@@ -211,6 +211,9 @@ public class PlanetController {
             if (planetProvider.checkPlanetExist(postNewPlanetReq.getPlanet_name()) >= 1) {
                 return new BaseResponse<>(DUPLICATE_PLANET_NAME);
             }
+            if(postNewPlanetReq.getColor() ==null || postNewPlanetReq.getColor().equals("")){
+                return new BaseResponse<>(EMPTY_PLANET_COLOR);
+            }
             //세부계획 빈값
             if (postNewPlanetReq.getDetailed_plans().size() == 0
                 || postNewPlanetReq.getDetailed_plans() == null) {

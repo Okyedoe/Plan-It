@@ -1,4 +1,5 @@
 package com.example.demo.src.planet.model;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,8 @@ public class PostNewPlanetReq {
     private String planet_name;
     @ApiModelProperty(value = "계획을 문자열배열로 입력")
     private List<String> detailed_plans;
-
+    @ApiModelProperty(value="색깔", example = "#7AE3AA")
+    private String color;
 
 
 }
