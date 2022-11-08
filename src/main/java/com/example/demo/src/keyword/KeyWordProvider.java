@@ -31,8 +31,8 @@ public class KeyWordProvider {
             List<String> keywords = keyWordDao.getKeyWordList(journey_id);
             String keyword = keywords.get((int)(Math.random()*keywords.size()));
 
-            GetUserRes getUserRes= userDao.getUser(journeyDao.getUserIdByJourneyId(journey_id));
-            String name = getUserRes.getUser_name();
+
+            String name = journeyDao.getNameByJourneyId(journey_id);
             GetRandomKeyWordRes getRandomKeyWordRes = new GetRandomKeyWordRes(keyword+" "+name);
 
             return getRandomKeyWordRes;

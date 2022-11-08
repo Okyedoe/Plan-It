@@ -65,44 +65,31 @@ public class UserService {
     public void modifyUserName(PatchUserReq patchUserReq) throws BaseException {
         User user = userProvider.getUserInfo(patchUserReq.getUser_id());
         String pwd = patchUserReq.getPassword();
-        String phone_num = patchUserReq.getPhone_num();
         MultipartFile image = patchUserReq.getProfile_url();
 
-        if(!pwd.isEmpty()){
-            try{
+        if(!pwd.isEmpty()) {
+            try {
                 String new_pwd = new SHA256().encrypt(pwd);
                 user.setPassword(new_pwd);
             } catch (Exception ignored) {
                 throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
             }
-            if(!phone_num.isEmpty()){
-                user.setPhone_num(phone_num);
-                if(!image.isEmpty()){
-                    String url = awsS3Service.uploadImage(image);
-                    user.setProfile_url(url);
-                }
+
+            if (!image.isEmpty()) {
+                String url = awsS3Service.uploadImage(image);
+                user.setProfile_url(url);
             }
-            else{
-                if(!image.isEmpty()){
-                    String url = awsS3Service.uploadImage(image);
-                    user.setProfile_url(url);
-                }
-            }
+
+
         }
         else{
-            if(!phone_num.isEmpty()){
-                user.setPhone_num(phone_num);
+
                 if(!image.isEmpty()){
                     String url = awsS3Service.uploadImage(image);
                     user.setProfile_url(url);
                 }
-            }
-            else{
-                if(!image.isEmpty()){
-                    String url = awsS3Service.uploadImage(image);
-                    user.setProfile_url(url);
-                }
-            }
+
+
         }
 
 
@@ -113,7 +100,6 @@ public class UserService {
                 throw new BaseException(MODIFY_FAIL_USERNAME);
             }
         } catch(Exception exception){
-            System.out.println(user.getUser_name()+" "+user.getPhone_num()+" "+user.getUser_id()+" "+user.getPassword()+" "+user.getProfile_url());
             exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }

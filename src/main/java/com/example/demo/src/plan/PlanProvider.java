@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -55,7 +59,32 @@ public class PlanProvider {
     public List<GetTodayPlanRes> getTodayPlans (int journey_id) throws BaseException
     {
         try{
-            return planDao.getTodayPlans(journey_id);
+            List<GetTodayPlanRes> getTodayPlanRes = planDao.getTodayPlans(journey_id);
+            Deque<GetTodayPlanRes> dq = new LinkedList<>();
+            for(GetTodayPlanRes tmp : getTodayPlanRes){
+                if(planDao.getPlantName(tmp.getPlanet_id()).equals("해당없음")){
+                    dq.addFirst(tmp);
+                }else{
+                    dq.addLast(tmp);
+                }
+
+            }
+
+            List<GetTodayPlanRes> result = new ArrayList<>();
+            for(int i = 0 ; i<getTodayPlanRes.size();i++){
+                result.add(dq.pollFirst());
+            }
+
+            for(int i = 0; i<result.size();i++){
+            if(planDao.getIsCompleterd(result.get(i).getDetailed_plan_id())==1){
+                GetTodayPlanRes temp = new GetTodayPlanRes();
+                temp = result.get(i);
+                result.remove(i);
+                result.add(temp);
+            }
+            }
+
+            return result;
 
 
         }catch (Exception e)
