@@ -109,17 +109,17 @@ public class PlanService {
 
         }
     }
-//    @Transactional
-//    public PatchPlanReviseRes reviseType(PatchPlanReviseReq patchPlanReviseReq,int detailed_plan_id) throws BaseException {
-//        try {
-//            return
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new BaseException(DATABASE_ERROR);
-//
-//        }
-//    }
+    @Transactional
+    public PatchPlanReviseRes reviseType(PatchPlanReviseReq patchPlanReviseReq,int detailed_plan_id) throws BaseException {
+        try {
+            return planDao.reviseType(patchPlanReviseReq, detailed_plan_id);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+
+        }
+    }
 
 
 }

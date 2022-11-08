@@ -165,8 +165,8 @@ public class PlanDao {
                     throw new BaseException(SHEDULE_ERROR);
                 }
 
-                String plusQuery = "update today_totalplan_completedplan set total_plans = total_plans+1 where user_id = ?";
-                this.jdbcTemplate.update(plusQuery, user_id);
+                String plusQuery = "update today_totalplan_completedplan set total_plans = total_plans+1 where user_id = ? and date_format(created_at,'%Y-%m-%d') =?";
+                this.jdbcTemplate.update(plusQuery, user_id,day);
 
             }
 
@@ -175,7 +175,23 @@ public class PlanDao {
         }
         //타입이 루틴이 아닌 그 나머지라면
         else{
-            //그 타입에 맞게 계획테이블에 데이터 추가해주고
+            LocalDate day = LocalDate.now();
+            DayOfWeek dayOfWeek = day.getDayOfWeek();
+            String today = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN);
+            int user_id = getUser_id_from_planet_id(planet_id);
+            //그 타입에 맞게 계획테이블에 데이터 추가해주는데 1회성이랑 ,매일루틴이면 총갯수를 증가시키고 나머지(마음가짐,비정기적)은 그냥 추가해준다.
+            if (type.equals("1회성") || type.equals("매일루틴")) {
+                String existQuery = "select EXISTS(select * from today_totalplan_completedplan t where date_format(created_at,'%Y-%m-%d') = ? and user_id =?) ";
+                int existResult = this.jdbcTemplate.queryForObject(existQuery, int.class, day,
+                    user_id);
+                if (existResult == 0) {
+                    //값이 1이라면 == true , 0이라면 == false
+                    throw new BaseException(SHEDULE_ERROR);
+                }
+
+                String plusQuery = "update today_totalplan_completedplan set total_plans = total_plans+1 where user_id = ? and date_format(created_at,'%Y-%m-%d') =?";
+                this.jdbcTemplate.update(plusQuery, user_id,day);
+            }
             Object[] createParams = new Object[]{planet_id,postPlanReq.getPlan_content(),type};
             this.jdbcTemplate.update(createQuery,createParams);
 
@@ -672,6 +688,26 @@ public class PlanDao {
                 this.jdbcTemplate.update(expUp, current_planet_id);
                 this.jdbcTemplate.update(levelChange, current_planet_id);
             }
+            else{
+                //완료되지않았을때
+                //오늘이 포함되었는지 체크해준다. 일단 포함됬다면 총 해야할 갯수를 줄여줘야하기때문.
+                String getDays = "select group_concat(day_of_week)\n"
+                    + "from plan_day_of_week\n"
+                    + "where detailed_plan_id = ?;";
+                String daysList = this.jdbcTemplate.queryForObject(getDays, String.class,
+                    detailed_plan_id);
+                if (daysList.contains(today)) {
+                    //만약 지우려는 루틴의 요일값에 오늘이 포함되어있다면 총갯수도 -1해준다.
+                    String downTwo = "update today_totalplan_completedplan\n"
+                        + "set total_plans = total_plans - 1\n"
+                        + "where user_id = ?\n"
+                        + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                    this.jdbcTemplate.update(downTwo, user_id, day);
+
+                }
+
+
+            }
             //요일값들 status 0으로 바꿔주기
             String changeStatusOfDays = "update plan_day_of_week\n"
                 + "set status =0\n"
@@ -723,9 +759,10 @@ public class PlanDao {
     public PatchPlanReviseRes getPlanInfo(int detailed_plan_id) {
         String getInfo = "select detailed_plan_id, plan_content, type\n"
             + "from detailed_plan\n"
-            + "where detailed_plan_id = ?";
+            + "where detailed_plan_id = ?;";
 
         return this.jdbcTemplate.queryForObject(getInfo,(rs, rowNum) -> new PatchPlanReviseRes(
+            rs.getInt("detailed_plan_id"),
             rs.getString("plan_content"),
             rs.getString("type")
         ),detailed_plan_id);
@@ -750,419 +787,604 @@ public class PlanDao {
         ),detailed_plan_id);
     }
 
-//    @Transactional
-//    public PatchPlanReviseRes reviseType(PatchPlanReviseReq patchPlanReviseReq,int detailed_plan_id) throws BaseException{
-//        //오늘 날짜의 값만 수정해줘야하므로 오늘 날짜값 가져온다. (요일)
-//        LocalDate day = LocalDate.now();// 2022-11-07 이런모양
-//        DayOfWeek dayOfWeek = day.getDayOfWeek();
-//        String today = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN); //"월" 이런모양
-//
-//        //현재 타입값, 바꿀 타입값 가져온다.
-//        String getCurrentTypeQuery = "select type\n"
-//            + "from detailed_plan\n"
-//            + "where detailed_plan_id = ?;";
-//        String currentType = this.jdbcTemplate.queryForObject(getCurrentTypeQuery, String.class,
-//            detailed_plan_id);
-//        String afterType = patchPlanReviseReq.getType();
-//
-//        //이미 완료된 세부계획인지 알아보기 위해 is_completed값을 가져온다.
-//        String getIsCompletdQuery = "select is_completed\n"
-//            + "from detailed_plan\n"
-//            + "where detailed_plan_id = ?;";
-//        int is_Completed = this.jdbcTemplate.queryForObject(getIsCompletdQuery, int.class,
-//            detailed_plan_id);
-//        //완료된 세부계획은 타입값을 수정할 수 없게한다. -> 꼬이게됨.
-//        if (is_Completed == 1) {
-//            throw new BaseException(CANNOT_CHANGE_TYPE);
-//        }
-//        int user_id = getUser_id_from_detailed_plan_id(detailed_plan_id);
-//        String getPlanInfo = "select detailed_plan_id, type, plan_content\n"
-//            + "from detailed_plan\n"
-//            + "where detailed_plan_id = ?;";
-//
-//        //이전 타입이 마음가짐일때
-//        if (currentType.equals("마음가짐")) {
-//            //1회성,매일루틴으로 수정한다면 총 할일갯수 증가시켜주고 ,
-//            if (afterType.equals("1회성") || afterType.equals("매일루틴")) {
-//                //총 할일갯수 증가
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans + 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //비정기적이라면 그냥 타입이름만 바꿔준다.
-//            if (afterType.equals("비정기적")) {
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //남은건 루틴일 경우
-//            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
-//            //루틴일때는 오늘 요일이 포함된다면 냅두고 ,아니라면 오늘 할일갯수를 감소시켜줘야한다.
-//            if (afterType.contains(today)) {
-//                //오늘 요일이 포함되므로 +1해준다.
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans + 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//            }
-//            //타입명 바꿔주고
-//            //루틴이름 변경
-//            String changeType = "update detailed_plan\n"
-//                + "set type = ?\n"
-//                + "where detailed_plan_id = ?;\n";
-//            this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//            //요일 값 추가해준다.
-//            StringTokenizer st = new StringTokenizer(afterType, ",");
-//            String addDayOfWeek = "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
-//                + "VALUES (?, ?);";
-//            while (st.hasMoreTokens()) {
-//                String currentDayToken = st.nextToken();
-//                this.jdbcTemplate.update(addDayOfWeek, detailed_plan_id, currentDayToken);
-//            }
-//            //변경 후 값 리턴해준다.
-//            return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                (rs, rowNum) -> new PatchPlanReviseRes(
-//                    rs.getInt("detailed_plan_id"),
-//                    rs.getString("plan_content"),
-//                    rs.getString("type")
-//                ), detailed_plan_id);
-//
-//        }
-//        //이전 타입이 1회성일때
-//        if (currentType.equals("1회성")) {
-//            //마음가짐과 비정기적으로 바꾼다면 총 할일갯수를 감소시켜준다.
-//            if (afterType.equals("마음가짐") || afterType.equals("비정기적")) {
-//                //총 할일갯수 감소
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans - 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //매일루틴이라면 이름만 바꿔주고
-//            if (afterType.equals("매일루틴")) {
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //루틴이라면 오늘요일 체크해주고 포함된다면 냅두고 아니면 감소 (+요일데이터값추가)
-//            //남은건 루틴일 경우
-//            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
-//            if (!afterType.contains(today)) {
-//                //오늘 요일이 포함안되므로 -1해준다.
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans - 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//            }
-//            //타입명 바꿔주고
-//            //루틴이름 변경
-//            String changeType = "update detailed_plan\n"
-//                + "set type = ?\n"
-//                + "where detailed_plan_id = ?;\n";
-//            this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//            //요일 값 추가해준다.
-//            StringTokenizer st = new StringTokenizer(afterType, ",");
-//            String addDayOfWeek = "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
-//                + "VALUES (?, ?);";
-//            while (st.hasMoreTokens()) {
-//                String currentDayToken = st.nextToken();
-//                this.jdbcTemplate.update(addDayOfWeek, detailed_plan_id, currentDayToken);
-//            }
-//            //변경 후 값 리턴해준다.
-//            return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                (rs, rowNum) -> new PatchPlanReviseRes(
-//                    rs.getInt("detailed_plan_id"),
-//                    rs.getString("plan_content"),
-//                    rs.getString("type")
-//                ), detailed_plan_id);
-//
-//        }
-//
-//        if (currentType.equals("매일루틴")) {
-//            //마음가짐과 비정기적으로 바꾼다면 총 할일갯수를 감소시켜준다.
-//            if (afterType.equals("마음가짐") || afterType.equals("비정기적")) {
-//                //총 할일갯수 감소
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans - 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //1회성이라면 이름만 바꿔주고
-//            if (afterType.equals("1회성")) {
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //루틴이라면 오늘요일 체크해주고 포함된다면 냅두고 아니면 감소 (+요일데이터값추가)
-//            //남은건 루틴일 경우
-//            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
-//            if (!afterType.contains(today)) {
-//                //오늘 요일이 포함안되므로 -1해준다.
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans - 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//            }
-//            //타입명 바꿔주고
-//            //루틴이름 변경
-//            String changeType = "update detailed_plan\n"
-//                + "set type = ?\n"
-//                + "where detailed_plan_id = ?;\n";
-//            this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//            //요일 값 추가해준다.
-//            StringTokenizer st = new StringTokenizer(afterType, ",");
-//            String addDayOfWeek = "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
-//                + "VALUES (?, ?);";
-//            while (st.hasMoreTokens()) {
-//                String currentDayToken = st.nextToken();
-//                this.jdbcTemplate.update(addDayOfWeek, detailed_plan_id, currentDayToken);
-//            }
-//            //변경 후 값 리턴해준다.
-//            return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                (rs, rowNum) -> new PatchPlanReviseRes(
-//                    rs.getInt("detailed_plan_id"),
-//                    rs.getString("plan_content"),
-//                    rs.getString("type")
-//                ), detailed_plan_id);
-//
-//
-//        }
-//        //이전 타입이 비정기적일때
-//        if (currentType.equals("비정기적")) {
-//            if (afterType.equals("매일루틴") || afterType.equals("1회성")) {
-//                //총 할일갯수 증가
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans + 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //마음가짐이라면 이름만 바꿔주고
-//            if (afterType.equals("마음가짐")) {
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //루틴이라면 오늘요일 체크해주고 포함된다면 증가시키고 아니면 냅둔다. (+요일데이터값추가)
-//            //남은건 루틴일 경우
-//            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
-//            if (afterType.contains(today)) {
-//                //포함되므로 증가
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans + 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//            }
-//            //타입명 바꿔주고
-//            //루틴이름 변경
-//            String changeType = "update detailed_plan\n"
-//                + "set type = ?\n"
-//                + "where detailed_plan_id = ?;\n";
-//            this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//            //요일 값 추가해준다.
-//            StringTokenizer st = new StringTokenizer(afterType, ",");
-//            String addDayOfWeek = "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
-//                + "VALUES (?, ?);";
-//            while (st.hasMoreTokens()) {
-//                String currentDayToken = st.nextToken();
-//                this.jdbcTemplate.update(addDayOfWeek, detailed_plan_id, currentDayToken);
-//            }
-//            //변경 후 값 리턴해준다.
-//            return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                (rs, rowNum) -> new PatchPlanReviseRes(
-//                    rs.getInt("detailed_plan_id"),
-//                    rs.getString("plan_content"),
-//                    rs.getString("type")
-//                ), detailed_plan_id);
-//
-//
-//
-//
-//        }
-//        //바꾸기전값이 루틴일때
-//        if (currentType.equals("루틴")) {
-//            //현재타입이 루틴이므로 해당 루닡의 요일값을 가져온다.
-//            String getDays = "select group_concat(day_of_week)\n"
-//                + "from plan_day_of_week\n"
-//                + "where detailed_plan_id = ?;";
-//            String currentDays = this.jdbcTemplate.queryForObject(getDays, String.class,
-//                detailed_plan_id);
-//            //오늘이 해당 루틴요일에 포함되는지 체크해보고 맞는지아닌지 저장
-//            boolean checktoday =false;
-//            if (currentDays.contains(today)) {
-//                //오늘값이 포함하니 true로 바꿔둠
-//                checktoday = true;
-//            }
-//            //현재 루틴의 모든 요일 status를 0으로 바꿔준다.
-//            String setStatusZero = "update plan_day_of_week\n"
-//                + "set status=0\n"
-//                + "where detailed_plan_id = ?;";
-//            this.jdbcTemplate.update(setStatusZero, detailed_plan_id);
-//
-//
-//
-//            //매일루틴,1회성으로 바꿀때
-//            //오늘이 해당 루틴 요일에 포함된다면 값을 냅두고 ,아니라면 감소시킨다.
-//            if (afterType.equals("매일루틴") || afterType.equals("1회성")) {
-//                if (!checktoday) {
-//                    //오늘이 포함안된다 -> 1감소
-//                    String plusTotal = "update today_totalplan_completedplan\n"
-//                        + "set total_plans = total_plans - 1\n"
-//                        + "where user_id = ?\n"
-//                        + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                    this.jdbcTemplate.update(plusTotal, user_id, day);
-//                }
-//                //포함될때는 그냥냅둔다.
-//
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//            }
-//            //바꾸려는 타입이 마음가짐 또는 비정기적이라면
-//            if (afterType.equals("마음가짐") || afterType.equals("비정기적")) {
-//                // 1감소
-//                String plusTotal = "update today_totalplan_completedplan\n"
-//                    + "set total_plans = total_plans - 1\n"
-//                    + "where user_id = ?\n"
-//                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
-//                this.jdbcTemplate.update(plusTotal, user_id, day);
-//                //루틴이름 변경
-//                String changeType = "update detailed_plan\n"
-//                    + "set type = ?\n"
-//                    + "where detailed_plan_id = ?;\n";
-//                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
-//                //변경 후 값 리턴해준다.
-//                return this.jdbcTemplate.queryForObject(getPlanInfo,
-//                    (rs, rowNum) -> new PatchPlanReviseRes(
-//                        rs.getInt("detailed_plan_id"),
-//                        rs.getString("plan_content"),
-//                        rs.getString("type")
-//                    ), detailed_plan_id);
-//
-//            }
-//            //마지막으로 타입은 그대로지만 요일값을 바꾸려고할때
-//            //이전에 저장된 요일값들은 status를 0으로 바꿔놨다. 새로 지정하기위해 들어온 요일값을 검색해서 있으면 status를 1로 아니면 추가
-//            StringTokenizer st = new StringTokenizer(afterType, ",");
-//            String checkDayQuery = "select EXISTS(select plan_day_of_week_id\n"
-//                + "              from plan_day_of_week\n"
-//                + "              where detailed_plan_id = ? and day_of_week = ?);";
-//            while (st.hasMoreTokens()) {
-//                String oneOfDays = st.nextToken();
-//
-//
-//            }
-//
-//
-//
-//        }
-//
-//
-//
-//
-//
-//
-//    }
+    @Transactional
+    public PatchPlanReviseRes reviseType(PatchPlanReviseReq patchPlanReviseReq,int detailed_plan_id) throws BaseException{
+        //오늘 날짜의 값만 수정해줘야하므로 오늘 날짜값 가져온다. (요일)
+        LocalDate day = LocalDate.now();// 2022-11-07 이런모양
+        DayOfWeek dayOfWeek = day.getDayOfWeek();
+        String today = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN); //"월" 이런모양
+
+        //현재 타입값, 바꿀 타입값 가져온다.
+        String getCurrentTypeQuery = "select type\n"
+            + "from detailed_plan\n"
+            + "where detailed_plan_id = ?;";
+        String currentType = this.jdbcTemplate.queryForObject(getCurrentTypeQuery, String.class,
+            detailed_plan_id);
+        String afterType = patchPlanReviseReq.getType();
+
+        //이미 완료된 세부계획인지 알아보기 위해 is_completed값을 가져온다.
+        String getIsCompletdQuery = "select is_completed\n"
+            + "from detailed_plan\n"
+            + "where detailed_plan_id = ?;";
+        int is_Completed = this.jdbcTemplate.queryForObject(getIsCompletdQuery, int.class,
+            detailed_plan_id);
+        //완료된 세부계획은 타입값을 수정할 수 없게한다. -> 꼬이게됨.
+        if (is_Completed == 1) {
+            throw new BaseException(CANNOT_CHANGE_TYPE);
+        }
+        int user_id = getUser_id_from_detailed_plan_id(detailed_plan_id);
+        String getPlanInfo = "select detailed_plan_id, type, plan_content\n"
+            + "from detailed_plan\n"
+            + "where detailed_plan_id = ?;";
+
+        //이전 타입이 마음가짐일때
+        if (currentType.equals("마음가짐")) {
+            //1회성,매일루틴으로 수정한다면 총 할일갯수 증가시켜주고 ,
+            if (afterType.equals("1회성") || afterType.equals("매일루틴")) {
+                //총 할일갯수 증가
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans + 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //비정기적이라면 그냥 타입이름만 바꿔준다.
+            if (afterType.equals("비정기적")) {
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //남은건 루틴일 경우
+            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
+            //루틴일때는 오늘 요일이 포함된다면 냅두고 ,아니라면 오늘 할일갯수를 감소시켜줘야한다.
+            if (afterType.contains(today)) {
+                //오늘 요일이 포함되므로 +1해준다.
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans + 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+            }
+            //타입명 바꿔주고
+            //루틴이름 변경
+            String changeType = "update detailed_plan\n"
+                + "set type = ?\n"
+                + "where detailed_plan_id = ?;\n";
+            this.jdbcTemplate.update(changeType, "루틴", detailed_plan_id);
+            //요일 값 추가해준다.
+            //이전에 저장된 요일값들은 status를 0으로 바꿔놨다. 새로 지정하기위해 들어온 요일값을 검색해서 있으면 status를 1로 없다면 추가
+            StringTokenizer st = new StringTokenizer(afterType, ",");
+            String checkDayQuery = "select EXISTS(select plan_day_of_week_id\n"
+                + "              from plan_day_of_week\n"
+                + "              where detailed_plan_id = ? and day_of_week = ?);";
+            while (st.hasMoreTokens()) {
+                String oneOfDays = st.nextToken();
+                int checkResult = this.jdbcTemplate.queryForObject(checkDayQuery, int.class,
+                    detailed_plan_id, oneOfDays);
+                if (checkResult == 1) {
+                    //이미 있다면 다시 status를 1로 바꾼다.
+                    String changeStatusOne = "update plan_day_of_week\n"
+                        + "set status = 1\n"
+                        + "where detailed_plan_id = ?\n"
+                        + "  and day_of_week = ? ;";
+                    this.jdbcTemplate.update(changeStatusOne, detailed_plan_id, oneOfDays);
+                }
+                else{
+                    //없는거니까 해당 요일값을 추가해준다.
+                    String insertQuery =
+                        "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
+                            + "VALUES (?, ?);";
+                    this.jdbcTemplate.update(insertQuery, detailed_plan_id, oneOfDays);
+
+                }
+
+            }
+            //변경 후 값 리턴해준다.
+            PatchPlanReviseRes patchPlanReviseRes = this.jdbcTemplate.queryForObject(getPlanInfo,
+                (rs, rowNum) -> new PatchPlanReviseRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getString("plan_content"),
+                    rs.getString("type")
+                ), detailed_plan_id);
+
+            //요일값들 가져온다.
+            String getDyas = "select group_concat(day_of_week)\n"
+                + "from plan_day_of_week\n"
+                + "where detailed_plan_id = ?\n"
+                + "  and status = 1;";
+            String daysResult1 = this.jdbcTemplate.queryForObject(getDyas, String.class,
+                detailed_plan_id);
+
+            patchPlanReviseRes.setType(patchPlanReviseRes.getType() + ":" + daysResult1);
+            return patchPlanReviseRes;
+
+        }
+        //이전 타입이 1회성일때
+        if (currentType.equals("1회성")) {
+            //마음가짐과 비정기적으로 바꾼다면 총 할일갯수를 감소시켜준다.
+            if (afterType.equals("마음가짐") || afterType.equals("비정기적")) {
+                //총 할일갯수 감소
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans - 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //매일루틴이라면 이름만 바꿔주고
+            if (afterType.equals("매일루틴")) {
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //루틴이라면 오늘요일 체크해주고 포함된다면 냅두고 아니면 감소 (+요일데이터값추가)
+            //남은건 루틴일 경우
+            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
+            if (!afterType.contains(today)) {
+                //오늘 요일이 포함안되므로 -1해준다.
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans - 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+            }
+            //타입명 바꿔주고
+            //루틴이름 변경
+            String changeType = "update detailed_plan\n"
+                + "set type = ?\n"
+                + "where detailed_plan_id = ?;\n";
+            this.jdbcTemplate.update(changeType, "루틴", detailed_plan_id);
+            //요일 값 추가해준다.
+            //이전에 저장된 요일값들은 status를 0으로 바꿔놨다. 새로 지정하기위해 들어온 요일값을 검색해서 있으면 status를 1로 없다면 추가
+            StringTokenizer st = new StringTokenizer(afterType, ",");
+            String checkDayQuery = "select EXISTS(select plan_day_of_week_id\n"
+                + "              from plan_day_of_week\n"
+                + "              where detailed_plan_id = ? and day_of_week = ?);";
+            while (st.hasMoreTokens()) {
+                String oneOfDays = st.nextToken();
+                int checkResult = this.jdbcTemplate.queryForObject(checkDayQuery, int.class,
+                    detailed_plan_id, oneOfDays);
+                if (checkResult == 1) {
+                    //이미 있다면 다시 status를 1로 바꾼다.
+                    String changeStatusOne = "update plan_day_of_week\n"
+                        + "set status = 1\n"
+                        + "where detailed_plan_id = ?\n"
+                        + "  and day_of_week = ? ;";
+                    this.jdbcTemplate.update(changeStatusOne, detailed_plan_id, oneOfDays);
+                }
+                else{
+                    //없는거니까 해당 요일값을 추가해준다.
+                    String insertQuery =
+                        "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
+                            + "VALUES (?, ?);";
+                    this.jdbcTemplate.update(insertQuery, detailed_plan_id, oneOfDays);
+
+                }
+
+            }
+            //변경 후 값 리턴해준다.
+            PatchPlanReviseRes patchPlanReviseRes = this.jdbcTemplate.queryForObject(getPlanInfo,
+                (rs, rowNum) -> new PatchPlanReviseRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getString("plan_content"),
+                    rs.getString("type")
+                ), detailed_plan_id);
+
+            //요일값들 가져온다.
+            String getDyas = "select group_concat(day_of_week)\n"
+                + "from plan_day_of_week\n"
+                + "where detailed_plan_id = ?\n"
+                + "  and status = 1;";
+            String daysResult1 = this.jdbcTemplate.queryForObject(getDyas, String.class,
+                detailed_plan_id);
+
+            patchPlanReviseRes.setType(patchPlanReviseRes.getType() + ":" + daysResult1);
+            return patchPlanReviseRes;
+
+        }
+
+        if (currentType.equals("매일루틴")) {
+            //마음가짐과 비정기적으로 바꾼다면 총 할일갯수를 감소시켜준다.
+            if (afterType.equals("마음가짐") || afterType.equals("비정기적")) {
+                //총 할일갯수 감소
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans - 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //1회성이라면 이름만 바꿔주고
+            if (afterType.equals("1회성")) {
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //루틴이라면 오늘요일 체크해주고 포함된다면 냅두고 아니면 감소 (+요일데이터값추가)
+            //남은건 루틴일 경우
+            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
+            if (!afterType.contains(today)) {
+                //오늘 요일이 포함안되므로 -1해준다.
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans - 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+            }
+            //타입명 바꿔주고
+            //루틴이름 변경
+            String changeType = "update detailed_plan\n"
+                + "set type = ?\n"
+                + "where detailed_plan_id = ?;\n";
+            this.jdbcTemplate.update(changeType, "루틴", detailed_plan_id);
+            //요일 값 추가해준다.
+            //이전에 저장된 요일값들은 status를 0으로 바꿔놨다. 새로 지정하기위해 들어온 요일값을 검색해서 있으면 status를 1로 없다면 추가
+            StringTokenizer st = new StringTokenizer(afterType, ",");
+            String checkDayQuery = "select EXISTS(select plan_day_of_week_id\n"
+                + "              from plan_day_of_week\n"
+                + "              where detailed_plan_id = ? and day_of_week = ?);";
+            while (st.hasMoreTokens()) {
+                String oneOfDays = st.nextToken();
+                int checkResult = this.jdbcTemplate.queryForObject(checkDayQuery, int.class,
+                    detailed_plan_id, oneOfDays);
+                if (checkResult == 1) {
+                    //이미 있다면 다시 status를 1로 바꾼다.
+                    String changeStatusOne = "update plan_day_of_week\n"
+                        + "set status = 1\n"
+                        + "where detailed_plan_id = ?\n"
+                        + "  and day_of_week = ? ;";
+                    this.jdbcTemplate.update(changeStatusOne, detailed_plan_id, oneOfDays);
+                }
+                else{
+                    //없는거니까 해당 요일값을 추가해준다.
+                    String insertQuery =
+                        "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
+                            + "VALUES (?, ?);";
+                    this.jdbcTemplate.update(insertQuery, detailed_plan_id, oneOfDays);
+
+                }
+
+            }
+            //변경 후 값 리턴해준다.
+            PatchPlanReviseRes patchPlanReviseRes = this.jdbcTemplate.queryForObject(getPlanInfo,
+                (rs, rowNum) -> new PatchPlanReviseRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getString("plan_content"),
+                    rs.getString("type")
+                ), detailed_plan_id);
+
+            //요일값들 가져온다.
+            String getDyas = "select group_concat(day_of_week)\n"
+                + "from plan_day_of_week\n"
+                + "where detailed_plan_id = ?\n"
+                + "  and status = 1;";
+            String daysResult1 = this.jdbcTemplate.queryForObject(getDyas, String.class,
+                detailed_plan_id);
+
+            patchPlanReviseRes.setType(patchPlanReviseRes.getType() + ":" + daysResult1);
+            return patchPlanReviseRes;
+
+
+        }
+        //이전 타입이 비정기적일때
+        if (currentType.equals("비정기적")) {
+            if (afterType.equals("매일루틴") || afterType.equals("1회성")) {
+                //총 할일갯수 증가
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans + 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //마음가짐이라면 이름만 바꿔주고
+            if (afterType.equals("마음가짐")) {
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //루틴이라면 오늘요일 체크해주고 포함된다면 증가시키고 아니면 냅둔다. (+요일데이터값추가)
+            //남은건 루틴일 경우
+            //마음가짐,1회성,매일루틴,비정기적이 아니라면 "월,화,수"와 같이 구성된 요일값 -> 루틴
+            if (afterType.contains(today)) {
+                //포함되므로 증가
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans + 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+            }
+            //타입명 바꿔주고
+            //루틴이름 변경
+            String changeType = "update detailed_plan\n"
+                + "set type = ?\n"
+                + "where detailed_plan_id = ?;\n";
+            this.jdbcTemplate.update(changeType, "루틴", detailed_plan_id);
+            //요일 값 추가해준다.
+            //이전에 저장된 요일값들은 status를 0으로 바꿔놨다. 새로 지정하기위해 들어온 요일값을 검색해서 있으면 status를 1로 없다면 추가
+            StringTokenizer st = new StringTokenizer(afterType, ",");
+            String checkDayQuery = "select EXISTS(select plan_day_of_week_id\n"
+                + "              from plan_day_of_week\n"
+                + "              where detailed_plan_id = ? and day_of_week = ?);";
+            while (st.hasMoreTokens()) {
+                String oneOfDays = st.nextToken();
+                int checkResult = this.jdbcTemplate.queryForObject(checkDayQuery, int.class,
+                    detailed_plan_id, oneOfDays);
+                if (checkResult == 1) {
+                    //이미 있다면 다시 status를 1로 바꾼다.
+                    String changeStatusOne = "update plan_day_of_week\n"
+                        + "set status = 1\n"
+                        + "where detailed_plan_id = ?\n"
+                        + "  and day_of_week = ? ;";
+                    this.jdbcTemplate.update(changeStatusOne, detailed_plan_id, oneOfDays);
+                }
+                else{
+                    //없는거니까 해당 요일값을 추가해준다.
+                    String insertQuery =
+                        "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
+                            + "VALUES (?, ?);";
+                    this.jdbcTemplate.update(insertQuery, detailed_plan_id, oneOfDays);
+
+                }
+
+            }
+            //변경 후 값 리턴해준다.
+            PatchPlanReviseRes patchPlanReviseRes = this.jdbcTemplate.queryForObject(getPlanInfo,
+                (rs, rowNum) -> new PatchPlanReviseRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getString("plan_content"),
+                    rs.getString("type")
+                ), detailed_plan_id);
+
+            //요일값들 가져온다.
+            String getDyas = "select group_concat(day_of_week)\n"
+                + "from plan_day_of_week\n"
+                + "where detailed_plan_id = ?\n"
+                + "  and status = 1;";
+            String daysResult1 = this.jdbcTemplate.queryForObject(getDyas, String.class,
+                detailed_plan_id);
+
+            patchPlanReviseRes.setType(patchPlanReviseRes.getType() + ":" + daysResult1);
+            return patchPlanReviseRes;
+
+
+
+
+        }
+        //바꾸기전값이 루틴일때
+        if (currentType.equals("루틴")) {
+            //현재타입이 루틴이므로 해당 루닡의 요일값을 가져온다.
+            String getDays = "select group_concat(day_of_week)\n"
+                + "from plan_day_of_week\n"
+                + "where detailed_plan_id = ? and status = 1;";
+            String currentDays = this.jdbcTemplate.queryForObject(getDays, String.class,
+                detailed_plan_id);
+            //오늘이 해당 루틴요일에 포함되는지 체크해보고 맞는지아닌지 저장
+            boolean checktoday =false;
+            if (currentDays.contains(today) ) {
+                //오늘값이 포함하니 true로 바꿔둠
+                checktoday = true;
+            }
+            //현재 루틴의 모든 요일 status를 0으로 바꿔준다.
+            String setStatusZero = "update plan_day_of_week\n"
+                + "set status=0\n"
+                + "where detailed_plan_id = ?;";
+            this.jdbcTemplate.update(setStatusZero, detailed_plan_id);
+
+
+
+            //매일루틴,1회성으로 바꿀때
+            //오늘이 해당 루틴 요일에 포함된다면 값을 냅두고 ,아니라면 감소시킨다.
+            if (afterType.equals("매일루틴") || afterType.equals("1회성")) {
+                if (!checktoday) {
+                    //오늘이 포함안된다 -> 1감소
+                    String plusTotal = "update today_totalplan_completedplan\n"
+                        + "set total_plans = total_plans - 1\n"
+                        + "where user_id = ?\n"
+                        + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                    this.jdbcTemplate.update(plusTotal, user_id, day);
+                }
+                //포함될때는 그냥냅둔다.
+
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+            }
+            //바꾸려는 타입이 마음가짐 또는 비정기적이라면
+            if (afterType.equals("마음가짐") || afterType.equals("비정기적")) {
+                // 1감소
+                String plusTotal = "update today_totalplan_completedplan\n"
+                    + "set total_plans = total_plans - 1\n"
+                    + "where user_id = ?\n"
+                    + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                this.jdbcTemplate.update(plusTotal, user_id, day);
+                //루틴이름 변경
+                String changeType = "update detailed_plan\n"
+                    + "set type = ?\n"
+                    + "where detailed_plan_id = ?;\n";
+                this.jdbcTemplate.update(changeType, afterType, detailed_plan_id);
+                //변경 후 값 리턴해준다.
+                return this.jdbcTemplate.queryForObject(getPlanInfo,
+                    (rs, rowNum) -> new PatchPlanReviseRes(
+                        rs.getInt("detailed_plan_id"),
+                        rs.getString("plan_content"),
+                        rs.getString("type")
+                    ), detailed_plan_id);
+
+            }
+            //마지막으로 타입은 그대로지만 요일값을 바꾸려고할때
+            //이전에 저장된 요일값들은 status를 0으로 바꿔놨다. 새로 지정하기위해 들어온 요일값을 검색해서 있으면 status를 1로 없다면 추가
+            StringTokenizer st = new StringTokenizer(afterType, ",");
+            String checkDayQuery = "select EXISTS(select plan_day_of_week_id\n"
+                + "              from plan_day_of_week\n"
+                + "              where detailed_plan_id = ? and day_of_week = ?);";
+            while (st.hasMoreTokens()) {
+                String oneOfDays = st.nextToken();
+                int checkResult = this.jdbcTemplate.queryForObject(checkDayQuery, int.class,
+                    detailed_plan_id, oneOfDays);
+                if (checkResult == 1) {
+                    //이미 있다면 다시 status를 1로 바꾼다.
+                    String changeStatusOne = "update plan_day_of_week\n"
+                        + "set status = 1\n"
+                        + "where detailed_plan_id = ?\n"
+                        + "  and day_of_week = ? ;";
+                    this.jdbcTemplate.update(changeStatusOne, detailed_plan_id, oneOfDays);
+                }
+                else{
+                    //없는거니까 해당 요일값을 추가해준다.
+                    String insertQuery =
+                        "insert into plan_day_of_week(detailed_plan_id, day_of_week)\n"
+                            + "VALUES (?, ?);";
+                    this.jdbcTemplate.update(insertQuery, detailed_plan_id, oneOfDays);
+
+                }
+
+            }
+            //이전 요일중 오늘이 있었지만 수정된 요일에는 없다면 -1 , 이전 요일중 오늘이 없었는데 수정된 요일에도 없다면 냅두고, 수정된요일에는 있다면 +1
+            if(checktoday)
+            {
+                if (!afterType.contains(today)) {
+                    String plusTotal = "update today_totalplan_completedplan\n"
+                        + "set total_plans = total_plans - 1\n"
+                        + "where user_id = ?\n"
+                        + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                    this.jdbcTemplate.update(plusTotal, user_id, day);
+                }
+            }
+            if (!checktoday) {
+                if (afterType.contains(today)) {
+                    String plusTotal = "update today_totalplan_completedplan\n"
+                        + "set total_plans = total_plans + 1\n"
+                        + "where user_id = ?\n"
+                        + "  and date_format(created_at, '%Y-%m-%d') = ?;";
+                    this.jdbcTemplate.update(plusTotal, user_id, day);
+                }
+            }
+
+
+
+            // 요일값 수정 끝, 바뀐걸 출력해준다. 요일추가해서
+
+            PatchPlanReviseRes patchPlanReviseRes = this.jdbcTemplate.queryForObject(getPlanInfo,
+                (rs, rowNum) -> new PatchPlanReviseRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getString("plan_content"),
+                    rs.getString("type")
+                ), detailed_plan_id);
+
+            //요일값들 가져온다.
+            String getDyas = "select group_concat(day_of_week)\n"
+                + "from plan_day_of_week\n"
+                + "where detailed_plan_id = ?\n"
+                + "  and status = 1;";
+            String daysResult1 = this.jdbcTemplate.queryForObject(getDyas, String.class,
+                detailed_plan_id);
+
+            patchPlanReviseRes.setType(patchPlanReviseRes.getType() + ":" + daysResult1);
+            System.out.println(patchPlanReviseRes.getType());
+            System.out.println(patchPlanReviseRes);
+
+            return patchPlanReviseRes;
+
+        }
+
+        PatchPlanReviseRes patchPlanReviseRes = new PatchPlanReviseRes();
+        patchPlanReviseRes.setPlan_content("에러발생");
+        return patchPlanReviseRes;
+
+
+
+    }
 
 
     public int getPlanetIdByDetailedPlanId(int detailed_plan_id) {
@@ -1170,6 +1392,18 @@ public class PlanDao {
             + "from detailed_plan\n"
             + "where detailed_plan_id = ?;";
         return this.jdbcTemplate.queryForObject(getPlanetId, int.class, detailed_plan_id);
+    }
+
+
+    public PatchPlanReviseRes getPlanetIdByDetailedPlanInfo(int detailed_plan_id) {
+        String getPlanetId = "select detailed_plan_id,plan_content,type\n"
+            + "from detailed_plan\n"
+            + "where detailed_plan_id = ?;";
+        return this.jdbcTemplate.queryForObject(getPlanetId, (rs, rowNum) -> new PatchPlanReviseRes(
+            rs.getInt("detailed_plan_id"),
+            rs.getString("plan_content"),
+            rs.getString("type")
+        ), detailed_plan_id);
     }
 
 

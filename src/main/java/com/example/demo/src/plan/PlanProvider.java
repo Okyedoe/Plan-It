@@ -106,6 +106,18 @@ public class PlanProvider {
         }
     }
 
+    public PatchPlanReviseRes getPlanetIdByDetailedPlanInfo (int detailed_plan_id) throws BaseException
+    {
+        try{
+            return planDao.getPlanetIdByDetailedPlanInfo(detailed_plan_id);
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
 
 //    //해당 행성에 같은 세부계획이 있는지 체크함.

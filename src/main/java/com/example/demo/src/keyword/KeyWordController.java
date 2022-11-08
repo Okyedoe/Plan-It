@@ -10,6 +10,7 @@ import com.example.demo.src.journey.JourneyProvider;
 import com.example.demo.src.keyword.model.GetRandomKeyWordRes;
 import com.example.demo.src.planet.PlanetProvider;
 import com.example.demo.utils.JwtService;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class KeyWordController {
         this.journeyProvider =journeyProvider;
     }
 
+    @ApiOperation(value = "키워드 + 닉네임 api", notes = "키워드를 랜덤으로 가져와서 닉네임과 붙인후 리턴해줍니다.")
     @ResponseBody
     @GetMapping("/{journey_id}")
     public BaseResponse<GetRandomKeyWordRes> getKeyWord(@PathVariable("journey_id") int journey_id) throws BaseException {
