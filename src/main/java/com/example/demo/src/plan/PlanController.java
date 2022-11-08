@@ -362,112 +362,123 @@ public class PlanController {
     }
 
 
-//    /**
-//     * 세부계획 수정
-//     * 둘다 빈값인지 체크
-//     * 타입값 수정시 , 오늘 완료한 세부계획이라면 수정을 못하게 한다 ( 너무 꼬임)
-//     * 완료하지않은 세부계획이라면 수정하고 오늘의 총 할일에 수정사항있으면 수정한다.
-//     */
-//    @Transactional
-//    @ResponseBody
-//    @PatchMapping("/revise/{detailed_plan_id}")
-//    public BaseResponse<PatchPlanReviseRes> revisePlan(
-//        @PathVariable("detailed_plan_id") int detailed_plan_id, @RequestBody
-//        PatchPlanReviseReq patchPlanReviseReq) {
-//
-//        try{
-//            //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 세부계획 주인이 맞는지 체크.
-//            int user_id_jwt = jwtService.getUserIdx();
-//
-//            int user_id_by_detailed_plan = planProvider.getUser_id_from_detailed_plan_id(detailed_plan_id);
-//            if(user_id_by_detailed_plan != user_id_jwt)
-//            {
-//                return new BaseResponse<>(WRONG_JWT);
-//            }
-//
-//            //둘다 빈값체크 -> 수정하고자하는것만 값을 넣어주면 되긴함 하지만 둘다 빈값은 에러
-//            // 세부계획 이름에 대한 중복체크는 하지않는다.
-//            if (patchPlanReviseReq.getPlan_content() == null
-//                || patchPlanReviseReq.getPlan_content().length() == 0) {
-//                if (patchPlanReviseReq.getType() == null
-//                    || patchPlanReviseReq.getType().length() == 0) {
-//                    return new BaseResponse<>(EMPTY_CONTENT_AND_TYPE);
-//                }
-//            }
-//            PatchPlanReviseRes patchPlanReviseRes = new PatchPlanReviseRes();
-//            //이름이 값이 있다면 이름은 바꿔주기만 하면된다.
-//            if (patchPlanReviseReq.getPlan_content().length() != 0) {
-//                //이름 값이 있다면 이름만 수정해준다.
-//                 patchPlanReviseRes = planService.reviseContent(patchPlanReviseReq, detailed_plan_id);
-//            }
-//            if (patchPlanReviseReq.getType().length() != 0) {
-//                //타입값이 들어왔다
-//                String type = patchPlanReviseRes.getType();
-//                //타입검사
-//                if(type.equals("마음가짐") || type.equals("비정기적") || type.equals("1회성") || type.equals("매일루틴"))
-//                {
-//
-//                }
-//                else{
-//                    boolean check = true;
-//                    StringTokenizer st = new StringTokenizer(type,",");
-//                    loop:
-//                    while(st.hasMoreTokens())
-//                    {
-//                        String day = st.nextToken();
-//                        switch (day) {
-//                            case "월":
-//                                break;
-//                            case "화":
-//                                break;
-//                            case "수":
-//                                break;
-//                            case "목":
-//                                break;
-//                            case "금":
-//                                break;
-//                            case "토":
-//                                break;
-//                            case "일":
-//                                break;
-//                            default :
-//                                check = false;
-//                                break loop;
-//                        }
-//                    }
-//                    if (!check) {
-//                        return new BaseResponse<>(WRONG_TYPE);
-//                    }
-//
-//                }
-//                //다 통과했다면 맞는 타입값이다. 원래거랑 같다면 그냥 값을 가져와서 리턴 ( 루틴 제외)
-//                PatchPlanReviseRes currentpatchPlanReviseRes = planProvider.getInfo(detailed_plan_id);
-//                String currentType = currentpatchPlanReviseRes.getType();
-//                //루틴은 입력값이 요일값이니까 기존에 저장된값의 타입을 가져온 루틴과 다르다.
-//                //루틴말고 나머지 타입값은 같다면 그냥 원래걸로 리턴해준다.
-//                if (currentType.equals(type)) {
-//                    patchPlanReviseRes = currentpatchPlanReviseRes;
-//                }
-//                else{
-//                    //다르다면 service로 타입 전달
-//                    patchPlanReviseRes = planService.reviseType(patchPlanReviseReq, detailed_plan_id);
-//
-//                }
-//
-//
-//
-//            }
-//
-//
-//
-//
-//        }catch (BaseException e)
-//        {
-//            e.printStackTrace();
-//            return new BaseResponse<>(e.getStatus());
-//        }
-//
-//    }
+    /**
+     * 세부계획 수정
+     * 둘다 빈값인지 체크
+     * 타입값 수정시 , 오늘 완료한 세부계획이라면 수정을 못하게 한다 ( 너무 꼬임)
+     * 완료하지않은 세부계획이라면 수정하고 오늘의 총 할일에 수정사항있으면 수정한다.
+     */
+    @Transactional
+    @ResponseBody
+    @PatchMapping("/revise/{detailed_plan_id}")
+    public BaseResponse<PatchPlanReviseRes> revisePlan(
+        @PathVariable("detailed_plan_id") int detailed_plan_id, @RequestBody
+        PatchPlanReviseReq patchPlanReviseReq) {
+
+        try{
+            //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 세부계획 주인이 맞는지 체크.
+            int user_id_jwt = jwtService.getUserIdx();
+
+            int user_id_by_detailed_plan = planProvider.getUser_id_from_detailed_plan_id(detailed_plan_id);
+            if(user_id_by_detailed_plan != user_id_jwt)
+            {
+                return new BaseResponse<>(WRONG_JWT);
+            }
+
+            //둘다 빈값체크 -> 수정하고자하는것만 값을 넣어주면 되긴함 하지만 둘다 빈값은 에러
+            // 세부계획 이름에 대한 중복체크는 하지않는다.
+            if (patchPlanReviseReq.getPlan_content() == null
+                || patchPlanReviseReq.getPlan_content().length() == 0) {
+                if (patchPlanReviseReq.getType() == null
+                    || patchPlanReviseReq.getType().length() == 0) {
+                    return new BaseResponse<>(EMPTY_CONTENT_AND_TYPE);
+                }
+            }
+            PatchPlanReviseRes patchPlanReviseRes = new PatchPlanReviseRes();
+            //이름이 값이 있다면 이름은 바꿔주기만 하면된다.
+            if (patchPlanReviseReq.getPlan_content() != null) {
+                if (patchPlanReviseReq.getPlan_content().length() != 0) {
+                    //이름 값이 있다면 이름만 수정해준다.
+                    patchPlanReviseRes = planService.reviseContent(patchPlanReviseReq,
+                        detailed_plan_id);
+                }
+            }
+            if (patchPlanReviseReq.getType() != null) {
+                if(patchPlanReviseReq.getType().length() != 0)
+                {
+                    //타입값이 들어왔다
+                    String type = patchPlanReviseReq.getType();
+                    //타입검사
+                    if(type.equals("마음가짐") || type.equals("비정기적") || type.equals("1회성") || type.equals("매일루틴"))
+                    {
+
+                    }
+                    else{
+                        boolean check = true;
+                        StringTokenizer st = new StringTokenizer(type,",");
+                        loop:
+                        while(st.hasMoreTokens())
+                        {
+                            String day = st.nextToken();
+                            switch (day) {
+                                case "월":
+                                    break;
+                                case "화":
+                                    break;
+                                case "수":
+                                    break;
+                                case "목":
+                                    break;
+                                case "금":
+                                    break;
+                                case "토":
+                                    break;
+                                case "일":
+                                    break;
+                                default :
+                                    check = false;
+                                    break loop;
+                            }
+                        }
+                        if (!check) {
+                            return new BaseResponse<>(WRONG_TYPE);
+                        }
+
+                    }
+                    //다 통과했다면 맞는 타입값이다. 원래거랑 같다면 그냥 값을 가져와서 리턴 ( 루틴 제외)
+                    PatchPlanReviseRes currentpatchPlanReviseRes = planProvider.getInfo(detailed_plan_id);
+                    String currentType = currentpatchPlanReviseRes.getType();
+                    //루틴은 입력값이 요일값이니까 기존에 저장된값의 타입을 가져온 루틴과 다르다.
+                    //루틴말고 나머지 타입값은 같다면 그냥 원래걸로 리턴해준다.
+                    if (currentType.equals(type)) {
+                        patchPlanReviseRes = currentpatchPlanReviseRes;
+                    }
+                    else{
+                        //다르다면 service로 타입 전달
+                        patchPlanReviseRes = planService.reviseType(patchPlanReviseReq, detailed_plan_id);
+
+                    }
+
+                    return new BaseResponse<>(patchPlanReviseRes);
+
+                }
+
+
+
+
+            }
+            patchPlanReviseRes = planProvider.getPlanetIdByDetailedPlanInfo(detailed_plan_id);
+            return new BaseResponse<>(patchPlanReviseRes);
+
+
+
+        }catch (BaseException e)
+        {
+            e.printStackTrace();
+            return new BaseResponse<>(e.getStatus());
+        }
+
+    }
 
 
 

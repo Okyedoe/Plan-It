@@ -27,7 +27,11 @@ public class scheduler {
     @Async
     @Scheduled(cron = "15 0 0 1/1 * ?") // 매일 오전 00시 00분 00초에  , 초 분 시 일 월 요일
     public void setIsCompletedZero() {
-        String setIsCompletedZeroQuery = "update detailed_plan set is_completed = 0";
+        String setIsCompletedZeroQuery = "update detailed_plan\n"
+            + "set is_completed = 0\n"
+            + "where type = '매일루틴'\n"
+            + "  and type = '루틴';";
+        //매일루틴, 루틴
         this.jdbcTemplate.update(setIsCompletedZeroQuery);
 
         // 현재 날짜/시간
