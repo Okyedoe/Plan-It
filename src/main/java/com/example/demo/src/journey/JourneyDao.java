@@ -122,8 +122,8 @@ public class JourneyDao {
             }
 
         }
-
-        String notbelongPlanetQuery = "insert into planet(planet_name,journey_id) VALUES('해당없음',?)";
+        // 해당없음 행성은 기본 색깔이 제일 회색같은거로
+        String notbelongPlanetQuery = "insert into planet(planet_name,journey_id,color) VALUES('해당없음',?,'#E1E1E1')";
 
         this.jdbcTemplate.update(notbelongPlanetQuery, journey_id);
 
