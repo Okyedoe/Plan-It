@@ -63,6 +63,9 @@ public enum BaseResponseStatus {
     NOT_EXISTS_COMPLETED_PLAN(false,2045,"today_complted_plans에 데이터가 없습니다. "),
     EMPTY_NICKNAME(false,2046,"닉네임값이 비어있습니다."),
     DUPLICATE_NICKNAME(false,2047,"중복된 닉네임입니다."),
+    EMPTY_CONTENT_AND_TYPE(false,2048,"세부계획의 명과 타입 둘다 빈값입니다."),
+
+    CANNOT_CHANGE_TYPE(false,2049,"오늘완료한 세부계획의 타입은 수정할수 없습니다.(데이터가 꼬임)"),
 
 
 

@@ -1,6 +1,7 @@
 package com.example.demo.src.plan;
 import com.example.demo.src.journey.JourneyDao;
 import com.example.demo.src.plan.model.GetTodayPlanRes;
+import com.example.demo.src.plan.model.PatchPlanReviseRes;
 import com.example.demo.src.planet.PlanetDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,18 @@ public class PlanProvider {
         try{
             return planDao.getTodayPlans(journey_id);
 
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public PatchPlanReviseRes getInfo (int detailed_plan_id) throws BaseException
+    {
+        try{
+            return planDao.getPlanInfo(detailed_plan_id);
 
         }catch (Exception e)
         {

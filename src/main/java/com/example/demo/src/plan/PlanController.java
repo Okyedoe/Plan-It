@@ -6,6 +6,8 @@ import com.example.demo.src.journey.model.PatchPlanRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.plan.model.GetTodayPlanRes;
+import com.example.demo.src.plan.model.PatchPlanReviseReq;
+import com.example.demo.src.plan.model.PatchPlanReviseRes;
 import com.example.demo.src.plan.model.PostPlanReq;
 import com.example.demo.src.plan.model.PostPlanRes;
 import com.example.demo.src.planet.PlanetProvider;
@@ -310,6 +312,8 @@ public class PlanController {
     /**
      * 세부 계획 삭제처리
      * 삭제되면 원래 오늘 할일 갯수의 변동이 있는지 체크한다. 변동이 있다면 그 값만큼 today_totalplan_completedplan에 가서 total_plans값을 수정해준다.
+     * 오늘 할일에 포함되는 일인데 , 이미 완료를 했다면 total_plans값과 더불어 completed_plans값도 감소시켜준다.
+     * 그리고 세부계획완료된 데이터에서 해당 세부계획의 오늘 완료된 데이터의 status를 0으로 바꾼다.
      * 루틴을 삭제시 루틴과 관련된 요일 값들도 status를 0처리 해준다.
      * */
     @ApiOperation(value = "세부계획 삭제 api  ", notes = "삭제는 status를 0으로 처리합니다. ")
@@ -358,15 +362,117 @@ public class PlanController {
     }
 
 
-
-
 //    /**
-//     * 세부계획 수정 ,
-//     * */
+//     * 세부계획 수정
+//     * 둘다 빈값인지 체크
+//     * 타입값 수정시 , 오늘 완료한 세부계획이라면 수정을 못하게 한다 ( 너무 꼬임)
+//     * 완료하지않은 세부계획이라면 수정하고 오늘의 총 할일에 수정사항있으면 수정한다.
+//     */
 //    @Transactional
 //    @ResponseBody
 //    @PatchMapping("/revise/{detailed_plan_id}")
-//    public BaseResponse<> revisePlan (@PathVariable("detailed_plan_id")int detailed_plan_id, @RequestBody     )
+//    public BaseResponse<PatchPlanReviseRes> revisePlan(
+//        @PathVariable("detailed_plan_id") int detailed_plan_id, @RequestBody
+//        PatchPlanReviseReq patchPlanReviseReq) {
+//
+//        try{
+//            //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 세부계획 주인이 맞는지 체크.
+//            int user_id_jwt = jwtService.getUserIdx();
+//
+//            int user_id_by_detailed_plan = planProvider.getUser_id_from_detailed_plan_id(detailed_plan_id);
+//            if(user_id_by_detailed_plan != user_id_jwt)
+//            {
+//                return new BaseResponse<>(WRONG_JWT);
+//            }
+//
+//            //둘다 빈값체크 -> 수정하고자하는것만 값을 넣어주면 되긴함 하지만 둘다 빈값은 에러
+//            // 세부계획 이름에 대한 중복체크는 하지않는다.
+//            if (patchPlanReviseReq.getPlan_content() == null
+//                || patchPlanReviseReq.getPlan_content().length() == 0) {
+//                if (patchPlanReviseReq.getType() == null
+//                    || patchPlanReviseReq.getType().length() == 0) {
+//                    return new BaseResponse<>(EMPTY_CONTENT_AND_TYPE);
+//                }
+//            }
+//            PatchPlanReviseRes patchPlanReviseRes = new PatchPlanReviseRes();
+//            //이름이 값이 있다면 이름은 바꿔주기만 하면된다.
+//            if (patchPlanReviseReq.getPlan_content().length() != 0) {
+//                //이름 값이 있다면 이름만 수정해준다.
+//                 patchPlanReviseRes = planService.reviseContent(patchPlanReviseReq, detailed_plan_id);
+//            }
+//            if (patchPlanReviseReq.getType().length() != 0) {
+//                //타입값이 들어왔다
+//                String type = patchPlanReviseRes.getType();
+//                //타입검사
+//                if(type.equals("마음가짐") || type.equals("비정기적") || type.equals("1회성") || type.equals("매일루틴"))
+//                {
+//
+//                }
+//                else{
+//                    boolean check = true;
+//                    StringTokenizer st = new StringTokenizer(type,",");
+//                    loop:
+//                    while(st.hasMoreTokens())
+//                    {
+//                        String day = st.nextToken();
+//                        switch (day) {
+//                            case "월":
+//                                break;
+//                            case "화":
+//                                break;
+//                            case "수":
+//                                break;
+//                            case "목":
+//                                break;
+//                            case "금":
+//                                break;
+//                            case "토":
+//                                break;
+//                            case "일":
+//                                break;
+//                            default :
+//                                check = false;
+//                                break loop;
+//                        }
+//                    }
+//                    if (!check) {
+//                        return new BaseResponse<>(WRONG_TYPE);
+//                    }
+//
+//                }
+//                //다 통과했다면 맞는 타입값이다. 원래거랑 같다면 그냥 값을 가져와서 리턴 ( 루틴 제외)
+//                PatchPlanReviseRes currentpatchPlanReviseRes = planProvider.getInfo(detailed_plan_id);
+//                String currentType = currentpatchPlanReviseRes.getType();
+//                //루틴은 입력값이 요일값이니까 기존에 저장된값의 타입을 가져온 루틴과 다르다.
+//                //루틴말고 나머지 타입값은 같다면 그냥 원래걸로 리턴해준다.
+//                if (currentType.equals(type)) {
+//                    patchPlanReviseRes = currentpatchPlanReviseRes;
+//                }
+//                else{
+//                    //다르다면 service로 타입 전달
+//                    patchPlanReviseRes = planService.reviseType(patchPlanReviseReq, detailed_plan_id);
+//
+//                }
+//
+//
+//
+//            }
+//
+//
+//
+//
+//        }catch (BaseException e)
+//        {
+//            e.printStackTrace();
+//            return new BaseResponse<>(e.getStatus());
+//        }
+//
+//    }
+
+
+
+
+
 
 
 //    //jwt얻을려고
@@ -378,19 +484,7 @@ public class PlanController {
 //        return new BaseResponse<>(jwt);
 //    }
 
-    //현재시간 출력 테스트.
-//    @ResponseBody
-//    @GetMapping("/now")
-//    public void getJwtEx ()
-//    {
-//        LocalDate now = LocalDate.now();
-//        String day = now.getDayOfWeek().toString();
-//        int day_val = now.getDayOfWeek().getValue() ;
-//
-//        System.out.println(now);
-//        System.out.println("day = " + day);
-//        System.out.println("day_val = " + day_val);
-//    }
+
 
 
 }

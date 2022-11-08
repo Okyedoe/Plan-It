@@ -39,9 +39,11 @@ public class PostJourneyReq {
 
     @ApiModelProperty(value = "기간",example = "25")
     private int period;
-    @ApiModelProperty(value = "",example = "[상냥함,우아한]")
+    @ApiModelProperty(value = "키워드")
     private String[] keywords;
+    @ApiModelProperty(value = "행성값들")
     private List<Planetinfo> planets;
+    @ApiModelProperty(value = "닉네임")
     private String nickname;
 
 

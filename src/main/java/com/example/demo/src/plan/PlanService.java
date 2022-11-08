@@ -5,6 +5,8 @@ import com.example.demo.src.journey.JourneyProvider;
 import com.example.demo.src.journey.model.PatchPlanRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
 import com.example.demo.src.journey.model.PostJourneyRes;
+import com.example.demo.src.plan.model.PatchPlanReviseReq;
+import com.example.demo.src.plan.model.PatchPlanReviseRes;
 import com.example.demo.src.plan.model.PostPlanReq;
 import com.example.demo.src.plan.model.PostPlanRes;
 import com.example.demo.src.planet.PlanetDao;
@@ -95,6 +97,29 @@ public class PlanService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    @Transactional
+    public PatchPlanReviseRes reviseContent(PatchPlanReviseReq patchPlanReviseReq,int detailed_plan_id) throws BaseException {
+        try {
+            return planDao.reviseContent(patchPlanReviseReq, detailed_plan_id);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+
+        }
+    }
+//    @Transactional
+//    public PatchPlanReviseRes reviseType(PatchPlanReviseReq patchPlanReviseReq,int detailed_plan_id) throws BaseException {
+//        try {
+//            return
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new BaseException(DATABASE_ERROR);
+//
+//        }
+//    }
 
 
 }
