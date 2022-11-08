@@ -28,6 +28,7 @@ public class GetDetailedInfoRes {
     @ApiModelProperty(value = "행성이미지",example = "이미지 URL로 리턴될 예정")
     private String planet_image;
 
+
     private List<Plans> plans;
 
     public GetDetailedInfoRes(int planet_id, String planet_name, String planet_intro, int planet_exp, int planet_level, String planet_image) {
@@ -43,16 +44,19 @@ public class GetDetailedInfoRes {
     //계획 + 타입(1회성과같은) + 완료여부(status) 리스트
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class Plans{
-        public Plans(String plan_content, String type, int status) {
+        public Plans(String plan_content, String type, int status,int is_completed) {
             this.plan_name = plan_content;
             this.type = type;
             this.status = status;
+            this.is_completed = is_completed;
         }
 
 
         private String plan_name;
         private String type;
         private int status;
+
+        private int is_completed;
     }
 
 
