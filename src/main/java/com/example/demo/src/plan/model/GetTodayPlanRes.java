@@ -18,6 +18,9 @@ public class GetTodayPlanRes {
     private String planet_image;
     private String plan_content;
     private String type;
+    private int is_completed;
+    private int detailed_plan_id;
+
 
 
 }

@@ -14,7 +14,10 @@ import java.util.List;
 public class PostJourneyRes {
     private int journey_id;
     private int period;
+    private int user_id;
+    private String nickname;
     private String[] keywords;
     private List<PostJourneyReq.Planetinfo> planets;
-    private int user_id;
+
+
 }

@@ -53,6 +53,7 @@ public class JourneyProvider {
     }
 
 
+
     public GetAllJourneyRes getJourney(int user_id) throws BaseException{
         try{
             return journeyDao.getJourney(user_id);
@@ -62,4 +63,5 @@ public class JourneyProvider {
         }
 
     }
+
 }

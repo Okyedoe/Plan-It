@@ -1,6 +1,7 @@
 package com.example.demo.src.planet;
 
 import com.example.demo.src.planet.model.GetPlanetsRes;
+import com.example.demo.src.planet.model.PatchRevisePlanetInforReq;
 import com.example.demo.src.planet.model.PostNewPlanetReq;
 import com.example.demo.src.planet.model.PostNewPlanetRes;
 import org.slf4j.Logger;
@@ -60,7 +61,19 @@ public class PlanetService {
         }
     }
 
+    //행성 정보 수정
+    @Transactional
+    public String revisePlanetInfo(int planet_id, PatchRevisePlanetInforReq patchRevisePlanetInforReq)throws BaseException
+    {
+        try{
+            return planetDao.revisePlanetInfo(planet_id, patchRevisePlanetInforReq);
 
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
 
 

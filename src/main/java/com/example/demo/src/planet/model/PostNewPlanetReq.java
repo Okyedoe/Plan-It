@@ -18,7 +18,7 @@ public class PostNewPlanetReq {
 
     @ApiModelProperty(value = "행성이름",example = "다이어트")
     private String planet_name;
-    @ApiModelProperty(example = "[물먹기,운동하기,헬스장가기]")
+    @ApiModelProperty(value = "계획을 문자열배열로 입력")
     private List<String> detailed_plans;
 
 

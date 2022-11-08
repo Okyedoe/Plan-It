@@ -43,7 +43,7 @@ public class GetDetailedInfoRes {
     //계획 + 타입(1회성과같은) + 완료여부(status) 리스트
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class Plans{
-        public Plans(String plan_content, String type, boolean status) {
+        public Plans(String plan_content, String type, int status) {
             this.plan_name = plan_content;
             this.type = type;
             this.status = status;
@@ -52,7 +52,7 @@ public class GetDetailedInfoRes {
 
         private String plan_name;
         private String type;
-        private boolean status;
+        private int status;
     }
 
 

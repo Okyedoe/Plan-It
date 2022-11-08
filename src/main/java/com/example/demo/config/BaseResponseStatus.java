@@ -55,6 +55,17 @@ public enum BaseResponseStatus {
     EMPTY_DETAILED_PLAN(false,2037,"세부계획이 빈값입니다."),
     EMPTY_KEYWORDS(false,2038,"키워드가 비어있습니다."),
     WRONG_TYPE(false,2039,"잘못된 타입값입니다."),
+    UPDATE_FAILED(false,2040,"값 업데이트가 실패하였습니다."),
+    PLANET_ERROR(false,2041,"해당없음 행성은 1회성 타입만 선택가능합니다."),
+    CANNOT_COMPLETED(false,2042,"마음가짐타입은 완료처리할 수 없습니다."),
+    CANNOT_ACCESS(false,2043,"해당 행성(해당없음 행성)은 접근할 수 없습니다."),
+    SHEDULE_ERROR(false,2044,"매일 자동생성되어야하는 데이터가 생성되지않았거나 , 문제발생"),
+    NOT_EXISTS_COMPLETED_PLAN(false,2045,"today_complted_plans에 데이터가 없습니다. "),
+    EMPTY_NICKNAME(false,2046,"닉네임값이 비어있습니다."),
+    DUPLICATE_NICKNAME(false,2047,"중복된 닉네임입니다."),
+    EMPTY_CONTENT_AND_TYPE(false,2048,"세부계획의 명과 타입 둘다 빈값입니다."),
+
+    CANNOT_CHANGE_TYPE(false,2049,"오늘완료한 세부계획의 타입은 수정할수 없습니다.(데이터가 꼬임)"),
 
 
 

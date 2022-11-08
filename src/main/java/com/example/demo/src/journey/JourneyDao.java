@@ -56,9 +56,9 @@ public class JourneyDao {
 //        System.out.println("period = " + period);
 
 
-        //여정 데이터 추가
-        String addJouneryQuery = "insert into journey(user_id,period) VALUES(?,?)";
-        Object[] addJourneyParams = new Object[]{user_id,postJourneyReq.getPeriod()};
+        //여정,닉네임 데이터를 가지고 여정데이터를 생성해준다.
+        String addJouneryQuery = "insert into journey(user_id,period,nickname) VALUES(?,?,?)";
+        Object[] addJourneyParams = new Object[]{user_id,postJourneyReq.getPeriod(),postJourneyReq.getNickname()};
         this.jdbcTemplate.update(addJouneryQuery,addJourneyParams);
 
         //여정아이디 가져오기
@@ -123,12 +123,17 @@ public class JourneyDao {
 
         }
 
+        String notbelongPlanetQuery = "insert into planet(planet_name,journey_id) VALUES('해당없음',?)";
+
+        this.jdbcTemplate.update(notbelongPlanetQuery, journey_id);
+
         PostJourneyRes postJourneyRes = new PostJourneyRes(); // 리턴값만들기
         postJourneyRes.setJourney_id(journey_id);
         postJourneyRes.setKeywords(keywords);
         postJourneyRes.setPlanets(planets);
         postJourneyRes.setPeriod(period);
         postJourneyRes.setUser_id(user_id);
+        postJourneyRes.setNickname(postJourneyReq.getNickname());
 
         return postJourneyRes;
     }
@@ -145,6 +150,7 @@ public class JourneyDao {
         String getQuery = "select user_id from journey where journey_id = ?";
         return this.jdbcTemplate.queryForObject(getQuery,int.class,journey_id);
     }
+
 
     public GetAllJourneyRes getJourney(int user_id) {
         int sum_period= 0;
@@ -186,6 +192,14 @@ public class JourneyDao {
 
 
 
+
+
+
+
+    public int checkDuplicateNickname(String nickname) {
+        String checkQuery = "select EXISTS(select nickname from journey where nickname=?)";
+        return this.jdbcTemplate.queryForObject(checkQuery, int.class, nickname);
+    }
 
 
 //    //행성 목록에서 행성이름빈값,중복  세부계획 빈값, 중복 체크  [결과는 int값에따라다름]

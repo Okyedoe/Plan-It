@@ -45,6 +45,18 @@ public class JourneyService {
 
     }
 
+    public int checkDuplicateNickname(String nickname) throws BaseException {
+        try {
+            return journeyDao.checkDuplicateNickname(nickname);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+
+    }
+
 
 
 
