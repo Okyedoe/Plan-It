@@ -145,7 +145,11 @@ public class PlanetDao {
         return this.jdbcTemplate.queryForObject(a,int.class,planet_name);
 
     }
-
+    public List<String> getPlanetName(int journey_id){
+        String sql = "select planet_name from planet where journey_id = ? and status = 1";
+        int param = journey_id;
+        return this.jdbcTemplate.queryForList(sql,String.class,param);
+    }
 
 
 

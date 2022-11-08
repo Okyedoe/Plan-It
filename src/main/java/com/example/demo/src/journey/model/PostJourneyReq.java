@@ -43,8 +43,6 @@ public class PostJourneyReq {
     private String[] keywords;
     private List<Planetinfo> planets;
 
-
-
 }
 
 

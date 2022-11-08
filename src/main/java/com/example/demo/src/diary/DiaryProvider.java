@@ -6,6 +6,7 @@ import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.diary.model.GetDiaryReq;
 import com.example.demo.src.diary.model.GetDiaryRes;
 import com.example.demo.utils.JwtService;
+import com.example.demo.utils.image.model.GetImageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,4 +59,27 @@ public class DiaryProvider {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+    public GetImageList yesterdayDiary(int user_id) throws BaseException{
+        try{
+            return diaryDao.yesterdayDiary(user_id);
+        }
+        catch(Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+
+    }
+
+    public GetImageList getFourImages(int user_id) throws BaseException{
+        try{
+            return diaryDao.getFourImages(user_id);
+        }
+        catch(Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+
+
 }

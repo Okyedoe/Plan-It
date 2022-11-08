@@ -19,5 +19,4 @@ public class PostPlanRes {
     private String plan_content;
     private String type;
 
-
 }

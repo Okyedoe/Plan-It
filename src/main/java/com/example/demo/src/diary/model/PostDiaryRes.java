@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostDiaryRes {
-    private int user_id;
+    private int journey_id;
     private String emotion;
     private int evaluation;
     private String content;

@@ -34,29 +34,31 @@ public class DiaryService {
         this.jwtService = jwtService;
         this.awsS3Service = awsS3Service;
     }
-    @Transactional
+
+
     public PostDiaryRes createDiary(PostDiaryReq postDiaryReq) throws BaseException{
         try{
             List<MultipartFile> images = postDiaryReq.getImages();
             List<String> url = new ArrayList<>();
-            if(images!=null){
+            if(!images.get(0).isEmpty()){
                 for(MultipartFile img : images){
                     String filename = awsS3Service.uploadImage(img);
                     url.add(filename);
                 }
             }
+
             PostDiary postDiary = new PostDiary();
             postDiary.setContent(postDiaryReq.getContent());
             postDiary.setEmotion(postDiaryReq.getEmotion());
             postDiary.setEvaluation(postDiaryReq.getEvaluation());
-            postDiary.setUser_id(postDiaryReq.getUser_id());
+            postDiary.setJourney_id(postDiaryReq.getJourney_id());
             postDiary.setImage_url(url);
 
             return diaryDao.createDiary(postDiary);
         }
         catch(Exception exception){
             exception.printStackTrace();
-            throw new BaseException(DATABASE_ERROR);
+            throw   new BaseException(DATABASE_ERROR);
         }
     }
 

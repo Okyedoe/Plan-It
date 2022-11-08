@@ -1,4 +1,6 @@
 package com.example.demo.src.journey;
+import com.example.demo.src.journey.model.GetAllJourneyRes;
+import com.example.demo.src.journey.model.GetJourneyRes;
 import com.example.demo.src.planet.PlanetDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,6 +8,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +47,19 @@ public class JourneyProvider {
         }catch (Exception e)
         {
             e.printStackTrace();
-            throw new BaseException(DATABASE_ERROR  );
+            throw new BaseException(INVALID_JOURNEY_USER);
         }
+
     }
 
 
+    public GetAllJourneyRes getJourney(int user_id) throws BaseException{
+        try{
+            return journeyDao.getJourney(user_id);
+        }catch(Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
 }
