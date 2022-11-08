@@ -17,7 +17,9 @@ import static com.example.demo.config.BaseResponseStatus.*;
 
 @Service
 public class JourneyProvider {
+
     private final JourneyDao journeyDao;
+
     private final JwtService jwtService;
 
     @Autowired

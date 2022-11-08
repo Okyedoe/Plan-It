@@ -19,6 +19,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.ls.LSOutput;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
@@ -215,11 +216,11 @@ public class PlanDao {
     public List<GetTodayPlanRes> getTodayPlans (int journey_id)
     {
         //journey_id를 이용하여 해당 행성값들 가져온다.
-        String getPlanets = "select planet_id from planet where journey_id =?";
+        String getPlanets = "select planet_id from planet where journey_id =? and status =1";
         List<Integer> planet_ids ;
         planet_ids = this.jdbcTemplate.query(getPlanets,(rs, rowNum) ->new Integer(rs.getInt("planet_id")) ,journey_id  );
 
-        System.out.println(planet_ids.size() +":"+ planet_ids.get(0)); // 잘저장된걸 확인가능.
+
 
         //해당없음 행성의 1회성애들도 가져와야한다 -> 딱히 수정할 부분은 없음.
         //행성값들을 이용하여 마음가짐,1회성, 오늘 요일과 맞는 세부계획들을 가져온다.  ,, status가 0이 아닌애들을 가져와야한다. + is_completed를 이용하여 완료된건지 아닌지도 리턴에추가
@@ -254,7 +255,7 @@ public class PlanDao {
         for(int j=0;j<result.size();j++)
         {
             String current_type = result.get(j).getType();
-            System.out.println("현재 current_type값 : "+current_type);
+            //System.out.println("현재 current_type값 : "+current_type);
 
             if (current_type.equals("루틴")) {
                 //해당 세부계획아이디를 이용해서 모든 요일을 가져온다.
@@ -277,7 +278,7 @@ public class PlanDao {
                         }
                         break;
                     case 2 :
-                        System.out.println("들어온값 : "+tt);
+                        //System.out.println("들어온값 : "+tt);
                         if(tt.contains("화"))
                         {
                             result.get(j).setType("루틴 :"+tt);
@@ -1171,10 +1172,22 @@ public class PlanDao {
     }
 
 
+    public String getPlantName(int planet_id) {
+        String sql = "select planet_name from planet where planet_id = ? and status = 1";
+        try{
+            String planet = this.jdbcTemplate.queryForObject(sql,String.class,planet_id);
+            return planet;
+        }
+        catch(EmptyResultDataAccessException e){
+            System.out.println("문제가되는 행성번호:"+planet_id);
+        }
 
+        return this.jdbcTemplate.queryForObject(sql,String.class,planet_id);
+    }
 
-
-
-
+    public int getIsCompleterd(int detailed_plan_id) {
+        String sql = "select is_completed from detailed_plan where detailed_plan_id = ? and status =1";
+        return this.jdbcTemplate.queryForObject(sql,int.class,detailed_plan_id);
+    }
 }
 

@@ -85,9 +85,6 @@ public class JourneyController {
     @Transactional
     @ResponseBody
     @PostMapping("/{user_id}")
-
-
-
     public BaseResponse<PostJourneyRes> createJourney(@PathVariable("user_id") int user_id,
         @RequestBody PostJourneyReq postJourneyReq) {
 
@@ -196,4 +193,5 @@ public class JourneyController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
 }

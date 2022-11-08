@@ -11,6 +11,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class PatchUserReq {
     private int user_id;
     private String password;
-    private String phone_num;
     private MultipartFile profile_url;
 }

@@ -190,7 +190,10 @@ public class JourneyDao {
     // getPlanetName <- 여정 아이디에 맞는 행성이름 리스트 가져오는
     // getFourImages <- 여정아이디에 맞는 최근 4개의 다이어리 이미지 가져오는.
 
-
+    public String getNameByJourneyId(int journey_id){
+        String sql = "select nickname from journey where journey_id = ? and status =1";
+        return this.jdbcTemplate.queryForObject(sql,String.class,journey_id);
+    }
 
 
 
