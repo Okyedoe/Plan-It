@@ -77,6 +77,7 @@ public class DiaryDao {
                 );
     }
 
+    @Transactional
     public int deleteDiary(int diary_id) {
         String deleteUserQuery = "update diary set status = 0 where diary_id =? and status = 1";
         int deleteUserParams = diary_id;
