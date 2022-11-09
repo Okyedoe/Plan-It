@@ -56,7 +56,7 @@ public class DiaryDao {
     }
     @Transactional
     public List<String> getAllImages(int diary_id){
-        String getAllImagesQuery = "select diary_image_url from diary as a join diary_image as b on a.diary_id=b.diary_id where a.diary_id = ? and b.status=1 order by created_at desc";
+        String getAllImagesQuery = "select diary_image_url from diary as a join diary_image as b on a.diary_id=b.diary_id where a.diary_id = ? and b.status=1 order by a.created_at desc";
         int getAllImagesParams = diary_id;
         return this.jdbcTemplate.query(getAllImagesQuery,
                 (rs, rowNum) -> new String(
@@ -89,7 +89,7 @@ public class DiaryDao {
     @Transactional
     public List<GetDiaryRes> getAllDiary(int user_id)  {
 
-        String getDiaryIdSql = "select diary_id from diary as a join journey as b on a.journey_id = b.journey_id where b.user_id =? and status= 1 order by created_at desc";
+        String getDiaryIdSql = "select diary_id from diary as a join journey as b on a.journey_id = b.journey_id where b.user_id =? and a.status= 1 order by a.created_at desc";
         int getDiaryIdParams = user_id;
         List<Integer> diary_id = this.jdbcTemplate.queryForList(getDiaryIdSql, Integer.class, getDiaryIdParams);
 
@@ -109,7 +109,7 @@ public class DiaryDao {
     //날짜별 필터링 된 다이어리 가져오기
     @Transactional
     public List<GetDiaryRes> getDiary(int user_id, GetDiaryReq getDiaryReq) {
-        String getDiaryIdSql = "select diary_id from diary as a join journey as b on a.journey_id=b.journey_id where date_format(created_at,'%y%m%d') >=? and date_format(created_at,'%y%m%d') <= ? and user_id =? and status = 1 order by created_at desc";
+        String getDiaryIdSql = "select diary_id from diary as a join journey as b on a.journey_id=b.journey_id where date_format(a.created_at,'%y%m%d') >=? and date_format(a.created_at,'%y%m%d') <= ? and user_id =? and a.status = 1 order by a.created_at desc";
         Object[] getDiaryParams = new Object[]{
                 getDiaryReq.getStart_date(),
                 getDiaryReq.getEnd_date(),
