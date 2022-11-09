@@ -31,7 +31,7 @@ public class PlanetService {
         this.jwtService = jwtService;
 
     }
-
+    //새행성추가, 여정만들기, 행성 수정, 행성 가져오기.
 
     //새 행성 추가
     @Transactional

@@ -8,6 +8,7 @@ import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.planet.PlanetDao;
 import com.example.demo.utils.image.model.GetImageList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -202,6 +203,16 @@ public class JourneyDao {
     public int checkDuplicateNickname(String nickname) {
         String checkQuery = "select EXISTS(select nickname from journey where nickname=?)";
         return this.jdbcTemplate.queryForObject(checkQuery, int.class, nickname);
+    }
+
+    public int getCurrentJourneyId(int user_id) {
+            try {
+                String sql = "select journey_id from journey where user_id = ? and now()<= date_add(created_at,interval period*7 day)";
+                return this.jdbcTemplate.queryForObject(sql, int.class, user_id);
+            }catch(EmptyResultDataAccessException exception){
+                return -1;
+            }
+
     }
 
 

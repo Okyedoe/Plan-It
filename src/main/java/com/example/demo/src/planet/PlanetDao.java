@@ -21,10 +21,10 @@ import java.util.List;
 @Repository
 public class PlanetDao {
     private JdbcTemplate jdbcTemplate;
-
     @Autowired
     public void setDataSource(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+
     }
 
 
@@ -162,8 +162,9 @@ public class PlanetDao {
     @Transactional
     public String revisePlanetInfo(int planet_id,
         PatchRevisePlanetInforReq patchRevisePlanetInforReq) throws BaseException {
-        String reviseQuery = "update planet set planet_intro = ? where planet_id = ?";
-        Object[] reviseQueryParams = new Object[]{patchRevisePlanetInforReq.getPlanet_intro(),
+        int color_id = getColorIdByColorName(patchRevisePlanetInforReq.getColor());
+        String reviseQuery = "update planet set planet_intro = ? , color_id = ? where planet_id = ?";
+        Object[] reviseQueryParams = new Object[]{patchRevisePlanetInforReq.getPlanet_intro(),color_id,
             planet_id};
 
         int result = this.jdbcTemplate.update(reviseQuery, reviseQueryParams);
@@ -184,10 +185,13 @@ public class PlanetDao {
     }
 
 
+    public int getColorIdByColorName(String color) {
+        String sql = "select planet_color_id from planet_color where color = ? and status =1 ";
+        return this.jdbcTemplate.queryForObject(sql,int.class,color);
+    }
 
-
-
-
-
-
+    public String getColorNameByColorId(int color_id) {
+        String sql = "select color from planet_color where planet_color_id = ? and status = 1";
+        return this.jdbcTemplate.queryForObject(sql,String.class,color_id);
+    }
 }
