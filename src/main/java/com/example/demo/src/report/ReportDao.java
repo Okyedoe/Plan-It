@@ -58,9 +58,17 @@ public class ReportDao {
         return this.jdbcTemplate.queryForObject(query, int.class, user_id);
     }
 
-//    public GetTodayInfoREs getTodayData(int user_id) {
-//
-//
-//    }
+    public GetTodayInfoREs getTodayData(int user_id) {
+        String getQuery = "select *\n"
+            + "from today_totalplan_completedplan\n"
+            + "where user_id = ?\n"
+            + "  and date_format(created_at, '%y-%m-%d') = date_format(now(), '%y-%m-%d');";
+        return this.jdbcTemplate.queryForObject(getQuery, (rs, rowNum) -> new GetTodayInfoREs(
+            rs.getInt("total_plans"),
+            rs.getInt("completed_plans")
+        ), user_id);
+
+
+    }
 
 }

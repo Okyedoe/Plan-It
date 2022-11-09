@@ -27,3 +27,6 @@ echo "> Now Nginx proxies to ${TARGET_PORT}."
 sudo service nginx reload
 
 echo "> Nginx reloaded."
+
+#원래 켜져있던 서버끄기
+sudo fuser -k -n tcp ${CURRENT_PORT}
