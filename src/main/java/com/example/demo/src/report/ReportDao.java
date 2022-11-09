@@ -64,8 +64,8 @@ public class ReportDao {
             + "where user_id = ?\n"
             + "  and date_format(created_at, '%y-%m-%d') = date_format(now(), '%y-%m-%d');";
         return this.jdbcTemplate.queryForObject(getQuery, (rs, rowNum) -> new GetTodayInfoREs(
-            rs.getInt("total_plans"),
-            rs.getInt("completed_plans")
+            rs.getInt("completed_plans"),
+            rs.getInt("total_plans")
         ), user_id);
 
 
