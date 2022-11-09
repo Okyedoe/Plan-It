@@ -18,9 +18,11 @@ public class PostNewPlanetRes {
     @ApiModelProperty(value = "행성이름",example = "다이어트")
     private String planet_name;
 
+
     private String planet_intro;
     private String color;
 //    @ApiModelProperty(example = "[물먹기,운동하기,헬스장가기]")
 //    private List<String> detailed_plans;
+
 
 }

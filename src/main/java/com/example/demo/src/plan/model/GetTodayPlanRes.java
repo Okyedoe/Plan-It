@@ -20,7 +20,7 @@ public class GetTodayPlanRes {
     private String type;
     private int is_completed;
     private int detailed_plan_id;
-
+    private String color;
 
 
 }

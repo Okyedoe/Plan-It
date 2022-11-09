@@ -21,10 +21,10 @@ import java.util.List;
 @Repository
 public class PlanetDao {
     private JdbcTemplate jdbcTemplate;
-
     @Autowired
     public void setDataSource(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+
     }
 
 
@@ -42,6 +42,7 @@ public class PlanetDao {
     public List<GetPlanetsRes> getPlanets (int journey_id)
     {
         //status가 0인 -> 삭제된 행성은 가져오지않는다.
+
         String getPlanetsQuery =
             "select planet_id,planet_name,planet_intro,planet_exp,planet_level,pc.color from planet\n"
                 + "join planet_color pc on planet.status = pc.status\n"
@@ -55,6 +56,7 @@ public class PlanetDao {
             rs.getInt("planet_level"),
             rs.getString("color")
         ), journey_id);
+
 
     }
 
@@ -105,11 +107,13 @@ public class PlanetDao {
         }
 
         //행성추가 및 행성 세부계획 추가
+
         String addPlanetQuery = "insert into planet(journey_id,planet_name,planet_intro,color_id) VALUES(?,?,?,?)";
         String addPlanQuery = "insert into detailed_plan(planet_id,plan_content) VALUES(?,?)";
 
         //행성추가해주고, 행성 아이디를 받아온다.
         Object[] addPlanetParams = new Object[]{journey_id,postNewPlanetReq.getPlanet_name(),planet_intro,color_id};
+
         this.jdbcTemplate.update(addPlanetQuery,addPlanetParams); // 행성추가
         String peekQuery = "select last_insert_id()";
         int planet_id = this.jdbcTemplate.queryForObject(peekQuery,int.class); //방금 추가된 행성아이디
@@ -126,9 +130,11 @@ public class PlanetDao {
         PostNewPlanetRes postNewPlanetRes = new PostNewPlanetRes();
         postNewPlanetRes.setPlanet_name(postNewPlanetReq.getPlanet_name());
         postNewPlanetRes.setPlanet_id(planet_id);
+
         postNewPlanetRes.setColor(postNewPlanetReq.getColor());
         postNewPlanetRes.setPlanet_intro(planet_intro);
 //        postNewPlanetRes.setDetailed_plans(postNewPlanetReq.getDetailed_plans());
+
 
         return postNewPlanetRes;
 
@@ -182,8 +188,9 @@ public class PlanetDao {
     @Transactional
     public String revisePlanetInfo(int planet_id,
         PatchRevisePlanetInforReq patchRevisePlanetInforReq) throws BaseException {
-        String reviseQuery = "update planet set planet_intro = ? where planet_id = ?";
-        Object[] reviseQueryParams = new Object[]{patchRevisePlanetInforReq.getPlanet_intro(),
+        int color_id = getColorIdByColorName(patchRevisePlanetInforReq.getColor());
+        String reviseQuery = "update planet set planet_intro = ? , color_id = ? where planet_id = ?";
+        Object[] reviseQueryParams = new Object[]{patchRevisePlanetInforReq.getPlanet_intro(),color_id,
             planet_id};
 
         int result = this.jdbcTemplate.update(reviseQuery, reviseQueryParams);
@@ -204,6 +211,7 @@ public class PlanetDao {
     }
 
 
+
     public int checkColorExist(String color) {
         String checkQuery = "select EXISTS(select planet_color_id from planet_color where color = ?);";
         int result = this.jdbcTemplate.queryForObject(checkQuery, int.class, color);
@@ -213,9 +221,14 @@ public class PlanetDao {
 
 
 
+    public int getColorIdByColorName(String color) {
+        String sql = "select planet_color_id from planet_color where color = ? and status =1 ";
+        return this.jdbcTemplate.queryForObject(sql,int.class,color);
+    }
 
 
-
-
-
+    public String getColorNameByColorId(int color_id) {
+        String sql = "select color from planet_color where planet_color_id = ? and status = 1";
+        return this.jdbcTemplate.queryForObject(sql,String.class,color_id);
+    }
 }

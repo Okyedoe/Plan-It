@@ -66,4 +66,12 @@ public class JourneyProvider {
 
     }
 
+    public int getCurrentJourneyId(int user_id) throws BaseException {
+        try{
+            return journeyDao.getCurrentJourneyId(user_id);
+        }catch (Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

@@ -112,6 +112,25 @@ public class PlanetProvider {
             throw  new BaseException(DATABASE_ERROR);
         }
     }
+    //color값을 color_id로 변환해준다.
+    public int getColorIdByColorName(String color) throws BaseException{
+        try{
+            return planetDao.getColorIdByColorName(color);
+        }
+        catch (Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    //color_id값을 RGB값으로 변환
+    public String getColorNameByColorId(int color_id) throws  BaseException{
+        try{
+            return planetDao.getColorNameByColorId(color_id);
+        } catch (Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
     public int checkColorExist(String color) throws BaseException{
         try {

@@ -216,8 +216,6 @@ public class PlanetController {
             if (planetProvider.checkPlanetExist(postNewPlanetReq.getPlanet_name()) >= 1) {
                 return new BaseResponse<>(DUPLICATE_PLANET_NAME);
             }
-
-
             //journey_id 를 이용해서 user_id 를 가져오고 , 그 유저아이디랑 jwt에서 추출한 유저아이디랑 같은지 체크
             int user_id = planetProvider.getUser_id(journey_id);
             //jwt에서 idx 추출겸 , jwt검사

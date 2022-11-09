@@ -11,4 +11,5 @@ public class PostLoginRes {
 
     private int userIdx;
     private String jwt;
+    private int journey_id;
 }

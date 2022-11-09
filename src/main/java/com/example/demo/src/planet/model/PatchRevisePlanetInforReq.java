@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PatchRevisePlanetInforReq {
+    private String color;
+    private String planet_name;
     private String planet_intro;
-
 }

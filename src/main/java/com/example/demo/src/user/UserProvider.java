@@ -2,6 +2,7 @@ package com.example.demo.src.user;
 
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.journey.JourneyProvider;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.SHA256;
@@ -21,14 +22,15 @@ public class UserProvider {
 
     private final UserDao userDao;
     private final JwtService jwtService;
-
+    private final JourneyProvider journeyProvider;
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public UserProvider(UserDao userDao, JwtService jwtService) {
+    public UserProvider(UserDao userDao, JwtService jwtService,JourneyProvider journeyProvider) {
         this.userDao = userDao;
         this.jwtService = jwtService;
+        this.journeyProvider=journeyProvider;
     }
     /*
     public List<GetUserRes> getUsers() throws BaseException{
@@ -83,7 +85,8 @@ public class UserProvider {
         if(user.getPassword().equals(encryptPwd)){
             int userIdx = user.getUser_id();
             String jwt = jwtService.createJwt(userIdx);
-            return new PostLoginRes(userIdx,jwt);
+            int journeyId = journeyProvider.getCurrentJourneyId(user.getUser_id());
+            return new PostLoginRes(userIdx,jwt,journeyId);
         }
         else{
             throw new BaseException(FAILED_TO_LOGIN);

@@ -80,6 +80,7 @@ public enum BaseResponseStatus {
     ACCESSTOKEN_ERROR(false,2504,"액세스토큰을 입력해주세요"),
     INVALID_JOURNEY_USER(false,2505,"입력한 여정에 대한 유저가 없습니다."),
     POST_PHONE_NUM_TYPE(false,2506,"휴대폰 번호를 확인해주세요"),
+    EMPTY_PLANET_COLOR(false,2507,"행성의 색깔을 입력 해 주세요"),
     /**
      * 3000 : Response 오류
      */
