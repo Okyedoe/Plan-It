@@ -44,9 +44,12 @@ public class PlanetDao {
         //status가 0인 -> 삭제된 행성은 가져오지않는다.
 
         String getPlanetsQuery =
-            "select planet_id,planet_name,planet_intro,planet_exp,planet_level,pc.color from planet\n"
-                + "join planet_color pc on planet.status = pc.status\n"
-                + "where journey_id = ? and planet.status = 1 and planet_name != '해당없음'\n";
+            "select *\n"
+                + "from planet\n"
+                + "         join planet_color pc on planet.color_id = pc.planet_color_id\n"
+                + "where journey_id = ?\n"
+                + "  and planet.status = 1\n"
+                + "  and planet_name != '해당없음';";
 
         return this.jdbcTemplate.query(getPlanetsQuery, (rs, rowNum) -> new GetPlanetsRes(
             rs.getInt("planet_id"),
