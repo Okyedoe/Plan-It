@@ -63,14 +63,15 @@ public class PlanetDao {
     //행성 세부계획 가져오기
     public GetDetailedInfoRes getDetailedInfo (int planet_id)
     {
-        String getDetailedQuery = "select * from planet where planet_id = ?";
+        String getDetailedQuery = "select a.planet_id,a.planet_name,a.planet_intro,a.planet_exp,a.planet_level,a.planet_image,b.color from planet as a join planet_color as b on a.color_id=b.planet_color_id where planet_id = ?";
         GetDetailedInfoRes getDetailedInfoRes =this.jdbcTemplate.queryForObject(getDetailedQuery,(rs, rowNum) -> new GetDetailedInfoRes(
                         rs.getInt("planet_id"),
                         rs.getString("planet_name"),
                         rs.getString("planet_intro"),
                         rs.getInt("planet_exp"),
                         rs.getInt("planet_level"),
-                        rs.getString("planet_image")
+                        rs.getString("planet_image"),
+                        rs.getString("color")
                 ),planet_id
                 );
 

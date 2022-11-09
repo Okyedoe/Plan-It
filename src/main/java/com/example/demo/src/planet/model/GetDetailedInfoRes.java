@@ -27,17 +27,20 @@ public class GetDetailedInfoRes {
     private int planet_level;
     @ApiModelProperty(value = "행성이미지",example = "이미지 URL로 리턴될 예정")
     private String planet_image;
+    @ApiModelProperty(value = "행성색깔", example ="")
+    private String color;
 
 
     private List<Plans> plans;
 
-    public GetDetailedInfoRes(int planet_id, String planet_name, String planet_intro, int planet_exp, int planet_level, String planet_image) {
+    public GetDetailedInfoRes(int planet_id, String planet_name, String planet_intro, int planet_exp, int planet_level, String planet_image,String color) {
         this.planet_id = planet_id;
         this.planet_name = planet_name;
         this.planet_intro = planet_intro;
         this.planet_exp = planet_exp;
         this.planet_level = planet_level;
         this.planet_image = planet_image;
+        this.color=color;
     }
 
     //세부계획 가져오는 부분.
