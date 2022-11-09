@@ -67,7 +67,13 @@ public class UserDao {
         this.jdbcTemplate.update(createUserQuery, createUserParams);
 
         String lastInserIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInserIdQuery,int.class);
+        int user_id = this.jdbcTemplate.queryForObject(lastInserIdQuery,int.class);
+        String addData =
+            "insert into today_totalplan_completedplan(user_id,total_plans, completed_plans)\n"
+                + "VALUES (?,0, 0);";
+        this.jdbcTemplate.update(addData, user_id);
+
+        return user_id;
     }
 
     public int checkEmail(String email){
@@ -122,11 +128,16 @@ public class UserDao {
     }
 
     public int createKakao(PostOAuthReq postOAuthReq) {
-        String Sql = "insert into user (kakao_id,email, password, user_name,phone_num) VALUES (?,?,'akjkz15434ajk',?,01012345678)";
+        String Sql = "insert into user (kakao_id,email, password, user_name) VALUES (?,?,'',?)";
         Object[] Params = new Object[]{postOAuthReq.getKakao_id(),postOAuthReq.getEmail(),postOAuthReq.getName()};
         this.jdbcTemplate.update(Sql,Params);
         String lastInserIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInserIdQuery,int.class);
+        int user_id = this.jdbcTemplate.queryForObject(lastInserIdQuery, int.class);
+        String addData =
+            "insert into today_totalplan_completedplan(user_id,total_plans, completed_plans)\n"
+                + "VALUES (?,0, 0);";
+        this.jdbcTemplate.update(addData, user_id);
+        return user_id;
     }
 
     public int KakaoUserInfo(String id) {

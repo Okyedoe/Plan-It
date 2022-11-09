@@ -114,6 +114,8 @@ public class PlanService {
         try {
             return planDao.reviseType(patchPlanReviseReq, detailed_plan_id);
 
+        } catch (BaseException e2) {
+            throw e2;
         } catch (Exception e) {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);

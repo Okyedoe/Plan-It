@@ -75,6 +75,13 @@ public class JourneyDao {
             this.jdbcTemplate.update(keywordsAddQuery,keywordsAddParams);
         }
 
+        //행성의 갯수만큼 total_plans 증가해줘야함.
+        String addTotalPlans = "update today_totalplan_completedplan\n"
+            + "set total_plans = total_plans + ?\n"
+            + "where user_id = ?\n"
+            + "  and date_format(created_at, '%y-%m-%d') = date_format(now(), '%y-%m-%d');";
+        this.jdbcTemplate.update(addTotalPlans,planets.size() ,user_id);
+
         //행성추가 및 행성 세부계획 추가
         String addPlanetQuery = "insert into planet(journey_id,planet_name,color_id) VALUES(?,?,?)";
         //행성 색 랜덤으로 만들기

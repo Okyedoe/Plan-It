@@ -36,6 +36,7 @@ public class DiaryService {
     }
 
 
+    @Transactional
     public PostDiaryRes createDiary(PostDiaryReq postDiaryReq) throws BaseException{
         try{
             List<MultipartFile> images = postDiaryReq.getImages();
@@ -62,6 +63,7 @@ public class DiaryService {
         }
     }
 
+    @Transactional
     public void deleteDiary(int diary_id) throws BaseException{
         try{
             int result = diaryDao.deleteDiary(diary_id);

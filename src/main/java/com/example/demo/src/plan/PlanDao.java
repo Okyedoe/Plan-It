@@ -246,7 +246,7 @@ public class PlanDao {
         {
             //status를 이용하여 삭제되지않은걸 가져와야함.
             String getToday ="select a.planet_id,plan_content,type,planet_image,is_completed,detailed_plan_id,color from detailed_plan as a \n" +
-                    "left join planet p on p.planet_id = a.planet_id join planet_color as b on p.color_id = b.planet_color_id where a.planet_id = ? and a.status =1";
+                    "left join planet p on p.planet_id = a.planet_id join planet_color as b on p.color_id = b.planet_color_id where a.planet_id = ? and a.status =1 and a.type !='비정기적'";
             int current_id = planet_ids.get(i);
 
             List<GetTodayPlanRes> temp = this.jdbcTemplate.query(getToday,
@@ -1424,6 +1424,12 @@ public class PlanDao {
     public int getIsCompleterd(int detailed_plan_id) {
         String sql = "select is_completed from detailed_plan where detailed_plan_id = ? and status =1";
         return this.jdbcTemplate.queryForObject(sql,int.class,detailed_plan_id);
+    }
+
+    public int checkExistPlan(int detailed_plan) {
+        String query = "select status from detailed_plan where detailed_plan_id = ?;";
+        return this.jdbcTemplate.queryForObject(query, int.class, detailed_plan);
+
     }
 }
 

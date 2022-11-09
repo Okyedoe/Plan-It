@@ -78,7 +78,7 @@ public class MailController {
             }
     )
     @ResponseBody
-    @GetMapping("/auth")
+    @PostMapping("/auth")
     public BaseResponse<String> mailAuth(@RequestBody MailAuthReq mailAuthReq) throws BaseException{
 
         if(mailAuthReq.getAuth().equals(null)){

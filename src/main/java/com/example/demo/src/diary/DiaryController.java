@@ -5,6 +5,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.diary.model.GetDiaryReq;
 import com.example.demo.src.diary.model.GetDiaryRes;
+import com.example.demo.src.diary.model.PatchDeleteDiaryReq;
 import com.example.demo.src.diary.model.PostDiaryReq;
 import com.example.demo.src.diary.model.PostDiaryRes;
 import com.example.demo.src.planet.PlanetProvider;
@@ -158,10 +159,13 @@ public class DiaryController {
             }
 
     )
+    @Transactional
     @ResponseBody
-    @DeleteMapping("/{journey_id}")
-    public BaseResponse<String> deleteDiary(@PathVariable("journey_id") int journey_id, int diary_id) throws BaseException {
+    @PatchMapping("/{journey_id}")
+    public BaseResponse<String> deleteDiary(@PathVariable("journey_id") int journey_id, @RequestBody
+        PatchDeleteDiaryReq patchDeleteDiaryReq) throws BaseException {
         try {
+            int diary_id = patchDeleteDiaryReq.getDiary_id();
             //jwt에서 idx 추출.
             int user_id = planetProvider.getUser_id(journey_id);
             int userIdxByJwt = jwtService.getUserIdx();

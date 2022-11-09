@@ -118,6 +118,18 @@ public class PlanProvider {
         }
     }
 
+    public int checkExistPlan (int detailed_plan_id) throws BaseException
+    {
+        try{
+            return planDao.checkExistPlan(detailed_plan_id);
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
 
 //    //해당 행성에 같은 세부계획이 있는지 체크함.

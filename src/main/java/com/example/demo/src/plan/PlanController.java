@@ -376,6 +376,11 @@ public class PlanController {
         PatchPlanReviseReq patchPlanReviseReq) {
 
         try{
+            //삭제된 세부계획인지 체크
+            if (planProvider.checkExistPlan(detailed_plan_id) == 0) {
+                return new BaseResponse<>(DELETED_PLAN);
+            }
+
             //입력받은 jwt로 추출한 유저아이디를 이용하여 해당 세부계획 주인이 맞는지 체크.
             int user_id_jwt = jwtService.getUserIdx();
 

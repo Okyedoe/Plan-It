@@ -77,6 +77,7 @@ public class DiaryDao {
                 );
     }
 
+    @Transactional
     public int deleteDiary(int diary_id) {
         String deleteUserQuery = "update diary set status = 0 where diary_id =? and status = 1";
         int deleteUserParams = diary_id;
@@ -89,7 +90,13 @@ public class DiaryDao {
     @Transactional
     public List<GetDiaryRes> getAllDiary(int user_id)  {
 
-        String getDiaryIdSql = "select diary_id from diary as a join journey as b on a.journey_id = b.journey_id where b.user_id =? and a.status= 1 order by a.created_at desc";
+        String getDiaryIdSql = "select diary_id\n"
+            + "from diary as a\n"
+            + "         join journey as b on a.journey_id = b.journey_id\n"
+            + "where b.user_id = ?\n"
+            + "  and a.status = 1\n"
+            + "order by a.created_at desc;";
+
         int getDiaryIdParams = user_id;
         List<Integer> diary_id = this.jdbcTemplate.queryForList(getDiaryIdSql, Integer.class, getDiaryIdParams);
 
