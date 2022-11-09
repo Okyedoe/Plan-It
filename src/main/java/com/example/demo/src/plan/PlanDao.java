@@ -1425,5 +1425,11 @@ public class PlanDao {
         String sql = "select is_completed from detailed_plan where detailed_plan_id = ? and status =1";
         return this.jdbcTemplate.queryForObject(sql,int.class,detailed_plan_id);
     }
+
+    public int checkExistPlan(int detailed_plan) {
+        String query = "select status from detailed_plan where detailed_plan_id = ?;";
+        return this.jdbcTemplate.queryForObject(query, int.class, detailed_plan);
+
+    }
 }
 

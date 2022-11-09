@@ -68,6 +68,7 @@ public enum BaseResponseStatus {
     CANNOT_CHANGE_TYPE(false,2049,"오늘완료한 세부계획의 타입은 수정할수 없습니다.(데이터가 꼬임)"),
     WRONG_COLOR_TYPE(false,2050,"입력된 컬러값이 올바르지않습니다."),
     NOT_EXISTS_DATE_DATA(false,2051,"해당 유저의 데이터가없습니다 서버에 문의하세요!"),
+    DELETED_PLAN(false,2052,"삭제된 세부계획입니다."),
 
 
 
