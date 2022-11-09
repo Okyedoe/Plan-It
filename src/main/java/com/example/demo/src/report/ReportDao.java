@@ -2,6 +2,7 @@ package com.example.demo.src.report;
 
 import com.example.demo.src.diary.DiaryDao;
 import com.example.demo.src.planet.PlanetDao;
+import com.example.demo.src.report.model.GetTodayInfoREs;
 import com.example.demo.src.report.model.ReportRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,4 +48,19 @@ public class ReportDao {
         ReportRes reportRes = new ReportRes(total[0],total[1],total[2],total[3],total[4],completed[0],completed[1],completed[2],completed[3],completed[4]);
         return reportRes;
     }
+
+
+    public int checkDataExist(int user_id) {
+        String query = "select EXISTS(select today_totalplan_completedplan_id\n"
+            + "              from today_totalplan_completedplan\n"
+            + "              where user_id = ?\n"
+            + "                and date_format(created_at, '%y-%m-%d') = date_format(now(), '%y-%m-%d'));";
+        return this.jdbcTemplate.queryForObject(query, int.class, user_id);
+    }
+
+//    public GetTodayInfoREs getTodayData(int user_id) {
+//
+//
+//    }
+
 }

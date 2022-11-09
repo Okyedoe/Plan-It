@@ -27,9 +27,18 @@ public class GetPlanetsRes {
     private int planet_level;
     @ApiModelProperty(value = "행성이미지",example = "이미지 URL로 리턴될 예정")
     private String planet_image;
+    private String color_rgb;
 
 
+    public GetPlanetsRes(int planet_id, String planet_name, String planet_intro, int planet_exp,
+        int planet_level,String color) {
+        this.planet_id = planet_id;
+        this.planet_name = planet_name;
+        this.planet_intro = planet_intro;
+        this.planet_exp = planet_exp;
+        this.planet_level = planet_level;
+        this.planet_image = "";
+        this.color_rgb = color;
 
-
-
+    }
 }

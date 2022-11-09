@@ -75,7 +75,11 @@ public class JourneyDao {
         }
 
         //행성추가 및 행성 세부계획 추가
-        String addPlanetQuery = "insert into planet(journey_id,planet_name) VALUES(?,?)";
+        String addPlanetQuery = "insert into planet(journey_id,planet_name,color_id) VALUES(?,?,?)";
+        //행성 색 랜덤으로 만들기
+        Random random = new Random();
+        random.setSeed(System.currentTimeMillis());
+
         String addPlanQuery = "insert into detailed_plan(planet_id,plan_content) VALUES(?,?)";
         for(int j=0;j<planets.size();j++)
         {
@@ -110,7 +114,7 @@ public class JourneyDao {
                 throw new BaseException(EMPTY_DETAILED_PLAN);
             }
 
-            Object[] addPlanetParams = new Object[]{journey_id,planet_name}; // 행성추가 파람
+            Object[] addPlanetParams = new Object[]{journey_id,planet_name,random.nextInt(9)+2}; // 행성추가 파람
             this.jdbcTemplate.update(addPlanetQuery,addPlanetParams); // 행성 데이터 추가
             int planet_id = this.jdbcTemplate.queryForObject(idpeekQuery,int.class); // 행성아이디를 가져온다.
 
@@ -123,7 +127,7 @@ public class JourneyDao {
 
         }
 
-        String notbelongPlanetQuery = "insert into planet(planet_name,journey_id) VALUES('해당없음',?)";
+        String notbelongPlanetQuery = "insert into planet(planet_name,journey_id,color_id) VALUES('해당없음',?,1)";
 
         this.jdbcTemplate.update(notbelongPlanetQuery, journey_id);
 

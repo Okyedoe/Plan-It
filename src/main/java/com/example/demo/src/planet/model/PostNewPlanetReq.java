@@ -18,9 +18,35 @@ public class PostNewPlanetReq {
 
     @ApiModelProperty(value = "행성이름",example = "다이어트")
     private String planet_name;
-    @ApiModelProperty(value = "계획을 문자열배열로 입력")
-    private List<String> detailed_plans;
+
+    private String planet_intro;
+
+    private String color;
+
+//    private List<Plan_detail> plan_list;
+//
+//    static class Plan_detail {
+//        private String plan_content;
+//        private String type;
+//
+//        public String getPlan_content() {
+//            return plan_content;
+//        }
+//
+//        public void setPlan_content(String plan_content) {
+//            this.plan_content = plan_content;
+//        }
+//
+//        public String getType() {
+//            return type;
+//        }
+//
+//        public void setType(String type) {
+//            this.type = type;
+//        }
+//    }
 
 
 
 }
+

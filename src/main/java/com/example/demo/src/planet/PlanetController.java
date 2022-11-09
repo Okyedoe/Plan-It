@@ -203,6 +203,11 @@ public class PlanetController {
 //                return new BaseResponse<>(END_JOURNEY);
 //            }
 
+            //존재하는 rgb값을 보냈는지 체크.
+            if (planetProvider.checkColorExist(postNewPlanetReq.getColor()) == 0) {
+                return new BaseResponse<>(WRONG_COLOR_TYPE);
+            }
+
             //행성이름 빈값, 행성이름 중복
             if (postNewPlanetReq.getPlanet_name() == null || postNewPlanetReq.getPlanet_name()
                 .equals("")) {
@@ -211,18 +216,7 @@ public class PlanetController {
             if (planetProvider.checkPlanetExist(postNewPlanetReq.getPlanet_name()) >= 1) {
                 return new BaseResponse<>(DUPLICATE_PLANET_NAME);
             }
-            //세부계획 빈값
-            if (postNewPlanetReq.getDetailed_plans().size() == 0
-                || postNewPlanetReq.getDetailed_plans() == null) {
-                return new BaseResponse<>(EMPTY_DETAILED_PLANS);
-            }
-            //세부계획안에서 중복값
-            int List_length = postNewPlanetReq.getDetailed_plans().size();
-            HashSet<String> set = new HashSet<>(postNewPlanetReq.getDetailed_plans());
-            if (List_length != set.size()) {
-                //사이즈가 다르면 중복값이 존재한다는뜻
-                return new BaseResponse<>(DUPLICATE_PLAN);
-            }
+
 
             //journey_id 를 이용해서 user_id 를 가져오고 , 그 유저아이디랑 jwt에서 추출한 유저아이디랑 같은지 체크
             int user_id = planetProvider.getUser_id(journey_id);

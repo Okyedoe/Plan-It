@@ -25,4 +25,15 @@ public class ReportProvider {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+
+    public int checkDataExist(int user_id) throws BaseException{
+        try {
+            return reportDao.checkDataExist(user_id);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }

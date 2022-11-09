@@ -42,16 +42,19 @@ public class PlanetDao {
     public List<GetPlanetsRes> getPlanets (int journey_id)
     {
         //status가 0인 -> 삭제된 행성은 가져오지않는다.
-        String getPlanetsQuery = "select * from planet where journey_id = ? and status = 1 and planet_name != '해당없음'";
+        String getPlanetsQuery =
+            "select planet_id,planet_name,planet_intro,planet_exp,planet_level,pc.color from planet\n"
+                + "join planet_color pc on planet.status = pc.status\n"
+                + "where journey_id = ? and planet.status = 1 and planet_name != '해당없음'\n";
 
-        return this.jdbcTemplate.query(getPlanetsQuery,(rs, rowNum) -> new GetPlanetsRes(
-                        rs.getInt("planet_id"),
-                        rs.getString("planet_name"),
-                        rs.getString("planet_intro"),
-                        rs.getInt("planet_exp"),
-                        rs.getInt("planet_level"),
-                        rs.getString("planet_image")
-                ),journey_id);
+        return this.jdbcTemplate.query(getPlanetsQuery, (rs, rowNum) -> new GetPlanetsRes(
+            rs.getInt("planet_id"),
+            rs.getString("planet_name"),
+            rs.getString("planet_intro"),
+            rs.getInt("planet_exp"),
+            rs.getInt("planet_level"),
+            rs.getString("color")
+        ), journey_id);
 
     }
 
@@ -86,29 +89,46 @@ public class PlanetDao {
     @Transactional
     public PostNewPlanetRes createNewPlanet (PostNewPlanetReq postNewPlanetReq,int journey_id)
     {
+        //행성컬러를 이용하여 컬러 번호를 받아온다
+        String getColorId = "select planet_color_id\n"
+            + "from planet_color\n"
+            + "where color = ?;";
+        int color_id = this.jdbcTemplate.queryForObject(getColorId, int.class,
+            postNewPlanetReq.getColor());
+
+        String planet_intro = "";
+
+        if (postNewPlanetReq.getPlanet_intro() != null) {
+            if (postNewPlanetReq.getPlanet_intro().length() != 0) {
+                planet_intro = postNewPlanetReq.getPlanet_intro();
+            }
+        }
+
         //행성추가 및 행성 세부계획 추가
-        String addPlanetQuery = "insert into planet(journey_id,planet_name) VALUES(?,?)";
+        String addPlanetQuery = "insert into planet(journey_id,planet_name,planet_intro,color_id) VALUES(?,?,?,?)";
         String addPlanQuery = "insert into detailed_plan(planet_id,plan_content) VALUES(?,?)";
 
         //행성추가해주고, 행성 아이디를 받아온다.
-        Object[] addPlanetParams = new Object[]{journey_id,postNewPlanetReq.getPlanet_name()};
+        Object[] addPlanetParams = new Object[]{journey_id,postNewPlanetReq.getPlanet_name(),planet_intro,color_id};
         this.jdbcTemplate.update(addPlanetQuery,addPlanetParams); // 행성추가
         String peekQuery = "select last_insert_id()";
         int planet_id = this.jdbcTemplate.queryForObject(peekQuery,int.class); //방금 추가된 행성아이디
 
-        //해당 행성 세부계획 추가
-        List<String> detailed_plans = postNewPlanetReq.getDetailed_plans();
-        for(int i=0;i<detailed_plans.size();i++)
-        {
-            Object[] params = new Object[]{planet_id,detailed_plans.get(i)};
-            this.jdbcTemplate.update(addPlanQuery,params);
-        }
+//        //해당 행성 세부계획 추가
+//        List<String> detailed_plans = postNewPlanetReq.getDetailed_plans();
+//        for(int i=0;i<detailed_plans.size();i++)
+//        {
+//            Object[] params = new Object[]{planet_id,detailed_plans.get(i)};
+//            this.jdbcTemplate.update(addPlanQuery,params);
+//        }
 
         //쿼리로 받아와야하지만 일단 야매로.
         PostNewPlanetRes postNewPlanetRes = new PostNewPlanetRes();
         postNewPlanetRes.setPlanet_name(postNewPlanetReq.getPlanet_name());
         postNewPlanetRes.setPlanet_id(planet_id);
-        postNewPlanetRes.setDetailed_plans(postNewPlanetReq.getDetailed_plans());
+        postNewPlanetRes.setColor(postNewPlanetReq.getColor());
+        postNewPlanetRes.setPlanet_intro(planet_intro);
+//        postNewPlanetRes.setDetailed_plans(postNewPlanetReq.getDetailed_plans());
 
         return postNewPlanetRes;
 
@@ -180,6 +200,14 @@ public class PlanetDao {
     public int getNotBelongPlanetId(int journey_id) {
         String query = "select planet_id from planet where journey_id = ? and planet_name = '해당없음'";
         return this.jdbcTemplate.queryForObject(query, int.class, journey_id);
+
+    }
+
+
+    public int checkColorExist(String color) {
+        String checkQuery = "select EXISTS(select planet_color_id from planet_color where color = ?);";
+        int result = this.jdbcTemplate.queryForObject(checkQuery, int.class, color);
+        return result;
 
     }
 

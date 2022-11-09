@@ -113,6 +113,16 @@ public class PlanetProvider {
         }
     }
 
+    public int checkColorExist(String color) throws BaseException{
+        try {
+            return planetDao.checkColorExist(color);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
 
 
 
