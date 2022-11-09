@@ -78,34 +78,37 @@ public class ReportController {
     }
 
 
-//    @ResponseBody
-//    @GetMapping("/today/{user_id}")
-//    public BaseResponse<GetTodayInfoREs> getTodayInfo(@PathVariable("user_id") int user_id) {
-//
-//
-//
-//        try {
-//
-//
-//            //jwt에서 idx 추출.
-//            int userIdxByJwt = jwtService.getUserIdx();
-//            //userIdx와 접근한 유저가 같은지 확인
-//            if (user_id != userIdxByJwt) {
-//                return new BaseResponse<>(INVALID_USER_JWT);
-//            }
-//
-//            //오늘 데이터가 있는지 체크
-//            if (reportProvider.checkDataExist(user_id) == 0) {
-//                return new BaseResponse<>(NOT_EXISTS_DATE_DATA);
-//            }
-//
-//
-//
-//
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//
-//
-//    }
+    @ResponseBody
+    @GetMapping("/today/{user_id}")
+    public BaseResponse<GetTodayInfoREs> getTodayInfo(@PathVariable("user_id") int user_id) {
+
+
+
+        try {
+
+
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if (user_id != userIdxByJwt) {
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            //오늘 데이터가 있는지 체크
+            if (reportProvider.checkDataExist(user_id) == 0) {
+                return new BaseResponse<>(NOT_EXISTS_DATE_DATA);
+            }
+
+            GetTodayInfoREs getTodayInfoREs = reportProvider.getTodayData(user_id);
+            return new BaseResponse<>(getTodayInfoREs);
+
+
+
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+
+
+    }
 }
