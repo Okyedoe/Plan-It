@@ -62,6 +62,46 @@ public class GetDetailedInfoRes {
         private int status;
 
         private int is_completed;
+
+        public int getDetailed_plan_id() {
+            return detailed_plan_id;
+        }
+
+        public void setDetailed_plan_id(int detailed_plan_id) {
+            this.detailed_plan_id = detailed_plan_id;
+        }
+
+        public String getPlan_name() {
+            return plan_name;
+        }
+
+        public void setPlan_name(String plan_name) {
+            this.plan_name = plan_name;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        public int getIs_completed() {
+            return is_completed;
+        }
+
+        public void setIs_completed(int is_completed) {
+            this.is_completed = is_completed;
+        }
     }
 
 

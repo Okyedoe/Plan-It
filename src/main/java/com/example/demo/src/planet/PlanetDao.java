@@ -5,6 +5,7 @@ import static com.example.demo.config.BaseResponseStatus.*;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.planet.model.GetDetailedInfoRes;
+import com.example.demo.src.planet.model.GetDetailedInfoRes.Plans;
 import com.example.demo.src.planet.model.GetPlanetsRes;
 import com.example.demo.src.planet.model.PatchRevisePlanetInforReq;
 import com.example.demo.src.planet.model.PostNewPlanetReq;
@@ -66,7 +67,7 @@ public class PlanetDao {
     //행성 세부계획 가져오기
     public GetDetailedInfoRes getDetailedInfo (int planet_id)
     {
-        String getDetailedQuery = "select a.planet_id,a.planet_name,a.planet_intro,a.planet_exp,a.planet_level,a.planet_image,b.color from planet as a join planet_color as b on a.color_id=b.planet_color_id where planet_id = ?";
+        String getDetailedQuery = "select a.planet_id,a.planet_name,a.planet_intro,a.planet_exp,a.planet_level,a.planet_image,b.color from planet as a join planet_color as b on a.color_id=b.planet_color_id where planet_id = ? and a.status=1";
         GetDetailedInfoRes getDetailedInfoRes =this.jdbcTemplate.queryForObject(getDetailedQuery,(rs, rowNum) -> new GetDetailedInfoRes(
                         rs.getInt("planet_id"),
                         rs.getString("planet_name"),
@@ -78,7 +79,7 @@ public class PlanetDao {
                 ),planet_id
                 );
 
-        String getPlansQuery = "select detailed_plan_id,plan_content,type,status,is_completed from detailed_plan where planet_id = ?";
+        String getPlansQuery = "select detailed_plan_id,plan_content,type,status,is_completed from detailed_plan where planet_id = ? and status=1";
         List<GetDetailedInfoRes.Plans> plans = this.jdbcTemplate.query(getPlansQuery,(rs, rowNum) ->new GetDetailedInfoRes.Plans(
                 rs.getInt("detailed_plan_id"),
                 rs.getString("plan_content"),
@@ -86,6 +87,20 @@ public class PlanetDao {
                 rs.getInt("status"),
             rs.getInt("is_completed")
         ),planet_id);
+
+        String planDaysQuery = "select group_concat(day_of_week)\n"
+            + "from plan_day_of_week\n"
+            + "where detailed_plan_id = ?;";
+        for (Plans nowPlan : plans) {
+            if (nowPlan.getType().equals("루틴")) {
+                int nowDetailed_plan_id = nowPlan.getDetailed_plan_id();
+                String days = this.jdbcTemplate.queryForObject(planDaysQuery, String.class,
+                    nowDetailed_plan_id);
+                nowPlan.setType("루틴 : " + days);
+            }
+        }
+
+
 
         getDetailedInfoRes.setPlans(plans);
         return getDetailedInfoRes;
