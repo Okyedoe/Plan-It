@@ -78,8 +78,9 @@ public class PlanetDao {
                 ),planet_id
                 );
 
-        String getPlansQuery = "select plan_content,type,status,is_completed from detailed_plan where planet_id = ?";
+        String getPlansQuery = "select detailed_plan_id,plan_content,type,status,is_completed from detailed_plan where planet_id = ?";
         List<GetDetailedInfoRes.Plans> plans = this.jdbcTemplate.query(getPlansQuery,(rs, rowNum) ->new GetDetailedInfoRes.Plans(
+                rs.getInt("detailed_plan_id"),
                 rs.getString("plan_content"),
                 rs.getString("type"),
                 rs.getInt("status"),
