@@ -227,6 +227,14 @@ public class JourneyDao {
 
     }
 
+    //이미 진행중인 여정이 있는지 체크
+    public int checkInprogressJourney(int user_id) {
+        String query =
+            "select EXISTS(select created_at < now() < date_add(created_at, INTERVAL (period * 7) DAY)\n"
+                + "              from journey\n"
+                + "              where user_id = ? and status =1);";
+        return this.jdbcTemplate.queryForObject(query, int.class, user_id);
+    }
 
 //    //행성 목록에서 행성이름빈값,중복  세부계획 빈값, 중복 체크  [결과는 int값에따라다름]
 //    public int checkPlanetList (List<PostJourneyReq.Planetinfo> planetinfo)

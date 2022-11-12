@@ -14,6 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostPlanReq {
+
+
+
     private String plan_content;
     private String type;
 }

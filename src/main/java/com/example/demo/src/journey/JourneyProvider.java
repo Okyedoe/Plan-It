@@ -74,4 +74,12 @@ public class JourneyProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+    public int checkInprogressJourney(int user_id) throws BaseException {
+        try{
+            return journeyDao.checkInprogressJourney(user_id);
+        }catch (Exception exception){
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

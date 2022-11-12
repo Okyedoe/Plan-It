@@ -69,6 +69,7 @@ public enum BaseResponseStatus {
     WRONG_COLOR_TYPE(false,2050,"입력된 컬러값이 올바르지않습니다."),
     NOT_EXISTS_DATE_DATA(false,2051,"해당 유저의 데이터가없습니다 서버에 문의하세요!"),
     DELETED_PLAN(false,2052,"삭제된 세부계획입니다."),
+    IN_PROGRESS_JOURNEY_EXISTS(false,2053,"진행중인 여정이 존재합니다,여정은 한개씩만 진행가능합니다."),
 
 
 

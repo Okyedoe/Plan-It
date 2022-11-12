@@ -24,28 +24,28 @@ public class PostNewPlanetReq {
 
     private String color;
 
-//    private List<Plan_detail> plan_list;
-//
-//    static class Plan_detail {
-//        private String plan_content;
-//        private String type;
-//
-//        public String getPlan_content() {
-//            return plan_content;
-//        }
-//
-//        public void setPlan_content(String plan_content) {
-//            this.plan_content = plan_content;
-//        }
-//
-//        public String getType() {
-//            return type;
-//        }
-//
-//        public void setType(String type) {
-//            this.type = type;
-//        }
-//    }
+    private List<Plan_detail> plan_list;
+
+    public static class Plan_detail {
+        private String plan_content;
+        private String type;
+
+        public String getPlan_content() {
+            return plan_content;
+        }
+
+        public void setPlan_content(String plan_content) {
+            this.plan_content = plan_content;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+    }
 
 
 
