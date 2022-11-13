@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -47,10 +48,10 @@ public class PlanetDao {
         String getPlanetsQuery =
             "select *\n"
                 + "from planet\n"
-                + "         join planet_color pc on planet.color_id = pc.planet_color_id\n"
+                + " join planet_color pc on planet.color_id = pc.planet_color_id\n"
                 + "where journey_id = ?\n"
                 + "  and planet.status = 1\n"
-                + "  and planet_name != '해당없음';";
+                + "  and planet_name != '해당없음' ";
 
         return this.jdbcTemplate.query(getPlanetsQuery, (rs, rowNum) -> new GetPlanetsRes(
             rs.getInt("planet_id"),
@@ -250,5 +251,17 @@ public class PlanetDao {
     public String getColorNameByColorId(int color_id) {
         String sql = "select color from planet_color where planet_color_id = ? and status = 1";
         return this.jdbcTemplate.queryForObject(sql,String.class,color_id);
+    }
+
+    public List<GetPlanetsRes> getPlanCount(List<GetPlanetsRes> planetsRes) {
+        List<GetPlanetsRes> plusPlanCount = new ArrayList<>();
+        for(GetPlanetsRes tmp : planetsRes){
+            int planet_id = tmp.getPlanet_id();
+            String sql = "select count(*) from detailed_plan where planet_id = ? and status = 1";
+            int plan_count = this.jdbcTemplate.queryForObject(sql,int.class,planet_id);
+            tmp.setPlan_count(plan_count);
+            plusPlanCount.add(tmp);
+        }
+        return plusPlanCount;
     }
 }
