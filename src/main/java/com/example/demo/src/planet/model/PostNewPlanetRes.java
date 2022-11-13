@@ -1,4 +1,5 @@
 package com.example.demo.src.planet.model;
+import com.example.demo.src.planet.model.PostNewPlanetReq.Plan_detail;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +23,7 @@ public class PostNewPlanetRes {
     private String planet_intro;
     private String color;
 //    @ApiModelProperty(example = "[물먹기,운동하기,헬스장가기]")
-//    private List<String> detailed_plans;
+    private List<Plan_detail> detailed_plans;
 
 
 }

@@ -1,9 +1,13 @@
 package com.example.demo.src.planet;
 
+import com.example.demo.src.plan.PlanDao;
+import com.example.demo.src.plan.model.PostPlanReq;
 import com.example.demo.src.planet.model.GetPlanetsRes;
 import com.example.demo.src.planet.model.PatchRevisePlanetInforReq;
 import com.example.demo.src.planet.model.PostNewPlanetReq;
+import com.example.demo.src.planet.model.PostNewPlanetReq.Plan_detail;
 import com.example.demo.src.planet.model.PostNewPlanetRes;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.demo.config.BaseException;
@@ -22,13 +26,15 @@ public class PlanetService {
     private final PlanetDao planetDao;
     private final PlanetProvider planetProvider;
     private final JwtService jwtService;
+    private final PlanDao planDao;
 
 
     @Autowired
-    public PlanetService(PlanetDao planetDao, PlanetProvider planetProvider, JwtService jwtService) {
+    public PlanetService(PlanetDao planetDao, PlanetProvider planetProvider, JwtService jwtService,PlanDao planDao) {
         this.planetDao = planetDao;
         this.planetProvider = planetProvider;
         this.jwtService = jwtService;
+        this.planDao = planDao;
 
     }
     //새행성추가, 여정만들기, 행성 수정, 행성 가져오기.
@@ -38,7 +44,23 @@ public class PlanetService {
     public PostNewPlanetRes createNewPlanet(PostNewPlanetReq postNewPlanetReq , int journey_id) throws BaseException
     {
         try{
-            return planetDao.createNewPlanet(postNewPlanetReq,journey_id);
+            if (postNewPlanetReq.getPlan_list() == null) {
+                PostNewPlanetRes postNewPlanetRes =planetDao.createNewPlanet(postNewPlanetReq,journey_id);
+                List<Plan_detail> plan_list = new ArrayList<>();
+                postNewPlanetRes.setDetailed_plans(plan_list);
+                return postNewPlanetRes;
+            }
+            PostNewPlanetRes postNewPlanetRes = planetDao.createNewPlanet(postNewPlanetReq,journey_id);
+            int current_planet_id = postNewPlanetRes.getPlanet_id();
+            List<Plan_detail> plan_list = postNewPlanetReq.getPlan_list();
+            for (Plan_detail p : plan_list) {
+                String currentType = p.getType();
+                String currentContent = p.getPlan_content();
+                planDao.createPlan(new PostPlanReq(currentContent, currentType),current_planet_id);
+            }
+            postNewPlanetRes.setDetailed_plans(plan_list);
+            return postNewPlanetRes;
+
 
         }catch (Exception e)
         {

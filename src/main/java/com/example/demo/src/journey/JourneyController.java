@@ -89,6 +89,11 @@ public class JourneyController {
 
         try {
             //validation 처리
+            //이미 진행중인 여정이 있는지 체크
+            if (journeyProvider.checkInprogressJourney(user_id) == 1) {
+                return new BaseResponse<>(IN_PROGRESS_JOURNEY_EXISTS);
+            }
+
             //닉네임은 따로 api를 만들어서 중복검사하고 들어오므로 그냥 넣어주기만 하면된다.
             //닉네임이 빈값이거나 , null값이라면
             if (postJourneyReq.getNickname() == null || postJourneyReq.getNickname().length() ==0) {

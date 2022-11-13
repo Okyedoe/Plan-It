@@ -4,6 +4,7 @@ import static com.example.demo.config.BaseResponseStatus.*;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.plan.PlanDao;
 import com.example.demo.src.planet.model.GetDetailedInfoRes;
 import com.example.demo.src.planet.model.GetDetailedInfoRes.Plans;
 import com.example.demo.src.planet.model.GetPlanetsRes;
@@ -15,6 +16,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.demo.src.plan.PlanDao;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import java.util.List;
 @Repository
 public class PlanetDao {
     private JdbcTemplate jdbcTemplate;
+
     @Autowired
     public void setDataSource(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -139,13 +142,8 @@ public class PlanetDao {
         String peekQuery = "select last_insert_id()";
         int planet_id = this.jdbcTemplate.queryForObject(peekQuery,int.class); //방금 추가된 행성아이디
 
-//        //해당 행성 세부계획 추가
-//        List<String> detailed_plans = postNewPlanetReq.getDetailed_plans();
-//        for(int i=0;i<detailed_plans.size();i++)
-//        {
-//            Object[] params = new Object[]{planet_id,detailed_plans.get(i)};
-//            this.jdbcTemplate.update(addPlanQuery,params);
-//        }
+
+
 
         //쿼리로 받아와야하지만 일단 야매로.
         PostNewPlanetRes postNewPlanetRes = new PostNewPlanetRes();
