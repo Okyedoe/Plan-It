@@ -208,8 +208,8 @@ public class PlanetDao {
     public String revisePlanetInfo(int planet_id,
         PatchRevisePlanetInforReq patchRevisePlanetInforReq) throws BaseException {
         int color_id = getColorIdByColorName(patchRevisePlanetInforReq.getColor());
-        String reviseQuery = "update planet set planet_name = ? ,planet_intro = ? , color_id = ? where planet_id = ?";
-        Object[] reviseQueryParams = new Object[]{patchRevisePlanetInforReq.getPlanet_name(),patchRevisePlanetInforReq.getPlanet_intro(),color_id,
+        String reviseQuery = "update planet set planet_intro = ? , color_id = ? where planet_id = ?";
+        Object[] reviseQueryParams = new Object[]{patchRevisePlanetInforReq.getPlanet_intro(),color_id,
             planet_id};
 
         int result = this.jdbcTemplate.update(reviseQuery, reviseQueryParams);
