@@ -2,6 +2,7 @@ package com.example.demo.src.kakao;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.journey.JourneyProvider;
 import com.example.demo.src.kakao.model.PostOAuthReq;
 import com.example.demo.src.kakao.model.PostOAuthRes;
 import com.example.demo.src.user.UserDao;
@@ -30,12 +31,15 @@ public class OAuthService {
     private UserDao userDao;
     @Autowired
     private UserProvider userProvider;
+    @Autowired
+    private JourneyProvider journeyProvider;
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public OAuthService(UserProvider userProvider, OAuthProvider oAuthProvider, JwtService jwtService,UserDao userDao){
+    public OAuthService(UserProvider userProvider, OAuthProvider oAuthProvider, JwtService jwtService,UserDao userDao,JourneyProvider journeyProvider){
         this.jwtService=jwtService;
         this.oAuthProvider=oAuthProvider;
         this.userDao=userDao;
+        this.journeyProvider=journeyProvider;
     }
 
     public String getKakaoAccessToken (String code) {
@@ -139,20 +143,23 @@ public class OAuthService {
                     userDao.connKakao(id,email);
                     int user_id = userDao.KakaoUserInfo(id);
                     String jwt = jwtService.createJwt(user_id);
-                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt);
+                    int journey_id = journeyProvider.getCurrentJourneyId(user_id);
+                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt,journey_id);
                     return postOAuthRes;
                 }else {
                     PostOAuthReq postOAuthReq = new PostOAuthReq(id, email, name);
                     int user_id = userDao.createKakao(postOAuthReq);
                     String jwt = jwtService.createJwt(user_id);
-                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id, jwt);
+                    int journey_id = journeyProvider.getCurrentJourneyId(user_id);
+                    PostOAuthRes postOAuthRes = new PostOAuthRes(user_id, jwt,journey_id);
                     return postOAuthRes;
                 }
             }
             else {
                 int user_id = userDao.KakaoUserInfo(id);
                 String jwt = jwtService.createJwt(user_id);
-                PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt);
+                int journey_id = journeyProvider.getCurrentJourneyId(user_id);
+                PostOAuthRes postOAuthRes = new PostOAuthRes(user_id,jwt,journey_id);
                 return postOAuthRes;
             }
 

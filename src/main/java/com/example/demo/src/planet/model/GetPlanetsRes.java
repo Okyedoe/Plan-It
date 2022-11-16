@@ -25,6 +25,8 @@ public class GetPlanetsRes {
     private int planet_exp;
     @ApiModelProperty(value = "행성레벨",example = "1")
     private int planet_level;
+    @ApiModelProperty(value = "세부계획 수 ", example = "30")
+    private int plan_count;
 
     private String planet_image;
     private String color_rgb;
@@ -41,5 +43,8 @@ public class GetPlanetsRes {
         this.planet_image = "";
         this.color_rgb = color;
 
+    }
+    public GetPlanetsRes(int plan_count){
+        this.plan_count=plan_count;
     }
 }

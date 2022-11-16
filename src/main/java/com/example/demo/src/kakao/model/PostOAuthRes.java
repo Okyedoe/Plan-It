@@ -12,4 +12,5 @@ import lombok.Setter;
 public class PostOAuthRes {
     private int user_id;
     private String jwt;
+    private int journey_id;
 }

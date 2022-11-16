@@ -44,7 +44,9 @@ public class PlanetProvider {
     public List<GetPlanetsRes> getPlanets (int journey_id) throws BaseException
     {
         try{
-            return planetDao.getPlanets(journey_id);
+            List<GetPlanetsRes> planetsRes =planetDao.getPlanets(journey_id);
+            List<GetPlanetsRes> plusCount = planetDao.getPlanCount(planetsRes);
+            return plusCount;
 
         }catch (Exception e)
         {
