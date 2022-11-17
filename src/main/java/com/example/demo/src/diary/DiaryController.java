@@ -62,12 +62,6 @@ public class DiaryController {
                     @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
             }
     )
-    @ApiImplicitParams(
-            {
-                    @ApiImplicitParam(name = "journey_id", value = "journey")
-            }
-
-    )
     @ResponseBody
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
