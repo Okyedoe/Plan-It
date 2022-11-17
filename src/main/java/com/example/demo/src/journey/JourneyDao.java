@@ -4,6 +4,7 @@ import com.example.demo.src.diary.DiaryDao;
 import com.example.demo.src.journey.model.GetAllJourneyRes;
 import com.example.demo.src.journey.model.GetJourneyRes;
 import com.example.demo.src.journey.model.PostJourneyReq;
+import com.example.demo.src.journey.model.PostJourneyReq.Planetinfo;
 import com.example.demo.src.journey.model.PostJourneyRes;
 import com.example.demo.src.planet.PlanetDao;
 import com.example.demo.utils.image.model.GetImageList;
@@ -40,6 +41,13 @@ public class JourneyDao {
         int period = postJourneyReq.getPeriod(); //기간
         String[] keywords = postJourneyReq.getKeywords(); //키워드
         List<PostJourneyReq.Planetinfo> planets = postJourneyReq.getPlanets(); // 행성 + 행성 세부계획
+        //총 세부계획갯수를 구해야한다. 토탈플랜갯수에 추가하게끔
+        int sum =0;
+        for (Planetinfo planetinfo : planets) {
+            sum += planetinfo.getDetailed_plans().size();
+
+        }
+
 
 //        들어오는 내역 print 해보는 주석.
 //        for(int a=0;a<planets.size();a++)
@@ -74,13 +82,26 @@ public class JourneyDao {
             Object[] keywordsAddParams = new Object[]{journey_id,name};
             this.jdbcTemplate.update(keywordsAddQuery,keywordsAddParams);
         }
+        //여정만드는순간에 today_totalplan_completedplan에 오늘 데이터가있는지 체크 -> 회원가입만하고 여정은 나중에 만들수도있으니
+        String checkQuery = "select EXISTS(select * from today_totalplan_completedplan\n"
+            + "              where user_id = ?\n"
+            + "                and date_format(created_at, '%y-%m-%d') = date_format(now(), '%y-%m-%d'))";
+        int result1 = this.jdbcTemplate.queryForObject(checkQuery, int.class, user_id);
+        if (result1 == 0) {
+            //없다는뜻 -> 회원가입만하고 여정은 나중에만들었을경우이다. 데이터 생성해주면된다.
+            String addQUery =
+                "insert into today_totalplan_completedplan(user_id, total_plans, completed_plans)\n"
+                    + "VALUES (?, 0, 0);";
+            this.jdbcTemplate.update(addQUery);
+        }
 
-        //행성의 갯수만큼 total_plans 증가해줘야함.
+
+        //세부계획 갯수만큼 total_plans 증가해줘야함. 일단 1회성으로 넣을거니까
         String addTotalPlans = "update today_totalplan_completedplan\n"
             + "set total_plans = total_plans + ?\n"
             + "where user_id = ?\n"
             + "  and date_format(created_at, '%y-%m-%d') = date_format(now(), '%y-%m-%d');";
-        this.jdbcTemplate.update(addTotalPlans,planets.size() ,user_id);
+        this.jdbcTemplate.update(addTotalPlans,sum ,user_id);
 
         //행성추가 및 행성 세부계획 추가
         String addPlanetQuery = "insert into planet(journey_id,planet_name,color_id) VALUES(?,?,?)";
