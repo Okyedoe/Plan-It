@@ -26,22 +26,18 @@ public class DiaryDao {
     }
 
 
-    @Transactional
+
     public PostDiaryRes createDiary(PostDiary postDiaryReq) {
-        if(postDiaryReq.getImage_url().equals("")){
+
             String addDiaryQuery = "insert into diary(journey_id,emotion,evaluation,content) VALUES(?,?,?,?)";
             Object[] addDiaryParams = new Object[]{postDiaryReq.getJourney_id(),postDiaryReq.getEmotion(),postDiaryReq.getEvaluation(),postDiaryReq.getContent()};
              this.jdbcTemplate.update(addDiaryQuery,addDiaryParams);
 
-        }
-        else{
-            String addDiaryQuery = "insert into diary(journey_id,emotion,evaluation,content) VALUES(?,?,?,?)";
-            Object[] addDiaryParams = new Object[]{postDiaryReq.getJourney_id(),postDiaryReq.getEmotion(),postDiaryReq.getEvaluation(),postDiaryReq.getContent()};
-            this.jdbcTemplate.update(addDiaryQuery,addDiaryParams);
+
+        if(!postDiaryReq.getImage_url().equals("")){
             String idpeekQuery = "select last_insert_id()";
             int diary_id = this.jdbcTemplate.queryForObject(idpeekQuery,int.class); // 다이어리 아이디 가져오기.
             String addImageQuery = "insert into diary_image(diary_id,diary_image_url) VALUES(?,?)";
-
                 Object[] addImageParams = new Object[]{diary_id,postDiaryReq.getImage_url()};
                 this.jdbcTemplate.update(addImageQuery,addImageParams);
         }

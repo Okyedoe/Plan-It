@@ -36,12 +36,10 @@ public class DiaryService {
     }
 
 
-    @Transactional
+
     public PostDiaryRes createDiary(PostDiaryReq postDiaryReq) throws BaseException{
         try{
             String filename = awsS3Service.uploadImage(postDiaryReq.getImages());
-
-
             PostDiary postDiary = new PostDiary();
             postDiary.setContent(postDiaryReq.getContent());
             postDiary.setEmotion(postDiaryReq.getEmotion());
