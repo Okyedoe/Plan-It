@@ -17,6 +17,6 @@ public class PostDiaryReq {
     private String emotion;
     private int evaluation;
     private String content;
-    private List<MultipartFile> images;
+    private MultipartFile images;
 
 }
