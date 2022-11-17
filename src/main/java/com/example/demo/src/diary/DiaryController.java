@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,7 +69,7 @@ public class DiaryController {
 
     )
     @ResponseBody
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public BaseResponse<PostDiaryRes> createDiary(PostDiaryReq postDiaryReq) throws BaseException {
         try {
