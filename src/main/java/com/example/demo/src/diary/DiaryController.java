@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,15 +62,8 @@ public class DiaryController {
                     @ApiResponse(responseCode = "2003", description = "권한이 없는 유저의 접근입니다.")
             }
     )
-    @ApiImplicitParams(
-            {
-                    @ApiImplicitParam(name = "journey_id", value = "journey")
-            }
-
-    )
     @ResponseBody
-    @PostMapping("")
-    @Transactional
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<PostDiaryRes> createDiary(PostDiaryReq postDiaryReq) throws BaseException {
         try {
             //jwt에서 idx 추출.

@@ -10,6 +10,7 @@ import com.example.demo.src.planet.PlanetDao;
 import com.example.demo.utils.image.model.GetImageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -245,7 +246,6 @@ public class JourneyDao {
             }catch(EmptyResultDataAccessException exception){
                 return -1;
             }
-
     }
 
     //이미 진행중인 여정이 있는지 체크

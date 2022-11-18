@@ -17,6 +17,14 @@ public class PostDiaryReq {
     private String emotion;
     private int evaluation;
     private String content;
-    private List<MultipartFile> images;
+    private MultipartFile images;
+
+
+    public PostDiaryReq(int journey_id,String emotion, int evaluation, String content){
+        this.journey_id=journey_id;
+        this.emotion = emotion;
+        this.evaluation =evaluation;
+        this.content=content;
+    }
 
 }

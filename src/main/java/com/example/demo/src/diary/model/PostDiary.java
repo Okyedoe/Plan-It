@@ -17,7 +17,7 @@ public class PostDiary {
     private String emotion;
     private int evaluation;
     private String content;
-    private List<String> image_url;
+    private String image_url;
 
     public PostDiary(int journey, String emotion, int evaluation, String content) {
         this.journey_id = journey_id;

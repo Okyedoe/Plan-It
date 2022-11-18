@@ -36,24 +36,16 @@ public class DiaryService {
     }
 
 
-    @Transactional
+
     public PostDiaryRes createDiary(PostDiaryReq postDiaryReq) throws BaseException{
         try{
-            List<MultipartFile> images = postDiaryReq.getImages();
-            List<String> url = new ArrayList<>();
-            if(!images.get(0).isEmpty()){
-                for(MultipartFile img : images){
-                    String filename = awsS3Service.uploadImage(img);
-                    url.add(filename);
-                }
-            }
-
+            String filename = awsS3Service.uploadImage(postDiaryReq.getImages());
             PostDiary postDiary = new PostDiary();
             postDiary.setContent(postDiaryReq.getContent());
             postDiary.setEmotion(postDiaryReq.getEmotion());
             postDiary.setEvaluation(postDiaryReq.getEvaluation());
             postDiary.setJourney_id(postDiaryReq.getJourney_id());
-            postDiary.setImage_url(url);
+            postDiary.setImage_url(filename);
 
             return diaryDao.createDiary(postDiary);
         }
