@@ -35,6 +35,16 @@
 
 <br>
 
+# Tech Stacks
+
+<img src="https://user-images.githubusercontent.com/67767276/202720510-dcbea784-f46b-419c-8a7d-f71b9a27ce5e.png" height="550" align="center">
+
+<br>
+
+# Project Architecture
+
+<img src="https://user-images.githubusercontent.com/67767276/202720440-9ec672b2-44f5-4988-8f37-86af4c30db03.png" height="550" align="center">
+
 # CICD
 <img src="https://user-images.githubusercontent.com/67767276/202702845-ebc8da50-811f-47f4-8ba4-e401a078899b.png" height="550" align="center">
 
