@@ -93,10 +93,10 @@ public class PlanetProvider {
         }
     }
     //행성 이름 중복 체크
-    public int checkPlanetExist (String planet_name) throws BaseException
+    public int checkPlanetExist (String planet_name,int jouney_id) throws BaseException
     {
         try{
-            return planetDao.checkPlanetExist(planet_name);
+            return planetDao.checkPlanetExist(planet_name,jouney_id);
         }catch (Exception e)
         {
             e.printStackTrace();

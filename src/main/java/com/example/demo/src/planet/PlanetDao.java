@@ -190,10 +190,14 @@ public class PlanetDao {
     }
 
     //행성이름중복 체크
-    public int checkPlanetExist(String planet_name)
+    public int checkPlanetExist(String planet_name,int jouney_id)
     {
-        String a = "select count(*) from planet where planet_name =?";
-        return this.jdbcTemplate.queryForObject(a,int.class,planet_name);
+        String a = "select EXISTS(select *\n"
+            + "              from planet\n"
+            + "              where journey_id = ?\n"
+            + "                and status = 1\n"
+            + "                and planet_name = ?);";
+        return this.jdbcTemplate.queryForObject(a,int.class,jouney_id,planet_name);
 
     }
 
