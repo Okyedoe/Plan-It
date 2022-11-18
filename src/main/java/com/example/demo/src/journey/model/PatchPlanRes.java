@@ -20,6 +20,7 @@ public class PatchPlanRes {
     private String type;
     private int status;
     private int is_completed;
+    private String color;
 
 
 

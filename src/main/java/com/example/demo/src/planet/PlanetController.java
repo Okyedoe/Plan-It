@@ -207,15 +207,6 @@ public class PlanetController {
             if (planetProvider.checkColorExist(postNewPlanetReq.getColor()) == 0) {
                 return new BaseResponse<>(WRONG_COLOR_TYPE);
             }
-
-            //행성이름 빈값, 행성이름 중복
-            if (postNewPlanetReq.getPlanet_name() == null || postNewPlanetReq.getPlanet_name()
-                .equals("")) {
-                return new BaseResponse<>(EMPTY_PLANET_NAME);
-            }
-            if (planetProvider.checkPlanetExist(postNewPlanetReq.getPlanet_name()) >= 1) {
-                return new BaseResponse<>(DUPLICATE_PLANET_NAME);
-            }
             //journey_id 를 이용해서 user_id 를 가져오고 , 그 유저아이디랑 jwt에서 추출한 유저아이디랑 같은지 체크
             int user_id = planetProvider.getUser_id(journey_id);
             //jwt에서 idx 추출겸 , jwt검사
@@ -225,6 +216,16 @@ public class PlanetController {
             { //jwt로 받아온 유저아이디와 해당 여정의 유저아이디가 다르다. 둘중하나가 잘못됬음.
                 return new BaseResponse<>(JOURNEY_JWT_CHECK_ERROR);
             }
+
+            //행성이름 빈값, 행성이름 중복
+            if (postNewPlanetReq.getPlanet_name() == null || postNewPlanetReq.getPlanet_name()
+                .equals("")) {
+                return new BaseResponse<>(EMPTY_PLANET_NAME);
+            }
+            if (planetProvider.checkPlanetExist(postNewPlanetReq.getPlanet_name(),journey_id) >= 1) {
+                return new BaseResponse<>(DUPLICATE_PLANET_NAME);
+            }
+
 
             PostNewPlanetRes postNewPlanetRes = planetService.createNewPlanet(postNewPlanetReq,
                 journey_id);

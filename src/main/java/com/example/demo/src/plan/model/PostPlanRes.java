@@ -18,5 +18,6 @@ public class PostPlanRes {
     private int planet_id;
     private String plan_content;
     private String type;
+    private String color;
 
 }
