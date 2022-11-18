@@ -201,14 +201,21 @@ public class PlanDao {
 
         if (checkRoutine) {
             //루틴 타입이라면 루틴 + 요일값으로 타입을 표현해서 리턴해준다.
-            String getInfo = "select * from detailed_plan where detailed_plan_id = ?";
-            PostPlanRes postPlanRes =this.jdbcTemplate.queryForObject(getInfo,(rs, rowNum) -> new PostPlanRes(
-                rs.getInt("detailed_plan_id"),
-                rs.getInt("planet_id"),
-                rs.getString("plan_content"),
-                rs.getString("type")
+            String getInfo = "select *\n"
+                + "from detailed_plan\n"
+                + "         join planet p on p.planet_id = detailed_plan.planet_id\n"
+                + "         join planet_color pc on p.color_id = pc.planet_color_id\n"
+                + "where detailed_plan_id = ?";
 
-            ),last_in_detailed_plan_id );
+            PostPlanRes postPlanRes = this.jdbcTemplate.queryForObject(getInfo,
+                (rs, rowNum) -> new PostPlanRes(
+                    rs.getInt("detailed_plan_id"),
+                    rs.getInt("planet_id"),
+                    rs.getString("plan_content"),
+                    rs.getString("type"),
+                    rs.getString("color")
+
+                ), last_in_detailed_plan_id);
             String temp = "루틴 : " + sorted_type;
             if (postPlanRes != null) {
                 postPlanRes.setType(temp);
@@ -216,14 +223,20 @@ public class PlanDao {
             return postPlanRes;
         }
         //루틴이 아닌 다른 타입들은 그냥 타입값 포함해서 리턴.
-        String getInfo = "select * from detailed_plan where detailed_plan_id = ?";
-        return this.jdbcTemplate.queryForObject(getInfo,(rs, rowNum) -> new PostPlanRes(
-                rs.getInt("detailed_plan_id"),
-                rs.getInt("planet_id"),
-                rs.getString("plan_content"),
-                rs.getString("type")
+        String getInfo = "select *\n"
+            + "from detailed_plan\n"
+            + "         join planet p on p.planet_id = detailed_plan.planet_id\n"
+            + "         join planet_color pc on p.color_id = pc.planet_color_id\n"
+            + "where detailed_plan_id = ?;";
 
-        ),last_in_detailed_plan_id );
+        return this.jdbcTemplate.queryForObject(getInfo, (rs, rowNum) -> new PostPlanRes(
+            rs.getInt("detailed_plan_id"),
+            rs.getInt("planet_id"),
+            rs.getString("plan_content"),
+            rs.getString("type"),
+            rs.getString("color")
+
+        ), last_in_detailed_plan_id);
 
 
     }
@@ -444,20 +457,20 @@ public class PlanDao {
 
             //이미 존재한다면 1 , 없다면 0을 가져오는 쿼리
             String checkAlreadyExist = "select EXISTS(select today_completed_plans_id\n"
-                + "from today_completed_plans\n"
-                + "where detailed_plan_id = ?\n"
-                + "  and date_format(created_at, '%Y-%m-%d') = ?)";
+                + "                from today_completed_plans\n"
+                + "               where detailed_plan_id = ?)";
+
             //그 결과
             int checkResult = this.jdbcTemplate.queryForObject(checkAlreadyExist, int.class,
-                detailed_plan_id, day);
+                detailed_plan_id);
 
             if (checkResult == 1) {
                 //존재하므로 그 아이디값을 이용해서 status를 0으로 바꿔준다.
                 String getId2 = "select today_completed_plans_id\n"
                     + "                from today_completed_plans\n"
-                    + "                where detailed_plan_id = ?\n"
-                    + "                  and date_format(created_at, '%Y-%m-%d') = ?";
-                int id2 = this.jdbcTemplate.queryForObject(getId2,int.class,detailed_plan_id, day);
+                    + "               where detailed_plan_id = ?";
+
+                int id2 = this.jdbcTemplate.queryForObject(getId2,int.class,detailed_plan_id);
 
                 String setStatusOne = "update today_completed_plans\n"
                     + "set status =0\n"
@@ -475,8 +488,12 @@ public class PlanDao {
 
             //증가시킨 세부계획의 내용과 그 세부계획을 가지고있는 행성의 정보
             String resultReturnQuery =
-                "select detailed_plan_id,p.planet_id,p.planet_exp,p.planet_level,plan_content,type,dp.status,is_completed from detailed_plan dp\n"
-                    + "join planet p on p.planet_id = dp.planet_id where dp.detailed_plan_id = ?";
+                "select *\n"
+                    + "from detailed_plan\n"
+                    + "         join planet p on p.planet_id = detailed_plan.planet_id\n"
+                    + "         join planet_color pc on p.color_id = pc.planet_color_id\n"
+                    + "where detailed_plan_id = ?;";
+
             PatchPlanRes patchPlanRes = this.jdbcTemplate.queryForObject(resultReturnQuery,
                 (rs, rowNum) -> new PatchPlanRes(
                     rs.getInt("detailed_plan_id"),
@@ -486,7 +503,8 @@ public class PlanDao {
                     rs.getString("plan_content"),
                     rs.getString("type"),
                     rs.getInt("status"),
-                    rs.getInt("is_completed")
+                    rs.getInt("is_completed"),
+                    rs.getString("color")
                 ), detailed_plan_id
 
             );
@@ -541,20 +559,20 @@ public class PlanDao {
 
             //이미 존재한다면 1 , 없다면 0을 가져오는 쿼리
             String checkAlreadyExist = "select EXISTS(select today_completed_plans_id\n"
-                + "from today_completed_plans\n"
-                + "where detailed_plan_id = ?\n"
-                + "  and date_format(created_at, '%Y-%m-%d') = ?)";
+                + "                from today_completed_plans\n"
+                + "               where detailed_plan_id = ?)";
+
             //그 결과
             int checkResult = this.jdbcTemplate.queryForObject(checkAlreadyExist, int.class,
-                detailed_plan_id, day);
+                detailed_plan_id);
 
             if (checkResult == 1) {
                 //널이 아니므로 그 아이디값을 이용해서 status를 1로 바꿔준다.
                 String getId2 = "select today_completed_plans_id\n"
-                    + "                from today_completed_plans\n"
-                    + "                where detailed_plan_id = ?\n"
-                    + "               and date_format(created_at, '%Y-%m-%d') = ?";
-                int id2 = this.jdbcTemplate.queryForObject(getId2,int.class,detailed_plan_id, day);
+                    + "from today_completed_plans\n"
+                    + "where detailed_plan_id = ?";
+
+                int id2 = this.jdbcTemplate.queryForObject(getId2,int.class,detailed_plan_id);
 
                 String setStatusOne = "update today_completed_plans\n"
                     + "set status =1\n"
@@ -575,8 +593,12 @@ public class PlanDao {
 
             //증가시킨 세부계획의 내용과 그 세부계획을 가지고있는 행성의 정보
             String resultReturnQuery =
-                "select detailed_plan_id,p.planet_id,p.planet_exp,p.planet_level,plan_content,type,dp.status,is_completed from detailed_plan dp\n"
-                    + "join planet p on p.planet_id = dp.planet_id where dp.detailed_plan_id = ?";
+                "select *\n"
+                    + "from detailed_plan\n"
+                    + "         join planet p on p.planet_id = detailed_plan.planet_id\n"
+                    + "         join planet_color pc on p.color_id = pc.planet_color_id\n"
+                    + "where detailed_plan_id = ?;";
+
             PatchPlanRes patchPlanRes = this.jdbcTemplate.queryForObject(resultReturnQuery,
                 (rs, rowNum) -> new PatchPlanRes(
                     rs.getInt("detailed_plan_id"),
@@ -586,7 +608,8 @@ public class PlanDao {
                     rs.getString("plan_content"),
                     rs.getString("type"),
                     rs.getInt("status"),
-                    rs.getInt("is_completed")
+                    rs.getInt("is_completed"),
+                    rs.getString("color")
                 ), detailed_plan_id
 
             );
