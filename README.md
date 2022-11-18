@@ -37,7 +37,7 @@
 
 # Tech Stacks
 
-<img src="https://user-images.githubusercontent.com/67767276/202720510-dcbea784-f46b-419c-8a7d-f71b9a27ce5e.png" height="550" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202720510-dcbea784-f46b-419c-8a7d-f71b9a27ce5e.png" height="500" align="center">
 
 <br>
 
