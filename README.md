@@ -16,27 +16,27 @@
 # 어플리케이션 화면
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/67767276/202695816-6f0ea5be-e5d1-46c6-aa8f-0ab5dd3b2081.jpg" height="440" align="center">
-<img src="https://user-images.githubusercontent.com/67767276/202695822-b8cb466b-fc09-43bd-a208-9e6705039925.jpg" height="440" align="center">
-<img src="https://user-images.githubusercontent.com/67767276/202695813-0cd5fd52-b8ad-4518-812c-772932705f0a.jpg" height="440" align="center">
-<img src="https://user-images.githubusercontent.com/67767276/202695815-209cab1a-8f69-4bf6-8ca1-05885dd46bc1.jpg" height="440" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202695816-6f0ea5be-e5d1-46c6-aa8f-0ab5dd3b2081.jpg" height="400" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202695822-b8cb466b-fc09-43bd-a208-9e6705039925.jpg" height="400" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202695813-0cd5fd52-b8ad-4518-812c-772932705f0a.jpg" height="400" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202695815-209cab1a-8f69-4bf6-8ca1-05885dd46bc1.jpg" height="400" align="center">
 </p>
 
 <br>
 
 # API ListUp
 
-<img src="https://user-images.githubusercontent.com/67767276/202702348-828f5afe-c90c-4147-9b8e-4cd810a09a55.png" height="650" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202702348-828f5afe-c90c-4147-9b8e-4cd810a09a55.png" height="600" align="center">
 
 <br>
 
 # MileStone
-<img src="https://user-images.githubusercontent.com/67767276/202702546-b2487e2e-d7cb-4ec3-90ad-9cfd73ffd80a.png" height="600" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202702546-b2487e2e-d7cb-4ec3-90ad-9cfd73ffd80a.png" height="500" align="center">
 
 <br>
 
 # CICD
-<img src="https://user-images.githubusercontent.com/67767276/202702845-ebc8da50-811f-47f4-8ba4-e401a078899b.png" height="600" align="center">
+<img src="https://user-images.githubusercontent.com/67767276/202702845-ebc8da50-811f-47f4-8ba4-e401a078899b.png" height="500" align="center">
 
 
 # Project Infomation
