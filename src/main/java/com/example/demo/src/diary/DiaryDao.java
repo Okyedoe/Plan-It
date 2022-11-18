@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Array;
@@ -41,6 +42,7 @@ public class DiaryDao {
                 Object[] addImageParams = new Object[]{diary_id,postDiaryReq.getImage_url()};
                 this.jdbcTemplate.update(addImageQuery,addImageParams);
         }
+
         PostDiaryRes postdiaryRes = new PostDiaryRes(); // 리턴값만들기
         postdiaryRes.setJourney_id(postDiaryReq.getJourney_id());
         postdiaryRes.setEmotion(postDiaryReq.getEmotion());

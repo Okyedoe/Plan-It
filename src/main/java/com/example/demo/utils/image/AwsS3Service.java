@@ -35,10 +35,7 @@ public class AwsS3Service{
     private final AmazonS3 amazonS3;
     @Transactional
     public String uploadImage(MultipartFile file){
-        if(file.isEmpty()){
-            return "";
-        }
-        return getFilenameAndPutS3(file);
+            return getFilenameAndPutS3(file);
     }
 
     public List<String> uploadImages(List<MultipartFile> multipartFiles){
