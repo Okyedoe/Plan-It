@@ -27,7 +27,7 @@ public class DiaryDao {
     }
 
 
-
+    @Transactional
     public PostDiaryRes createDiary(PostDiary postDiaryReq) {
 
             String addDiaryQuery = "insert into diary(journey_id,emotion,evaluation,content) VALUES(?,?,?,?)";

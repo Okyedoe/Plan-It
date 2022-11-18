@@ -64,6 +64,7 @@ public class DiaryController {
     )
     @ResponseBody
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
     public BaseResponse<PostDiaryRes> createDiary(PostDiaryReq postDiaryReq) throws BaseException {
         try {
             //jwt에서 idx 추출.

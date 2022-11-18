@@ -29,7 +29,7 @@ public class DiaryService {
     }
 
 
-
+    @Transactional
     public PostDiaryRes createDiary(PostDiaryReq postDiaryReq) throws BaseException{
         try{    String filename = "";
                 if(!postDiaryReq.getImages().isEmpty()){
